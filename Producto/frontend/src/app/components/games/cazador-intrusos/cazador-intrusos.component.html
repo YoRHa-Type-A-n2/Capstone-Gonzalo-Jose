@@ -1,0 +1,105 @@
+<div class="game-container" #gameContainer (mousemove)="onMouseMove($event)" (touchmove)="onMouseMove($event)" (mouseup)="onMouseUp()" (touchend)="onMouseUp()">
+  <!-- Header de estado -->
+  <header class="game-header">
+    <button class="btn-exit" (click)="exitGame()">⬅ Volver</button>
+    <div class="level-info" *ngIf="currentLevel">
+      <span>{{ currentLevel.storyTag }}</span>
+      <h2>{{ currentLevel.title }}</h2>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">❤️ Vidas: {{ lives }}</div>
+    </div>
+  </header>
+
+  <!-- POP-UP INICIAL (Modal con la historia) -->
+  <div class="modal-overlay" *ngIf="gameStatus === 'introText' && currentLevel">
+    <div class="modal-card">
+      <div class="modal-badge">📜 Lee con atención</div>
+      <h3>{{ currentLevel.title }}</h3>
+      <p class="story-text">"{{ currentLevel.textDescription }}"</p>
+      <div class="modal-instructions">
+        🔍 <b>Misión:</b> Arrastra <strong>fuera de la imagen</strong> únicamente los objetos intrusos que NO pertenezcan al relato.
+      </div>
+      <button class="btn-primary" (click)="closeModalStartGame()">
+        ¡Entendido, a jugar! 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- ÁREA CENTRADA Y ENCUADRADA -->
+  <main class="stage-viewport-wrapper">
+    <div class="scene-stage" #stageStage [style.background-image]="currentLevel ? 'url(' + currentLevel.bgImageUrl + ')' : 'none'">
+      <!-- Objetos dentro/fuera del marco -->
+      <ng-container *ngFor="let item of activeItems">
+        <div
+          [id]="item.id"
+          class="draggable-widget"
+          [style.left.%]="item.x"
+          [style.top.%]="item.y"
+          (mousedown)="onMouseDown($event, item)"
+          (touchstart)="onMouseDown($event, item)"
+        >
+          <img [src]="item.imageUrl" [alt]="item.name" draggable="false" />
+          <span class="item-label">{{ item.name }}</span>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Espacio inferior habilitado para soltar objetos en móviles -->
+    <div class="mobile-drop-area">
+      <span class="drop-hint">Arrastra aquí los objetos que NO correspondan</span>
+    </div>
+  </main>
+
+  <!-- BARRA INFERIOR DE ACCIÓN -->
+  <footer class="game-footer" *ngIf="gameStatus === 'playing'">
+    <p class="footer-hint">Arrastra los intrusos fuera de la imagen y pulsa comprobar.</p>
+    <button class="btn-check" (click)="checkSolution()">
+      ✔ Comprobar
+    </button>
+  </footer>
+
+  <!-- MODAL FEEDBACK / RESULTADO DE INTENTO -->
+  <div class="modal-overlay" *ngIf="gameStatus === 'feedback'">
+    <div class="modal-card">
+      <div class="modal-badge" [class.success]="isLastCheckSuccess" [class.alert]="!isLastCheckSuccess">
+        {{ isLastCheckSuccess ? '¡Excelente!' : '¡Atención!' }}
+      </div>
+      <h3>{{ isLastCheckSuccess ? '¡Respuesta Correcta!' : 'Revisa tus Objetos' }}</h3>
+      <p class="feedback-text">{{ feedbackMessage }}</p>
+
+      <div class="actions">
+        <button *ngIf="!isLastCheckSuccess && lives > 0" class="btn-primary" (click)="resumeGameFromFeedback()">
+          Reintentar 💪
+        </button>
+
+        <button *ngIf="isLastCheckSuccess && hasNextLevel" class="btn-primary" (click)="nextLevelOrRestart()">
+          Siguiente Nivel ➡️
+        </button>
+
+        <button *ngIf="isLastCheckSuccess && !hasNextLevel" class="btn-primary" (click)="nextLevelOrRestart()">
+          Ver Resultados 🏆
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL JUEGO TERMINADO / MENÚ PRINCIPAL -->
+  <div class="modal-overlay" *ngIf="gameStatus === 'finished'">
+    <div class="modal-card">
+      <div class="modal-badge success">🎮 Juego Completado</div>
+      <h3>{{ lives > 0 ? '¡Felicitaciones!' : 'Fin de la Partida' }}</h3>
+      <p class="feedback-text">{{ feedbackMessage }}</p>
+
+      <div class="actions vertical">
+        <button class="btn-primary" (click)="restartGame()">
+          Volver a Jugar 🔄
+        </button>
+
+        <button class="btn-secondary-action" (click)="exitGame()">
+          Volver al Menú Principal 🏠
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

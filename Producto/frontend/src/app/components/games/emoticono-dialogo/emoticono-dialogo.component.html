@@ -1,0 +1,101 @@
+<div class="game-container">
+  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
+
+  <div *ngIf="!gameOver" class="play-card">
+    <div class="hud">
+      <span>Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
+      <span class="score-badge">Puntos: {{ score }}</span>
+    </div>
+
+    <p class="instruction">Toma un globo de texto y arrástralo sobre la imagen central:</p>
+
+    <!-- ESTRUCTURA ADAPTATIVA DE 3 SECCIONES -->
+    <div class="game-layout-grid" [class.blurred]="answered">
+      
+      <!-- ZONA SUPERIOR (Móvil) / COLUMNA IZQUIERDA (PC): Globos 1 y 2 -->
+      <div class="bubbles-column left-column">
+        <ng-container *ngFor="let dialog of challenges[currentIndex].dialogues; let i = index">
+          <div 
+            *ngIf="i < 2"
+            cdkDrag
+            [cdkDragDisabled]="answered"
+            (cdkDragEnded)="onDragEnded($event, dialog)"
+            class="speech-bubble"
+            [class.disabled]="answered">
+            <div class="bubble-tail"></div>
+            <span class="character-tag">{{ dialog.character }}</span>
+            <p class="text">"{{ dialog.text }}"</p>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- ZONA CENTRAL: Zona de Detección e Imagen Maximizada -->
+      <div class="center-column">
+        <div 
+          #targetZone
+          class="target-zone" 
+          [class.correct]="answered && isCorrectDrop"
+          [class.wrong]="answered && !isCorrectDrop">
+          
+          <div class="image-wrapper">
+            <img 
+              *ngIf="!hasImageError"
+              [src]="challenges[currentIndex].emotionImage" 
+              [alt]="challenges[currentIndex].emotionTitle" 
+              (error)="onImageError()" />
+            
+            <span *ngIf="hasImageError" class="fallback-emoji">
+              {{ challenges[currentIndex].fallbackEmoji }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ZONA INFERIOR (Móvil) / COLUMNA DERECHA (PC): Globos 3 y 4 -->
+      <div class="bubbles-column right-column">
+        <ng-container *ngFor="let dialog of challenges[currentIndex].dialogues; let i = index">
+          <div 
+            *ngIf="i >= 2"
+            cdkDrag
+            [cdkDragDisabled]="answered"
+            (cdkDragEnded)="onDragEnded($event, dialog)"
+            class="speech-bubble"
+            [class.disabled]="answered">
+            <div class="bubble-tail"></div>
+            <span class="character-tag">{{ dialog.character }}</span>
+            <p class="text">"{{ dialog.text }}"</p>
+          </div>
+        </ng-container>
+      </div>
+
+    </div>
+
+    <!-- MODAL SUPERPUESTO -->
+    <div *ngIf="answered" class="modal-overlay">
+      <div class="modal-dialog feedback-dialog" [class.success]="isCorrectDrop" [class.error]="!isCorrectDrop">
+        <div class="feedback-badge-icon">
+          {{ isCorrectDrop ? '🎉' : '❌' }}
+        </div>
+        <h3 class="status-msg">
+          {{ isCorrectDrop ? '¡Excelente asociación!' : '¡Respuesta incorrecta!' }}
+        </h3>
+        <p class="explanation">{{ challenges[currentIndex].explanation }}</p>
+        <button class="btn-next" (click)="nextChallenge()">
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pantalla de Resultados -->
+  <div *ngIf="gameOver" class="results-card">
+    <h2>🎭 ¡Desafío Completado!</h2>
+    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
+    <div class="actions">
+      <button class="btn-retry" (click)="restartGame()">Reintentar</button>
+      <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,251 @@
+/* Variables de Paleta Cálida / Cozy */
+$cozy-bg: #faf6ed;
+$surface-bg: #ffffff;
+$warm-light: #eae5d8;
+$border-light: #ded8c8;
+$border-dark: #ced8c8;
+$text-main: #0f172a;
+$text-muted: #64748b;
+
+/* Estados Verdadero / Falso */
+$true-bg: #dcfce7;
+$true-border: #22c55e;
+$true-shadow: #15803d;
+$true-text: #14532d;
+
+$false-bg: #fee2e2;
+$false-border: #ef4444;
+$false-shadow: #b91c1c;
+$false-text: #7f1d1d;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $cozy-bg;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 650px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  background: $surface-bg;
+  border: 2px solid $border-light;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+
+  .btn-exit {
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding: 0;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: $text-main;
+    }
+  }
+
+  /* PANTALLA INTRODUCCIÓN Y RESULTADOS */
+  .intro-card, .results-card {
+    text-align: center;
+
+    h2 {
+      color: $text-main;
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .instruction {
+      color: $text-muted;
+      font-size: 0.95rem;
+    }
+
+    .passage-box {
+      background: #fffdfa;
+      padding: 1.25rem;
+      border-left: 5px solid #d97706;
+      border-top: 1px solid $border-light;
+      border-right: 1px solid $border-light;
+      border-bottom: 1px solid $border-light;
+      border-radius: 0 14px 14px 0;
+      font-style: italic;
+      color: #334155;
+      line-height: 1.5;
+      margin: 1.5rem 0;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  .btn-start {
+    background: $text-main;
+    color: white;
+    border: none;
+    border-bottom: 4px solid #020617;
+    padding: 0.85rem 1.8rem;
+    font-weight: 800;
+    font-size: 1rem;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.12s ease-in-out;
+    width: 100%;
+
+    &:hover {
+      background: #334155;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+  }
+
+  /* FASE DE JUEGO */
+  .play-stage {
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      color: $text-muted;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+
+      .timer {
+        background: $warm-light;
+        padding: 0.3rem 0.75rem;
+        border-radius: 10px;
+        color: $text-main;
+
+        &.warning {
+          background: #fee2e2;
+          color: #b91c1c;
+          animation: pulse 0.5s infinite alternate;
+        }
+      }
+    }
+
+    .statement-card {
+      background: #fffdfa;
+      min-height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      border: 2px solid $border-light;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: $text-main;
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+    }
+
+    /* BOTONES FALSO / VERDADERO 3D */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+
+      button {
+        padding: 1rem 0.8rem;
+        font-size: 1rem;
+        font-weight: 900;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.12s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .btn-false {
+        background: linear-gradient(180deg, #fff5f5 0%, $false-bg 100%);
+        border: 2px solid $false-border;
+        border-bottom: 4px solid $false-shadow;
+        color: $false-text;
+
+        &:hover {
+          background: linear-gradient(180deg, $false-bg 0%, #fecaca 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(239, 68, 68, 0.2);
+        }
+
+        &:active {
+          transform: translateY(2px);
+          border-bottom-width: 2px;
+        }
+      }
+
+      .btn-true {
+        background: linear-gradient(180deg, #f0fdf4 0%, $true-bg 100%);
+        border: 2px solid $true-border;
+        border-bottom: 4px solid $true-shadow;
+        color: $true-text;
+
+        &:hover {
+          background: linear-gradient(180deg, $true-bg 0%, #bbf7d0 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(34, 197, 94, 0.2);
+        }
+
+        &:active {
+          transform: translateY(2px);
+          border-bottom-width: 2px;
+        }
+      }
+    }
+  }
+
+  /* PANTALLA DE RESULTADOS */
+  .results-card {
+    .score-text {
+      font-size: 1.2rem;
+      margin: 1.2rem 0;
+      color: $text-main;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      .btn-exit {
+        background: $warm-light;
+        border: 2px solid $border-light;
+        color: $text-main;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-weight: 800;
+        margin-bottom: 0;
+
+        &:hover {
+          background: $border-light;
+        }
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 600px) {
+  .game-container {
+    margin: 0.5rem auto;
+    padding: 1rem;
+  }
+}

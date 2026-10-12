@@ -1,0 +1,75 @@
+<div class="game-container">
+  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
+
+  <div *ngIf="!gameOver" class="play-card">
+    <!-- HUD superior -->
+    <div class="hud">
+      <span class="round-indicator">Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
+      <div class="score-group">
+        <span class="potential-badge" [class.frozen]="answered">⚡ +{{ currentPotentialPoints }} pts</span>
+        <span class="score-badge">Total: {{ score }} pts</span>
+      </div>
+    </div>
+
+    <!-- Barra de Tiempo -->
+    <div class="timer-bar-container">
+      <div class="timer-bar-fill" [style.width.%]="(elapsedTime / TOTAL_TIME) * 100"></div>
+    </div>
+
+    <!-- GRILLA ADAPTATIVA (PC: Imagen izq, Opciones der | Móvil: Imagen arriba, Opciones abajo) -->
+    <div class="game-layout-grid" [class.blurred]="answered">
+      
+      <!-- ZONA IZQUIERDA (PC) / ARRIBA (Móvil) -> Canvas Pixelado -->
+      <div class="layout-image">
+        <div class="image-frame" [class.correct]="answered && isCorrect" [class.wrong]="answered && !isCorrect">
+          <canvas #pixelCanvas width="300" height="300" [class.hidden]="hasImageError" class="pixel-canvas"></canvas>
+          <div *ngIf="hasImageError" class="fallback-container">
+            <span class="fallback-emoji">{{ challenges[currentIndex].fallbackEmoji }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONA DERECHA (PC) / ABAJO (Móvil) -> 5 Opciones -->
+      <div class="layout-options options-column">
+        <button 
+          *ngFor="let option of challenges[currentIndex].options" 
+          class="option-btn"
+          [disabled]="answered"
+          [class.correct-btn]="answered && option === challenges[currentIndex].correctCharacter"
+          [class.wrong-btn]="answered && selectedOption === option && !isCorrect"
+          (click)="selectOption(option)">
+          <span class="bullet">▸</span>
+          <span class="option-text">{{ option }}</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MODAL SUPERPUESTO: RETROALIMENTACIÓN / ALERTA Y BOTÓN SIGUIENTE -->
+    <div *ngIf="answered" class="modal-overlay">
+      <div class="modal-dialog feedback-dialog" [class.success]="isCorrect" [class.error]="!isCorrect">
+        <div class="feedback-badge-icon">
+          {{ isCorrect ? '🎉' : '❌' }}
+        </div>
+        <h3 class="status-msg">{{ isCorrect ? '¡Correcto!' : '¡Incorrecto!' }}</h3>
+        <p class="explanation">
+          {{ isCorrect ? '¡Has identificado el personaje con éxito!' : 'La opción correcta era: ' + challenges[currentIndex].correctCharacter }}
+        </p>
+        <button class="btn-next" (click)="nextChallenge()">
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pantalla de Resultados -->
+  <div *ngIf="gameOver" class="results-card">
+    <h2>🖼️ ¡Desafío Completado!</h2>
+    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
+    <div class="actions">
+      <button class="btn-retry" (click)="restartGame()">Reintentar</button>
+      <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
+    </div>
+  </div>
+</div>

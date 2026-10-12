@@ -1,0 +1,52 @@
+<div class="game-container">
+  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
+
+  <!-- Mensajes de estado -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>⏳ Cargando desafío...</p>
+  </div>
+
+  <div *ngIf="hasError" class="error-state">
+    <p>⚠️ No se pudieron cargar los datos del juego.</p>
+  </div>
+
+  <!-- Contenido principal (solo si ya cargó y no hay error) -->
+  <ng-container *ngIf="!isLoading && !hasError">
+    <!-- Paso 1: Lectura del fragmento -->
+    <div *ngIf="!gameStarted" class="intro-card">
+      <h2>⚡ Ráfaga de V/F</h2>
+      <p class="instruction">Lee con atención el siguiente fragmento antes de comenzar:</p>
+      <blockquote class="passage-box">
+        "{{ passageText }}"
+      </blockquote>
+      <button class="btn-start" (click)="startGame()">¡Empezar Ráfaga! ({{ timeLimitPerQuestion }}s por afirmación)</button>
+    </div>
+
+    <!-- Paso 2: Fase de juego rápido -->
+    <div *ngIf="gameStarted && !gameOver" class="play-stage">
+      <div class="hud">
+        <span class="progress">Pregunta {{ currentIndex + 1 }} / {{ statements.length }}</span>
+        <span class="timer" [class.warning]="timeLeft <= 1">⏱️ {{ timeLeft }}s</span>
+      </div>
+
+      <div class="statement-card">
+        <p>{{ statements[currentIndex].text }}</p>
+      </div>
+
+      <div class="controls">
+        <button class="btn-false" (click)="answer(false)">👈 FALSO</button>
+        <button class="btn-true" (click)="answer(true)">VERDADERO 👉</button>
+      </div>
+    </div>
+
+    <!-- Paso 3: Pantalla de Resultados -->
+    <div *ngIf="gameOver" class="results-card">
+      <h2>¡Fin del Juego!</h2>
+      <p class="score-text">Puntaje obtenido: <strong>{{ score }} pts</strong></p>
+      <div class="actions">
+        <button class="btn-start" (click)="startGame()">Reintentar</button>
+        <button class="btn-exit" (click)="exitGame()">Menú Principal</button>
+      </div>
+    </div>
+  </ng-container>
+</div>

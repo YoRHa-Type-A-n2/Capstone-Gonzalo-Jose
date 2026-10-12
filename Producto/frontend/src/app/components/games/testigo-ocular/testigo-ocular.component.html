@@ -1,0 +1,119 @@
+<div class="game-container" #gameContainer>
+
+  <!-- BOTÓN VOLVER -->
+  <button class="btn-exit" (click)="exitGame()">&larr; Volver al Menú</button>
+
+  <!-- HUD SUPERIOR -->
+  <div class="hud">
+    <div class="hud-item">
+      <span>PUNTOS:</span>
+      <span class="score-badge">{{ score }}</span>
+    </div>
+    
+    <div class="hud-item timer-box" *ngIf="gameStatus === 'answering'">
+      <span>TIEMPO:</span>
+      <span class="timer-badge" [class.danger]="timeLeft <= 2.0">{{ timeLeft }}s</span>
+    </div>
+
+    <div class="hud-item">
+      <span>VIDAS:</span>
+      <span class="attempts-badge">
+        {{ lives > 0 ? '❤️'.repeat(lives) : '💀' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- BARRA DE TIEMPO ANIMADA -->
+  <div class="timer-bar-container" *ngIf="gameStatus === 'answering'">
+    <div class="timer-bar-fill" [style.width.%]="timerPercentage" [class.danger]="timeLeft <= 2.0"></div>
+  </div>
+
+  <!-- ZONA DE PREGUNTAS -->
+  <div class="game-board">
+    <div class="question-stage" *ngIf="gameStatus === 'answering' || gameStatus === 'questionFeedback'">
+      <div class="question-header">
+        <span class="question-counter">
+          Imagen {{ currentLevelIndex + 1 }} de {{ levels.length }} ({{ currentLevel.title }}) | Pregunta {{ currentQuestionIndex + 1 }} de 3
+        </span>
+        <h2 class="prompt-text">{{ currentQuestion.prompt }}</h2>
+      </div>
+
+      <!-- GRID DE 4 OPCIONES DE RESPUESTA -->
+      <div class="options-grid">
+        <button
+          *ngFor="let option of currentQuestion.options"
+          class="option-card"
+          [disabled]="gameStatus !== 'answering'"
+          (click)="selectOption(option)">
+          <span class="option-label">{{ option }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALES DE OVERLAY -->
+  <div class="modal-overlay" *ngIf="gameStatus !== 'answering'">
+
+    <!-- POPUP INICIAL CON LA IMAGEN DE CADA NIVEL -->
+    <div class="modal-dialog intro-dialog" *ngIf="gameStatus === 'intro'">
+      <h2 class="title-msg">Imagen {{ currentLevelIndex + 1 }}: {{ currentLevel.title }}</h2>
+      <p class="instruction">
+        Observa bien la ilustración. Tendrás <strong>5 segundos</strong> por pregunta y <strong>2 vidas</strong> para este set de 3 preguntas.
+      </p>
+      
+      <div class="image-preview-container">
+        <img [src]="currentLevel.imageUrl" [alt]="currentLevel.title" class="large-preview-image" />
+      </div>
+
+      <button class="btn-action btn-start" (click)="startAnsweringPhase()">¡Comenzar Preguntas!</button>
+    </div>
+
+    <!-- FEEDBACK POR PREGUNTA -->
+    <div class="modal-dialog feedback-dialog" *ngIf="gameStatus === 'questionFeedback'"
+      [class.success]="isLastAttemptCorrect"
+      [class.error]="!isLastAttemptCorrect">
+      <div class="feedback-icon">{{ isLastAttemptCorrect ? '✨' : '❌' }}</div>
+      <h2 class="status-msg">{{ isLastAttemptCorrect ? '¡Correcto!' : 'Incorrecto' }}</h2>
+      <p class="explanation">{{ feedbackMessage }}</p>
+      <button class="btn-action btn-next" (click)="nextQuestionOrLevel()">
+        {{ lives <= 0 ? 'Ver Resultados' : (isLastAttemptCorrect ? 'Siguiente Pregunta' : 'Reintentar Pregunta') }}
+      </button>
+    </div>
+
+    <!-- POPUP DE RESULTADOS DE LA IMAGEN / FIN DEL JUEGO -->
+    <div class="modal-dialog finished-dialog" *ngIf="gameStatus === 'finished'">
+      <div class="feedback-icon">{{ lives > 0 ? '🏆' : '☠️' }}</div>
+      <h2 class="status-msg">
+        {{ lives > 0 ? '¡Imagen Completada!' : '¡Sin Vidas en esta Imagen!' }}
+      </h2>
+      <p class="explanation">Puntuación Acumulada: <strong>{{ score }} pts</strong></p>
+
+      <!-- HISTORIAL DE PREGUNTAS DE ESTA IMAGEN -->
+      <div class="results-history">
+        <div class="level-summary">
+          <h4>Resumen: {{ currentLevel.title }}</h4>
+          <div class="q-badges">
+            <span *ngFor="let res of questionResults[currentLevelIndex]; let qIndex = index"
+              class="q-badge" [class.correct]="res" [class.wrong]="!res">
+              P{{ qIndex + 1 }}: {{ res ? '✅' : '❌' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <!-- Siempre se muestra "Siguiente Imagen" -->
+        <button class="btn-action btn-start" (click)="nextLevelOrRestart()">
+          Siguiente Imagen
+        </button>
+
+        <!-- "Volver al Menú" solo se muestra en la última imagen del demo (Rumpelstiltskin) -->
+        <button *ngIf="!hasNextLevel" class="btn-action btn-exit-final" (click)="exitGame()">
+          Volver al Menú
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

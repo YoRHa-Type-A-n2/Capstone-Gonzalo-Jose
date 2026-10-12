@@ -1,0 +1,268 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0.5rem auto;
+  padding: 1rem 1.2rem;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid $bg-sec;
+  box-shadow: 0 8px 30px rgba(51, 64, 58, 0.05);
+  position: relative;
+  box-sizing: border-box;
+
+  .btn-exit {
+    background: transparent;
+    border: none;
+    color: $text-sec;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    padding: 0;
+    &:hover { color: $text-main; }
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: $text-main;
+    margin-bottom: 0.4rem;
+
+    .score-badge {
+      background: $badge-reward;
+      color: $text-main;
+      padding: 0.25rem 0.75rem;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+  }
+
+  .timer-bar-container {
+    width: 100%;
+    height: 8px;
+    background: $bg-sec;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.6rem;
+
+    .timer-bar-fill {
+      height: 100%;
+      background: $success;
+      transition: width 0.1s linear, background-color 0.3s ease;
+
+      &.warning { background: $alert; }
+    }
+  }
+
+  .game-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 0.8rem;
+    align-items: center;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+
+    &.blurred {
+      filter: blur(8px) opacity(0.35);
+      pointer-events: none;
+    }
+  }
+
+  .premise-banner {
+    background: $bg-sec;
+    border-left: 5px solid $secondary;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    text-align: center;
+
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: $secondary;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .text {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: $text-main;
+      line-height: 1.35;
+    }
+  }
+
+  .images-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+
+    .image-card {
+      position: relative;
+      border: 3px solid $bg-sec;
+      border-radius: 14px;
+      overflow: hidden;
+      padding: 0;
+      background: #f8fafc;
+      cursor: pointer;
+      aspect-ratio: 4 / 3;
+      max-height: 240px;
+      width: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      &.correct-card {
+        border-color: $success !important;
+        box-shadow: 0 0 15px rgba(82, 183, 136, 0.5);
+      }
+
+      &.wrong-card {
+        border-color: $alert !important;
+        box-shadow: 0 0 15px rgba(224, 87, 91, 0.5);
+      }
+    }
+  }
+
+  @media (max-width: 800px) {
+    padding: 0.6rem 0.8rem;
+
+    .game-layout-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .images-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+
+      .image-card {
+        max-height: 400px;
+        aspect-ratio: 4 / 3;
+        border-width: 2px;
+        border-radius: 10px;
+      }
+    }
+
+    .premise-banner {
+      padding: 0.45rem 0.65rem;
+      border-radius: 10px;
+
+      .tag {
+        font-size: 0.6rem;
+        margin-bottom: 0.1rem;
+      }
+
+      .text {
+        font-size: 0.82rem;
+        line-height: 1.25;
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(51, 64, 58, 0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    z-index: 100;
+    box-sizing: border-box;
+
+    .modal-dialog {
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+      h3 { margin: 0 0 0.6rem 0; color: $text-main; font-size: 1.1rem; }
+
+      .premise-highlight {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: $text-main;
+        background: $bg-sec;
+        padding: 0.7rem;
+        border-radius: 10px;
+        margin-bottom: 0.8rem;
+      }
+
+      .btn-start {
+        background: $accent-cta;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.4rem;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+
+      &.feedback-dialog {
+        border-top: 6px solid $text-sec;
+        &.success { border-top-color: $success; .status-msg { color: $success; } }
+        &.error { border-top-color: $alert; .status-msg { color: $alert; } }
+
+        .feedback-badge-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+        .status-msg { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; }
+        .explanation { font-size: 0.88rem; color: $text-main; margin-bottom: 1rem; }
+
+        .btn-next {
+          background: $accent-cta;
+          color: #ffffff;
+          border: none;
+          padding: 0.7rem 1.5rem;
+          border-radius: 12px;
+          font-weight: 800;
+          font-size: 0.85rem;
+          cursor: pointer;
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .results-card {
+    text-align: center;
+    padding: 1.5rem 0;
+
+    .actions {
+      display: flex; gap: 1rem; justify-content: center;
+      button { padding: 0.7rem 1.4rem; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
+      .btn-retry { background: $accent-cta; color: white; }
+      .btn-menu { background: $bg-sec; color: $text-main; }
+    }
+  }
+}

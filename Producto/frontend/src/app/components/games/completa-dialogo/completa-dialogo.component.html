@@ -1,0 +1,130 @@
+<div class="game-container">
+  
+  <!-- BOTÓN VOLVER -->
+  <button class="btn-exit" (click)="exitGame()">&larr; Volver al Menú</button>
+
+  <!-- HUD Y CRONÓMETRO -->
+  <div class="hud">
+    <div class="hud-item">
+      <span>PUNTOS:</span>
+      <span class="score-badge">{{ score }}</span>
+    </div>
+    <div class="hud-item timer-box">
+      <span>TIEMPO:</span>
+      <span class="timer-badge" [class.danger]="timeLeft <= 2.0">{{ timeLeft }}s</span>
+    </div>
+  </div>
+
+  <div class="timer-bar-container">
+    <div class="timer-bar-fill" [style.width.%]="timerPercentage" [class.danger]="timeLeft <= 2.0"></div>
+  </div>
+
+  <!-- TABLERO DEL JUEGO -->
+  <div class="game-board" [class.blurred]="gameStatus !== 'playing'">
+    
+    <!-- CONSIGNA PRINCIPAL -->
+    <div class="prompt-section">
+      <span class="book-tag">Hansel y Gretel — Hermanos Grimm</span>
+      
+      <div class="quote-container">
+        <p class="quote-text">
+          "{{ currentLevel.textBefore }}"
+          
+          <span 
+            #targetSlot
+            class="inline-target-slot"
+            [class.has-word]="droppedWord !== null">
+            
+            <span *ngIf="!droppedWord" class="placeholder-dots">???</span>
+            <span *ngIf="droppedWord" class="placed-word">{{ droppedWord }}</span>
+          </span>
+
+          "{{ currentLevel.textAfter }}"
+        </p>
+      </div>
+    </div>
+
+    <div class="divider-space"></div>
+
+    <!-- OPCIONES DE RESPUESTA -->
+    <div class="options-section">
+      <div 
+        *ngFor="let option of availableOptions" 
+        cdkDrag 
+        [cdkDragDisabled]="gameStatus !== 'playing'"
+        (cdkDragEnded)="onDragEnded($event, option)"
+        class="option-widget">
+        <span class="option-text">{{ option }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL DE OVERLAY DIFUMINADO -->
+  <div class="modal-overlay" *ngIf="gameStatus !== 'playing'">
+    
+    <!-- 1. POPUP INICIAL (SOLO AL COMIENZO DEL JUEGO) -->
+    <div class="modal-dialog intro-dialog" *ngIf="gameStatus === 'intro'">
+      <div class="feedback-icon">📖</div>
+      <h2 class="status-msg">Completa el Diálogo</h2>
+      <p class="instruction">Completa la palabra clave faltante arrastrando la opción correcta a la casilla vacía.</p>
+      <p class="timer-warning">⚠️ Tendrás <strong>7 segundos</strong> por frase.</p>
+      <button class="btn-action btn-start" (click)="startGameplay()">¡Iniciar!</button>
+    </div>
+
+    <!-- 2. FEEDBACK ÉXITO -->
+    <div class="modal-dialog feedback-dialog success" *ngIf="gameStatus === 'success'">
+      <div class="feedback-icon">✨</div>
+      <h2 class="status-msg">¡Correcto!</h2>
+      <p class="explanation">
+        Fiel al texto original: "<em>{{ currentLevel.textBefore }} <strong>{{ currentLevel.correctWord }}</strong> {{ currentLevel.textAfter }}</em>"
+      </p>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+    </div>
+
+    <!-- 3. FEEDBACK INCORRECTO -->
+    <div class="modal-dialog feedback-dialog error" *ngIf="gameStatus === 'error'">
+      <div class="feedback-icon">❌</div>
+      <h2 class="status-msg">Incorrecto</h2>
+      <p class="explanation">
+        Esa opción encaja gramaticalmente, pero la palabra exacta del libro es <strong>"{{ currentLevel.correctWord }}"</strong>.
+      </p>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+    </div>
+
+    <!-- 4. TIEMPO AGOTADO -->
+    <div class="modal-dialog feedback-dialog timeout" *ngIf="gameStatus === 'timeout'">
+      <div class="feedback-icon">⏳</div>
+      <h2 class="status-msg">¡Tiempo Agotado!</h2>
+      <p class="explanation">
+        Superaste el límite de 7s. La palabra correcta era <strong>"{{ currentLevel.correctWord }}"</strong>.
+      </p>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+    </div>
+
+    <!-- 5. POPUP DE RESULTADOS FINALES -->
+    <div class="modal-dialog feedback-dialog finished" *ngIf="gameStatus === 'finished'">
+      <div class="feedback-icon">🏆</div>
+      <h2 class="status-msg">¡Minijuego Completado!</h2>
+      <p class="explanation">Puntuación total: <strong>{{ score }} pts</strong></p>
+      
+      <!-- INDICADOR DE DESEMPEÑO POR ORDEN -->
+      <div class="results-history">
+        <p class="history-label">Resumen de respuestas:</p>
+        <div class="history-badges">
+          <div *ngFor="let res of levelResults; let i = index" class="history-item" [class.correct]="res" [class.wrong]="!res">
+            <span class="level-num">Nivel {{ i + 1 }}:</span>
+            <span class="status-icon">{{ res ? '✅' : '❌' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-action btn-retry" (click)="restartGame()">Reintentar Juego</button>
+        <button class="btn-action btn-exit-final" (click)="exitGame()">Salir al Menú</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

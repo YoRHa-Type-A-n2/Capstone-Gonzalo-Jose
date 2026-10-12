@@ -1,0 +1,310 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0.5rem auto;
+  padding: 1rem 1.2rem;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 2px solid $bg-sec;
+  box-shadow: 0 10px 35px rgba(51, 64, 58, 0.05);
+  position: relative;
+  box-sizing: border-box;
+
+  .btn-exit {
+    background: transparent;
+    border: none;
+    color: $text-sec;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    &:hover { color: $text-main; }
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: $text-main;
+    margin-bottom: 0.5rem;
+
+    .score-badge {
+      background: $badge-reward;
+      color: $text-main;
+      padding: 0.35rem 0.9rem;
+      border-radius: 12px;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+  }
+
+  .instruction {
+    font-size: 0.9rem;
+    color: $text-sec;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+
+  /* LAYOUT PC: Separación horizontal amplia (3rem gap) */
+  .game-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px 1fr;
+    gap: 3rem; /* Margen amplio entre columnas en PC */
+    align-items: center;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+
+    &.blurred {
+      filter: blur(8px) opacity(0.35);
+      pointer-events: none;
+    }
+  }
+
+  .bubbles-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .center-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* ÁREA DE DETECCIÓN Y MARCO DE IMAGEN MAXIMIZADO */
+  .target-zone {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1 / 1; /* Garantiza formato Cuadrado */
+    border: 3px dashed $primary;
+    background: $bg-sec;
+    border-radius: 20px;
+    padding: 6px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    &.correct {
+      border-color: $success;
+      background: #f0fdf4;
+    }
+
+    &.wrong {
+      border-color: $alert;
+      background: #fef2f2;
+    }
+
+    .image-wrapper {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 3px solid $secondary;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .fallback-emoji {
+        font-size: 5rem;
+      }
+    }
+  }
+
+  .speech-bubble {
+    position: relative;
+    background: #ffffff;
+    border: 3px solid $text-main;
+    border-radius: 16px;
+    padding: 0.75rem 0.9rem;
+    box-shadow: 3px 4px 0px $text-main;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+
+    .bubble-tail {
+      position: absolute;
+      bottom: -9px;
+      left: 18px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 9px solid $text-main;
+    }
+
+    .character-tag {
+      display: inline-block;
+      background: $bg-sec;
+      color: $text-main;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.12rem 0.45rem;
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    .text {
+      margin: 0;
+      color: $text-main;
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  /* LAYOUT MÓVIL */
+  @media (max-width: 900px) {
+    padding: 0.6rem 0.8rem;
+
+    .instruction {
+      font-size: 0.82rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .game-layout-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem; /* Margen amplio vertical entre los globos y la imagen central */
+    }
+
+    .bubbles-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .speech-bubble {
+      padding: 0.4rem 0.5rem;
+      border-width: 2px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 0px $text-main;
+
+      .bubble-tail { display: none; }
+
+      .character-tag {
+        font-size: 0.58rem;
+        padding: 0.08rem 0.3rem;
+        margin-bottom: 0.1rem;
+      }
+
+      .text {
+        font-size: 0.72rem;
+        line-height: 1.15;
+      }
+    }
+
+    /* ÁREA DE DETECCIÓN MÓVIL: CUADRADO Y AMPLIO */
+    .target-zone {
+      width: 100%;
+      max-width: 240px; /* Tamaño optimizado */
+      aspect-ratio: 1 / 1; /* Cuadrado perfecto */
+      padding: 5px;
+      border-radius: 16px;
+
+      .image-wrapper {
+        width: 100%;
+        height: 100%;
+        border-width: 3px;
+        border-radius: 12px;
+
+        .fallback-emoji { 
+          font-size: 3.5rem; 
+        }
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(51, 64, 58, 0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    z-index: 100;
+    box-sizing: border-box;
+
+    .modal-dialog {
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+      &.feedback-dialog {
+        border-top: 6px solid $text-sec;
+        &.success { border-top-color: $success; .status-msg { color: $success; } }
+        &.error { border-top-color: $alert; .status-msg { color: $alert; } }
+
+        .feedback-badge-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+        .status-msg { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; }
+        .explanation { font-size: 0.88rem; color: $text-main; margin-bottom: 1rem; }
+
+        .btn-next {
+          background: $accent-cta;
+          color: #ffffff;
+          border: none;
+          padding: 0.7rem 1.5rem;
+          border-radius: 12px;
+          font-weight: 800;
+          font-size: 0.85rem;
+          cursor: pointer;
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .results-card {
+    text-align: center;
+    padding: 1.5rem 0;
+
+    .actions {
+      display: flex; gap: 1rem; justify-content: center;
+      button { padding: 0.7rem 1.4rem; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
+      .btn-retry { background: $accent-cta; color: white; }
+      .btn-menu { background: $bg-sec; color: $text-main; }
+    }
+  }
+}

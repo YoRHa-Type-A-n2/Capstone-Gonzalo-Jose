@@ -1,0 +1,87 @@
+<div class="game-container">
+  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
+
+  <div *ngIf="!gameOver" class="play-card">
+    <div class="hud">
+      <span class="round-indicator">Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
+      <span class="score-badge">Puntos: {{ score }}</span>
+    </div>
+
+    <div class="timer-bar-container">
+      <div class="timer-bar-fill" [style.width.%]="(timeRemaining / TIME_LIMIT) * 100" [class.warning]="timeRemaining <= 2.5"></div>
+    </div>
+
+    <!-- GRILLA ADAPTATIVA DE JUEGO (Arriba, Centro, Abajo en Móvil) -->
+    <div class="game-layout-grid" [class.blurred]="showPremiseModal || answered">
+      
+      <!-- ZONA SUPERIOR (Móvil) / COLUMNA IZQUIERDA (PC): Imágenes 1 y 2 -->
+      <div class="layout-left images-column">
+        <button 
+          *ngFor="let img of challenges[currentIndex].images.slice(0, 2)" 
+          class="image-card"
+          [disabled]="answered || showPremiseModal"
+          [class.correct-card]="answered && img.isContradiction"
+          [class.wrong-card]="answered && selectedOption?.id === img.id && !img.isContradiction"
+          (click)="selectOption(img)">
+          <img [src]="img.imageSrc" [alt]="img.altText" />
+        </button>
+      </div>
+
+      <!-- ZONA CENTRO: Premisa Reducida pero Legible -->
+      <div class="layout-center">
+        <div class="premise-banner">
+          <span class="tag">Premisa a Analizar</span>
+          <p class="text">"{{ challenges[currentIndex].premiseText }}"</p>
+        </div>
+      </div>
+
+      <!-- ZONA INFERIOR (Móvil) / COLUMNA DERECHA (PC): Imágenes 3 y 4 -->
+      <div class="layout-right images-column">
+        <button 
+          *ngFor="let img of challenges[currentIndex].images.slice(2, 4)" 
+          class="image-card"
+          [disabled]="answered || showPremiseModal"
+          [class.correct-card]="answered && img.isContradiction"
+          [class.wrong-card]="answered && selectedOption?.id === img.id && !img.isContradiction"
+          (click)="selectOption(img)">
+          <img [src]="img.imageSrc" [alt]="img.altText" />
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MODAL PREMISA -->
+    <div *ngIf="showPremiseModal" class="modal-overlay">
+      <div class="modal-dialog">
+        <h3>Lee con atención:</h3>
+        <p class="premise-highlight">"{{ challenges[currentIndex].premiseText }}"</p>
+        <button class="btn-start" (click)="startTimerAndGame()">¡Entendido, Comenzar!</button>
+      </div>
+    </div>
+
+    <!-- MODAL RETROALIMENTACIÓN -->
+    <div *ngIf="answered" class="modal-overlay">
+      <div class="modal-dialog feedback-dialog" [class.success]="isCorrect" [class.error]="!isCorrect">
+        <div class="feedback-badge-icon">
+          {{ isCorrect ? '🎉' : '❌' }}
+        </div>
+        <h3 class="status-msg">{{ isCorrect ? '¡Excelente ojo!' : '¡Incorrecto!' }}</h3>
+        <p class="explanation">{{ challenges[currentIndex].explanation }}</p>
+        <button class="btn-next" (click)="nextChallenge()">
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pantalla de Resultados -->
+  <div *ngIf="gameOver" class="results-card">
+    <h2>🔍 ¡Desafío Completado!</h2>
+    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
+    <div class="actions">
+      <button class="btn-retry" (click)="restartGame()">Reintentar</button>
+      <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
+    </div>
+  </div>
+</div>

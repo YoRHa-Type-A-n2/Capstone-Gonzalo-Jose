@@ -1,0 +1,130 @@
+<div class="game-container">
+
+  <!-- HEADER DEL JUEGO -->
+  <header class="game-header">
+    <button class="btn-exit" (click)="exitGame()">← Volver</button>
+    <div class="game-title">
+      <span>Busca en la imagen</span>
+      <h2>{{ currentLevel.storyTitle }}</h2>
+    </div>
+    <div class="level-badge">Nivel {{ currentLevelIndex + 1 }}/{{ levels.length }}</div>
+  </header>
+
+  <!-- BARRA TEMPORIZADORA HORIZONAL -->
+  <div class="timer-container">
+    <div class="timer-bar" [style.width.%]="devMode ? 100 : timerProgress" [class.warning]="timerProgress < 30"></div>
+  </div>
+
+  <!-- PANEL MODO EDITOR SUPERIOR (CONTROLES + VISOR + POPUP) -->
+  <div *ngIf="devMode && gameState === 'playing'" class="dev-coords-banner">
+    <div class="dev-controls">
+      <button class="btn-dev-action" (click)="openIntroModal()">
+        📖 Ver Frase
+      </button>
+
+      <div class="visor-sizer">
+        <span class="label">Área:</span>
+        <button class="btn-step" (click)="adjustDevSize(-1)">-</button>
+        <span class="size-val">{{ devWidth }}%</span>
+        <button class="btn-step" (click)="adjustDevSize(1)">+</button>
+      </div>
+    </div>
+
+    <div class="coords-box">
+      <input 
+        type="text" 
+        readonly 
+        [value]="lastDevCoords" 
+        (click)="selectInputText($event)" 
+        title="Haz clic para seleccionar y copiar" />
+    </div>
+  </div>
+
+  <!-- ÁREA DE JUEGO (ESCENA DE LA IMAGEN) -->
+  <main class="stage-viewport">
+    <div class="image-wrapper" (click)="onImageMissClick($event)">
+      <img [src]="currentLevel.imageUrl" [alt]="currentLevel.storyTitle" class="scene-image" />
+
+      <!-- ZONA DE CLIC / TARGET (NORMAL) -->
+      <div 
+        *ngIf="!devMode"
+        class="target-hotspot"
+        [style.top.%]="currentLevel.targetArea.top"
+        [style.left.%]="currentLevel.targetArea.left"
+        [style.width.%]="currentLevel.targetArea.width"
+        [style.height.%]="currentLevel.targetArea.height"
+        (click)="onTargetClick($event)">
+      </div>
+
+      <!-- VISOR DINÁMICO DEL MODO EDITOR -->
+      <div 
+        *ngIf="devMode"
+        class="target-hotspot dev-visor"
+        [style.top.%]="devTop"
+        [style.left.%]="devLeft"
+        [style.width.%]="devWidth"
+        [style.height.%]="devHeight"
+        (click)="onTargetClick($event)">
+        <span class="visor-crosshair">+</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- POP-UP INICIAL (FRAGMENTO DEL TEXTO + MODO EDITOR) -->
+  <div class="modal-overlay" *ngIf="gameState === 'intro'">
+    <div class="modal-card">
+      
+      <div class="dev-option">
+        <button class="btn-dev" (click)="toggleDevMode()">
+          ⚙️ Modo Editor: <strong>{{ devMode ? 'ON' : 'OFF' }}</strong>
+        </button>
+      </div>
+
+      <div class="modal-badge">📖 Comprensión Lectora</div>
+      <h3>{{ currentLevel.storyTitle }}</h3>
+      
+      <p class="story-snippet" [innerHTML]="currentLevel.textSnippet"></p>
+      
+      <div class="instruction-box">
+        🔍 Encuentra: <strong>{{ currentLevel.targetObjectName }}</strong>
+        <span class="timer-hint" *ngIf="!devMode">⏱️ ¡Tienes solo 5 segundos!</span>
+        <span class="timer-hint dev" *ngIf="devMode">🛠️ Modo Editor activado (Temporizador pausado)</span>
+      </div>
+
+      <button class="btn-primary" (click)="startGame()">
+        {{ devMode ? 'Editar Nivel' : '¡Comenzar!' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- POP-UP DE RESULTADOS -->
+  <div class="modal-overlay" *ngIf="gameState === 'result'">
+    <div class="modal-card">
+      
+      <ng-container *ngIf="resultType === 'success'">
+        <div class="modal-badge success">¡Excelente!</div>
+        <h3>¡Lo encontraste! 🎉</h3>
+        <p class="feedback-text">Has localizado <strong>{{ currentLevel.targetObjectName }}</strong> a tiempo.</p>
+      </ng-container>
+
+      <ng-container *ngIf="resultType === 'wrong'">
+        <div class="modal-badge alert">¡Inténtalo de nuevo!</div>
+        <h3>Objeto equivocado 😅</h3>
+        <p class="feedback-text">Ese no era el elemento señalado en el fragmento.</p>
+      </ng-container>
+
+      <ng-container *ngIf="resultType === 'timeout'">
+        <div class="modal-badge alert">¡Tiempo agotado!</div>
+        <h3>¡Se acabaron los 5 segundos! ⏱️</h3>
+        <p class="feedback-text">Debes ser más rápido la próxima vez.</p>
+      </ng-container>
+
+      <div class="actions">
+        <button class="btn-primary" (click)="nextLevel()">
+          {{ currentLevelIndex < levels.length - 1 ? 'Siguiente Nivel' : 'Volver a Jugar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,107 @@
+<div class="game-container">
+  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
+
+  <div *ngIf="!gameOver" class="play-card">
+    <div class="hud">
+      <span>Desafío {{ currentIndex + 1 }} / {{ challenges.length }}: {{ challenges[currentIndex].title }}</span>
+      <span class="score-badge">Puntos: {{ score }}</span>
+    </div>
+
+    <p class="instruction">
+      Mueve los globos de texto libremente por la pantalla y ubícalos cronológicamente.
+    </p>
+
+    <!-- TABLERO PRINCIPAL -->
+    <div class="game-board" [class.blurred]="isVerified && isCorrect">
+      
+      <!-- FILA SUPERIOR: Globos de texto flotantes (Post-it) -->
+      <div class="fragments-pool-row">
+        <div 
+          *ngFor="let fragment of pool"
+          cdkDrag
+          [cdkDragDisabled]="isVerified && isCorrect"
+          (cdkDragEnded)="onDragEnded($event, fragment)"
+          class="speech-bubble">
+          <div class="bubble-tail"></div>
+          <p class="text">"{{ fragment.text }}"</p>
+        </div>
+      </div>
+
+      <!-- FILA INFERIOR: Áreas de detección -->
+      <div class="slots-row">
+        <div 
+          *ngFor="let slot of slots; let i = index"
+          #slotZone
+          class="target-slot"
+          [class.detected]="slot.length === 1 && !isVerified"
+          [class.multiple-error]="slot.length > 1"
+          [class.correct]="isVerified && slot.length === 1 && slot[0].id === i + 1"
+          [class.wrong]="isVerified && (slot.length > 1 || (slot.length === 1 && slot[0].id !== i + 1))">
+          
+          <div class="slot-placeholder">
+            <span *ngIf="slot.length === 0">Arrastra aquí evento {{ i + 1 }}</span>
+            <span *ngIf="slot.length === 1" class="detected-label">✓ Evento {{ i + 1 }} asignado</span>
+            <span *ngIf="slot.length > 1" class="error-label">❌ Más de 1 evento asignado</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="controls-bar">
+      <div class="attempts-info" *ngIf="!isCorrect">
+        Intentos restantes: <strong>{{ attemptsRemaining }}</strong>
+      </div>
+
+      <button 
+        *ngIf="!isVerified || !isCorrect"
+        class="btn-verify" 
+        [disabled]="!isAllSlotsFilled"
+        (click)="verifyOrder()">
+        Verificar Orden
+      </button>
+    </div>
+
+    <!-- MODAL DE REALIMENTACIÓN -->
+    <div *ngIf="isVerified" class="modal-overlay">
+      <div class="modal-dialog feedback-dialog" [class.success]="isCorrect" [class.error]="!isCorrect">
+        <div class="feedback-badge-icon">
+          {{ isCorrect ? '🎉' : '❌' }}
+        </div>
+        <h3 class="status-msg">
+          {{ isCorrect ? '¡Excelente reconstrucción!' : '¡El orden no es correcto!' }}
+        </h3>
+        <p class="explanation">
+          {{ isCorrect ? 'Has ordenado los acontecimientos del manuscrito a la perfección.' : (attemptsRemaining > 0 ? 'Revisa la secuencia lógica del relato e inténtalo de nuevo.' : 'Has agotado tus intentos para este desafío.') }}
+        </p>
+        
+        <div class="modal-actions">
+          <button 
+            *ngIf="!isCorrect && attemptsRemaining > 0" 
+            class="btn-retry" 
+            (click)="retryChallenge()">
+            Reintentar
+          </button>
+          <button 
+            *ngIf="isCorrect || attemptsRemaining === 0" 
+            class="btn-next" 
+            (click)="nextChallenge()">
+            {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANTALLA DE RESULTADOS -->
+  <div *ngIf="gameOver" class="results-card">
+    <h2>📜 ¡Manuscritos Reconstruidos!</h2>
+    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
+    <div class="actions">
+      <button class="btn-retry" (click)="restartGame()">Reintentar Juego</button>
+      <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
+    </div>
+  </div>
+</div>
