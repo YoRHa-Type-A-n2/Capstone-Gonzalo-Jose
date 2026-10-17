@@ -1,15 +1,15 @@
 <div class="game-container">
-  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
-
   <div *ngIf="!gameOver" class="play-card">
-    <div class="hud">
-      <span>Desafío {{ currentIndex + 1 }} / {{ challenges.length }}: {{ challenges[currentIndex].title }}</span>
-      <span class="score-badge">Puntos: {{ score }}</span>
+    
+    <!-- LÍNEA SUPERIOR: INSTRUCCIÓN AL DOBLE DE TAMAÑO + VIDAS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem;">
+      <p class="instruction" style="font-size: 1.8rem; line-height: 1.2; margin: 0; flex: 1; color: #33403A;">
+        Mueve las viñetas del cómic libremente por la pantalla y ubícalas cronológicamente.
+      </p>
+      <div class="stat-badge" style="background: #e2e8f0; color: #1e293b; padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        ❤️ Vidas: {{ attemptsRemaining }}
+      </div>
     </div>
-
-    <p class="instruction">
-      Mueve las viñetas del cómic libremente por la pantalla y ubícalas cronológicamente.
-    </p>
 
     <!-- TABLERO PRINCIPAL -->
     <div class="game-board" [class.blurred]="isVerified && isCorrect">
@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <!-- FILA INFERIOR: Áreas de detección -->
+      <!-- FILA INFERIOR: Áreas de detección (Altura reducida un 20%) -->
       <div class="slots-row">
         <div 
           *ngFor="let slot of slots; let i = index"
@@ -47,12 +47,8 @@
 
     </div>
 
-    <!-- CONTROLES -->
-    <div class="controls-bar">
-      <div class="attempts-info" *ngIf="!isCorrect">
-        Intentos restantes: <strong>{{ attemptsRemaining }}</strong>
-      </div>
-
+    <!-- CONTROLES (ALINEADO A LA DERECHA) -->
+    <div class="controls-bar" style="display: flex; justify-content: flex-end;">
       <button 
         *ngIf="!isVerified || !isCorrect"
         class="btn-verify" 
@@ -86,7 +82,7 @@
             *ngIf="isCorrect || attemptsRemaining === 0" 
             class="btn-next" 
             (click)="nextChallenge()">
-            {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+            {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Siguiente' }}
           </button>
         </div>
       </div>
@@ -96,8 +92,7 @@
 
   <!-- PANTALLA DE RESULTADOS -->
   <div *ngIf="gameOver" class="results-card">
-    <h2>🎨 ¡Cómics Completados!</h2>
-    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
+    <h2>¡Cómics Completados!</h2>
     <div class="actions">
       <button class="btn-retry" (click)="restartGame()">Reintentar Juego</button>
       <button class="btn-menu" (click)="exitGame()">Menú Principal</button>

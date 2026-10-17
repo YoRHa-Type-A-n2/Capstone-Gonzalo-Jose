@@ -74,18 +74,26 @@ export class EmoticonoDialogoComponent implements OnInit {
         const config = item.config_data || {};
         const itemsList = config.challenges || [config];
 
-        return itemsList.map((c: any) => ({
-          emotionTitle: c.emotion_title || c.emotionTitle || 'Emoción',
-          emotionImage: c.emotion_image || c.emotionImage || '',
-          fallbackEmoji: c.fallback_emoji || c.fallbackEmoji || '💬',
-          explanation: c.explanation || '',
-          dialogues: (c.dialogues || []).map((d: any) => ({
-            id: d.id,
-            character: d.character,
+        return itemsList.map((c: any) => {
+          // Mapeamos las opciones de diálogo originales del JSON
+          let dialoguesList: DialogueOption[] = (c.dialogues || []).map((d: any, index: number) => ({
+            id: d.id ?? index,
+            character: d.character || '',
             text: d.text,
-            isCorrect: d.is_correct ?? d.isCorrect
-          }))
-        }));
+            isCorrect: d.is_correct ?? d.isCorrect ?? false
+          }));
+
+          // Mezclamos el orden de los diálogos al azar para evitar que la respuesta correcta esté siempre en la primera posición
+          dialoguesList = this.shuffleArray(dialoguesList);
+
+          return {
+            emotionTitle: c.emotion_title || c.emotionTitle || 'Emoción',
+            emotionImage: c.emotion_image || c.emotionImage || '',
+            fallbackEmoji: c.fallback_emoji || c.fallbackEmoji || '💬',
+            explanation: c.explanation || '',
+            dialogues: dialoguesList
+          };
+        });
       });
 
       if (this.challenges.length > 0) {
@@ -98,6 +106,16 @@ export class EmoticonoDialogoComponent implements OnInit {
       this.hasError = true;
     }
     this.isLoading = false;
+  }
+
+  // Función auxiliar para barajar un arreglo de forma aleatoria (Algoritmo Fisher-Yates)
+  private shuffleArray(array: any[]): any[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   loadGameData(): void {
@@ -154,7 +172,13 @@ export class EmoticonoDialogoComponent implements OnInit {
 
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
-      this.completed.emit(true);
+      
+      // Si acertó los puntos suficientes o el último fue correcto (puedes ajustar esta validación según tu criterio de éxito global)
+      if (this.score > 0) {
+        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     }
   }
 

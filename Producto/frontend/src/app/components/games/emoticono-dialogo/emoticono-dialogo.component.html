@@ -1,13 +1,10 @@
 <div class="game-container">
-  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
 
   <div *ngIf="!gameOver" class="play-card">
-    <div class="hud">
-      <span>Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
-      <span class="score-badge">Puntos: {{ score }}</span>
-    </div>
-
-    <p class="instruction">Toma un globo de texto y arrástralo sobre la imagen central:</p>
+    <!-- Instrucción al doble de tamaño -->
+    <p class="instruction" style="font-size: 1.8rem; line-height: 1.2; color: #33403A; text-align: center; margin-bottom: 1.5rem;">
+      Toma un globo de texto y arrástralo sobre la imagen central:
+    </p>
 
     <!-- ESTRUCTURA ADAPTATIVA DE 3 SECCIONES -->
     <div class="game-layout-grid" [class.blurred]="answered">
@@ -82,7 +79,7 @@
         </h3>
         <p class="explanation">{{ challenges[currentIndex].explanation }}</p>
         <button class="btn-next" (click)="nextChallenge()">
-          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Siguiente' }}
         </button>
       </div>
     </div>
@@ -92,7 +89,6 @@
   <!-- Pantalla de Resultados -->
   <div *ngIf="gameOver" class="results-card">
     <h2>🎭 ¡Desafío Completado!</h2>
-    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
     <div class="actions">
       <button class="btn-retry" (click)="restartGame()">Reintentar</button>
       <button class="btn-menu" (click)="exitGame()">Menú Principal</button>

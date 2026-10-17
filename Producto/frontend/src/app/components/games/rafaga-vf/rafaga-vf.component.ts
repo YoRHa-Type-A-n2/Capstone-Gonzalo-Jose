@@ -8,6 +8,13 @@ interface Statement {
   isTrue: boolean;
 }
 
+interface StatementResult {
+  text: string;
+  isTrue: boolean;
+  userChoice: boolean | null;
+  isCorrect: boolean;
+}
+
 @Component({
   selector: 'app-rafaga-vf',
   standalone: true,
@@ -18,7 +25,9 @@ interface Statement {
 export class RafagaVfComponent implements OnInit, OnDestroy {
   @Input() bookId: string = '';
   @Input() gameData: any = null;
-  @Output() completed = new EventEmitter<boolean>();
+  @Input() isLastGame: boolean = false; 
+  // Cambiamos el EventEmitter de boolean a number para enviar el puntaje exacto
+  @Output() completed = new EventEmitter<number>();
 
   passageText: string = '';
   statements: Statement[] = [];
@@ -31,6 +40,12 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
   gameStarted: boolean = false;
   gameOver: boolean = false;
   
+  buttonsDisabled: boolean = true;
+  selectedAnswer: boolean | null = null;
+  initialLockTimeout: any;
+
+  statementResults: StatementResult[] = [];
+
   isLoading: boolean = true;
   hasError: boolean = false;
 
@@ -57,12 +72,12 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
-      // Tomamos el primer elemento (o procesamos el config_data)
       const item = data[0];
       const config = item.config_data || {};
       
       this.passageText = config.passage_text || config.passageText || 'Lee con atención las afirmaciones a continuación.';
-      this.timeLimitPerQuestion = config.time_limit_per_question || 3;
+      this.timeLimitPerQuestion = config.time_per_statement || config.time_limit_per_question || 3;
+      this.timeLeft = this.timeLimitPerQuestion;
       
       this.statements = (config.statements || []).map((s: any) => ({
         text: s.text,
@@ -100,7 +115,22 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
     this.gameStarted = true;
     this.currentIndex = 0;
     this.score = 0;
+    this.statementResults = [];
     this.gameOver = false;
+    this.loadNewQuestion();
+  }
+
+  loadNewQuestion() {
+    this.selectedAnswer = null;
+    this.buttonsDisabled = true;
+
+    clearTimeout(this.initialLockTimeout);
+    this.initialLockTimeout = setTimeout(() => {
+      if (!this.gameOver) {
+        this.buttonsDisabled = false;
+      }
+    }, 1000);
+
     this.startTimer();
   }
 
@@ -110,27 +140,44 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
     this.timerInterval = setInterval(() => {
       this.timeLeft--;
       if (this.timeLeft <= 0) {
+        clearInterval(this.timerInterval);
         this.processAnswer(null);
       }
     }, 1000);
   }
 
   answer(userChoice: boolean) {
-    this.processAnswer(userChoice);
+    if (this.buttonsDisabled) return;
+    this.buttonsDisabled = true;
+    clearInterval(this.timerInterval);
+    this.selectedAnswer = userChoice;
+
+    setTimeout(() => {
+      this.processAnswer(userChoice);
+    }, 300);
   }
 
   processAnswer(userChoice: boolean | null) {
     clearInterval(this.timerInterval);
     const current = this.statements[this.currentIndex];
 
-    if (userChoice !== null && userChoice === current.isTrue) {
-      this.score += 10;
+    const isCorrect = (userChoice !== null && userChoice === current.isTrue);
+
+    if (isCorrect) {
+      this.score += 5; // Suma 5 puntos por cada respuesta correcta
     }
+
+    this.statementResults.push({
+      text: current.text,
+      isTrue: current.isTrue,
+      userChoice: userChoice,
+      isCorrect: isCorrect
+    });
 
     this.currentIndex++;
 
     if (this.currentIndex < this.statements.length) {
-      this.startTimer();
+      this.loadNewQuestion();
     } else {
       this.endGame();
     }
@@ -139,14 +186,21 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
   endGame() {
     this.gameOver = true;
     clearInterval(this.timerInterval);
-    this.completed.emit(true);
+  }
+
+  goNext() {
+    // Emitimos el puntaje total acumulado (ej: 0, 5, 10 o 15 puntos)
+    this.completed.emit(this.score);
   }
 
   exitGame() {
+    clearInterval(this.timerInterval);
+    clearTimeout(this.initialLockTimeout);
     this.router.navigate(['/']);
   }
 
   ngOnDestroy(): void {
     clearInterval(this.timerInterval);
+    clearTimeout(this.initialLockTimeout);
   }
 }

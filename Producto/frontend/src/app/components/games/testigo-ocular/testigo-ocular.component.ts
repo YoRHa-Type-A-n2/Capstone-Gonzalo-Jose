@@ -28,7 +28,8 @@ interface DemoLevel {
 export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() bookId: string = '';
   @Input() gameData: any = null;
-  @Output() completed = new EventEmitter<boolean>();
+  // Cambiamos el EventEmitter de boolean a number para enviar el puntaje exacto
+  @Output() completed = new EventEmitter<number>();
 
   levels: DemoLevel[] = [];
 
@@ -85,12 +86,17 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
           title: l.title || 'Testigo Ocular',
           storyTag: l.storyTag || l.story_tag || '',
           imageUrl: l.imageUrl || l.image_url || '',
-          questions: (l.questions || []).map((q: any, qIdx: number) => ({
-            id: q.id || qIdx + 1,
-            prompt: q.prompt || '',
-            correctOption: q.correctOption || q.correct_option || '',
-            options: q.options || []
-          }))
+          questions: (l.questions || []).map((q: any, qIdx: number) => {
+            let opts = q.options || [];
+            opts = this.shuffleArray(opts);
+
+            return {
+              id: q.id || qIdx + 1,
+              prompt: q.prompt || '',
+              correctOption: q.correctOption || q.correct_option || '',
+              options: opts
+            };
+          })
         }));
       });
 
@@ -105,6 +111,15 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
       this.hasError = true;
     }
     this.isLoading = false;
+  }
+
+  private shuffleArray(array: string[]): string[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   ngAfterViewInit(): void {
@@ -189,7 +204,8 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
     this.clearTimer();
 
     if (option === this.currentQuestion.correctOption) {
-      this.score += 100 + Math.round(this.timeLeft * 20);
+      // Sumamos 5 puntos por cada respuesta correcta (puedes ajustarlo si prefieres otro valor)
+      this.score += 5; 
       this.isLastAttemptCorrect = true;
       this.registerResult(true);
       this.feedbackMessage = '¡Excelente memoria! Respuesta correcta.';
@@ -248,7 +264,8 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
     if (this.hasNextLevel) {
       this.loadLevel(this.currentLevelIndex + 1);
     } else {
-      this.completed.emit(true);
+      // Emitimos el puntaje total acumulado al terminar todos los niveles
+      this.completed.emit(this.score);
     }
   }
 

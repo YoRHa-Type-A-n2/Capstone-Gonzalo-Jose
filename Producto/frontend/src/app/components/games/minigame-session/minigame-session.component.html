@@ -1,37 +1,49 @@
-<div class="session-container">
+<div class="session-container center-aligned-container">
   <!-- Estado de carga -->
-  <div *ngIf="isLoading" class="loading-state">
+  <div *ngIf="isLoading" class="loading-state centered-content">
     <h2>Preparando tu desafío interactivo...</h2>
     <div class="spinner"></div>
   </div>
 
-  <!-- Pantalla de Resultados Finales -->
-  <div *ngIf="!isLoading && sessionFinished" class="results-screen glass-panel">
-    <h2>🎉 ¡Desafío Completado!</h2>
-    <p>Has completado los 5 minijuegos de este libro.</p>
+  <!-- Pantalla de Resultados Finales Centrada -->
+  <div *ngIf="!isLoading && sessionFinished" class="results-screen glass-panel centered-content">
+    <h2>¡Desafío Completado!</h2>
+    <p>Has completado los minijuegos de este libro.</p>
+    
+    <!-- Lista detallada: Nombre del minijuego y puntaje al lado -->
+    <div class="score-breakdown-list">
+      <div *ngFor="let detail of gameScoreDetails" class="score-row-item">
+        <span class="game-name">{{ detail.name }}:</span>
+        <span class="game-points"><strong>{{ detail.points }} pts</strong></span>
+      </div>
+    </div>
+
     <div class="final-score">Puntuación Total: <strong>{{ score }} pts</strong></div>
     <button class="next-chapter-btn" (click)="returnToLibrary()">Volver a mi Biblioteca</button>
   </div>
 
   <!-- Contenedor del Minigame Actual -->
-  <div *ngIf="!isLoading && !sessionFinished && playlist.length > 0" class="game-wrapper">
+  <div *ngIf="!isLoading && !sessionFinished && playlist.length > 0" class="game-wrapper centered-content">
+    
+    <!-- CABECERA DE SESIÓN CON TÍTULO DINÁMICO DEL MINIJUEGO -->
     <div class="session-header">
-      <span>Minijuego {{ currentIndex + 1 }} de {{ playlist.length }}</span>
-      <span class="score-badge">Puntos: {{ score }}</span>
+      <div style="text-align: center;">
+        <strong style="font-size: 1.1rem; color: #38bdf8;">{{ getCurrentGameDisplayName() }}</strong>
+      </div>
     </div>
 
     <!-- Renderizado dinámico optimizado con ngSwitch -->
-  <ng-container [ngSwitch]="getCurrentGameCode()">
-    <app-completa-dialogo *ngSwitchCase="'completa_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-completa-dialogo>
-    <app-imagen-pixelada *ngSwitchCase="'imagen_pixelada'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-imagen-pixelada>
-    <app-rafaga-vf *ngSwitchCase="'rafaga_vf'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-rafaga-vf>
-    <app-emoticono-dialogo *ngSwitchCase="'emoticono_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-emoticono-dialogo>
-    <app-encuentra-contradiccion *ngSwitchCase="'encuentra_contradiccion'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-encuentra-contradiccion>
-    <app-reconstruccion-manuscrito *ngSwitchCase="'reconstruccion_manuscrito'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-reconstruccion-manuscrito>
-    <app-testigo-ocular *ngSwitchCase="'testigo_ocular'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-testigo-ocular>
-    <app-cazador-intrusos *ngSwitchCase="'cazador_intrusos'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-cazador-intrusos>
-    <app-busca-imagen *ngSwitchCase="'busca_imagen'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-busca-imagen>
-    <app-comics-desordenados *ngSwitchCase="'comics_desordenados'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-comics-desordenados>
-  </ng-container>
+    <ng-container [ngSwitch]="getCurrentGameCode()">
+      <app-completa-dialogo *ngSwitchCase="'completa_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-completa-dialogo>
+      <app-imagen-pixelada *ngSwitchCase="'imagen_pixelada'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-imagen-pixelada>
+      <app-rafaga-vf *ngSwitchCase="'rafaga_vf'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-rafaga-vf>
+      <app-emoticono-dialogo *ngSwitchCase="'emoticono_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-emoticono-dialogo>
+      <app-encuentra-contradiccion *ngSwitchCase="'encuentra_contradiccion'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-encuentra-contradiccion>
+      <app-reconstruccion-manuscrito *ngSwitchCase="'reconstruccion_manuscrito'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-reconstruccion-manuscrito>
+      <app-testigo-ocular *ngSwitchCase="'testigo_ocular'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-testigo-ocular>
+      <app-cazador-intrusos *ngSwitchCase="'cazador_intrusos'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-cazador-intrusos>
+      <app-busca-imagen *ngSwitchCase="'busca_imagen'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-busca-imagen>
+      <app-comics-desordenados *ngSwitchCase="'comics_desordenados'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-comics-desordenados>
+    </ng-container>
   </div>
 </div>

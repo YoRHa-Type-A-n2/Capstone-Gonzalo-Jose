@@ -235,10 +235,10 @@ export class CazadorIntrusosComponent implements OnInit {
 
       if (item.isIntruder && isInside) {
         errorsFound = true;
-        misplacedNames.push(`"${item.name}" sigue dentro del área.`);
+        misplacedNames.push(`Falta eliminar elementos.`);
       } else if (!item.isIntruder && !isInside) {
         errorsFound = true;
-        misplacedNames.push(`"${item.name}" pertenece al cuento y quedó fuera.`);
+        misplacedNames.push(`Quitaste elementos que pertenecen al texto.`);
       }
     }
 
@@ -252,10 +252,11 @@ export class CazadorIntrusosComponent implements OnInit {
       this.lives--;
 
       if (this.lives <= 0) {
-        this.feedbackMessage = `Te has quedado sin vidas. Revisión: ${misplacedNames.join(' ')}`;
+        this.feedbackMessage = `Te has quedado sin vidas.`;
         this.gameStatus = 'finished';
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
       } else {
-        this.feedbackMessage = `Revisa bien el texto: ${misplacedNames.join(' ')} Te queda ${this.lives} vida.`;
+        this.feedbackMessage = `Te queda ${this.lives} vida.`;
         this.gameStatus = 'feedback';
       }
     }
@@ -264,6 +265,7 @@ export class CazadorIntrusosComponent implements OnInit {
   resumeGameFromFeedback(): void {
     if (this.lives <= 0) {
       this.gameStatus = 'finished';
+      this.completed.emit(false); // ❌ Derrota (0 puntos)
     } else {
       this.gameStatus = 'playing';
     }
@@ -274,7 +276,7 @@ export class CazadorIntrusosComponent implements OnInit {
       this.loadLevel(this.currentLevelIndex + 1);
     } else {
       this.gameStatus = 'finished';
-      this.completed.emit(true);
+      this.completed.emit(true); // 🟢 Victoria (10 puntos)[cite: 11]
     }
   }
 

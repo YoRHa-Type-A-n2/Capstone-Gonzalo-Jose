@@ -539,6 +539,29 @@
     <button *ngIf="currentPage >= totalPages" class="next-chapter-btn glow-btn" (click)="launchMinigameSession()">
       Siguiente... <span class="icon">»</span>
     </button>
+    <!-- NUEVO BOTÓN PARA SELECCIONAR MINIJUEGO ESPECÍFICO -->
+    <button *ngIf="currentPage >= totalPages" class="next-chapter-btn glow-btn" style="background: #2563eb; margin-left: 10px;" (click)="openMinigameSelector()">
+      🎮 Elegir Minijuego <span class="icon">▼</span>
+    </button>
+  </div>
+
+  <!-- POPUP / MODAL DE SELECCIÓN DE LOS 10 MINIJUEGOS -->
+  <div class="modal-overlay" *ngIf="showMinigameSelectorModal" (click)="closeMinigameSelector()">
+    <div class="modal-card glass-panel" (click)="$event.stopPropagation()" style="max-width: 500px; width: 90%; background: #1e1b4b; color: white; padding: 25px; border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin: 0;">🎮 Desafíos del Libro</h3>
+        <button (click)="closeMinigameSelector()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Selecciona el tipo de minijuego que deseas jugar:</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 350px; overflow-y: auto;">
+        <button *ngFor="let game of availableMinigamesList" 
+                (click)="selectAndLaunchMinigame(game.code)"
+                class="minigame-option-btn">
+          <strong>{{ game.name }}</strong>
+        </button>
+      </div>
+    </div>
   </div>
 
 

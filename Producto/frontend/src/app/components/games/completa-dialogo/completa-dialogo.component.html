@@ -79,7 +79,7 @@
       <p class="explanation">
         Fiel al texto original: "<em>{{ currentLevel.textBefore }} <strong>{{ currentLevel.correctWord }}</strong> {{ currentLevel.textAfter }}</em>"
       </p>
-      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente</button>
     </div>
 
     <!-- 3. FEEDBACK INCORRECTO -->
@@ -87,9 +87,9 @@
       <div class="feedback-icon">❌</div>
       <h2 class="status-msg">Incorrecto</h2>
       <p class="explanation">
-        Esa opción encaja gramaticalmente, pero la palabra exacta del libro es <strong>"{{ currentLevel.correctWord }}"</strong>.
+        Esa opción encaja gramaticalmente, pero no es la palabra exacta del libro.
       </p>
-      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente</button>
     </div>
 
     <!-- 4. TIEMPO AGOTADO -->
@@ -97,16 +97,15 @@
       <div class="feedback-icon">⏳</div>
       <h2 class="status-msg">¡Tiempo Agotado!</h2>
       <p class="explanation">
-        Superaste el límite de 7s. La palabra correcta era <strong>"{{ currentLevel.correctWord }}"</strong>.
+        Superaste el límite de 7s.
       </p>
-      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente Frase</button>
+      <button class="btn-action btn-next" (click)="nextLevel()">Siguiente</button>
     </div>
 
     <!-- 5. POPUP DE RESULTADOS FINALES -->
     <div class="modal-dialog feedback-dialog finished" *ngIf="gameStatus === 'finished'">
       <div class="feedback-icon">🏆</div>
       <h2 class="status-msg">¡Minijuego Completado!</h2>
-      <p class="explanation">Puntuación total: <strong>{{ score }} pts</strong></p>
       
       <!-- INDICADOR DE DESEMPEÑO POR ORDEN -->
       <div class="results-history">

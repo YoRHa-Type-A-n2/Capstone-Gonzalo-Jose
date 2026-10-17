@@ -26,7 +26,7 @@ export interface LevelConfig {
 })
 export class BuscaImagenComponent implements OnInit, OnDestroy {
   @Input() bookId: string = '';
-  @Input() gameData: any = null; // <-- 1. RECIBE EL JUEGO EXACTO DESDE LA SESIÓN
+  @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
   gameState: 'intro' | 'playing' | 'result' = 'intro';
@@ -72,11 +72,9 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
       this.bookId = this.route.snapshot.paramMap.get('bookId') || '';
     }
 
-    // 2. VERIFICAMOS SI LA SESIÓN NOS PASÓ LOS DATOS DIRECTAMENTE
     if (this.gameData) {
       this.processGameData([this.gameData]);
     } else {
-      // Fallback si se accede de forma independiente por URL
       this.loadGameData();
     }
   }
@@ -85,7 +83,6 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.stopTimer();
   }
 
-  // 3. NUEVO MÉTODO PARA PROCESAR EL OBJETO ÚNICO SIN LLAMAR A LA API GLOBAL
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
@@ -199,6 +196,13 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.resultType = type;
     this.gameState = 'result';
     this.scrollToTopIfMobile();
+
+    // Si falla o se acaba el tiempo en el último nivel (o en general), evaluamos derrota
+    if (type === 'wrong' || type === 'timeout') {
+      if (this.currentLevelIndex >= this.levels.length - 1) {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
+    }
   }
 
   nextLevel(): void {
@@ -208,7 +212,12 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
       this.gameState = 'intro';
       this.scrollToTopIfMobile();
     } else {
-      this.completed.emit(true);
+      // Si llega aquí con éxito en el último nivel
+      if (this.resultType === 'success') {
+        this.completed.emit(true); // 🟢 Victoria (10 puntos)[cite: 10]
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     }
   }
 

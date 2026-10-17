@@ -1,22 +1,14 @@
-<div class="game-container">
-
-  <!-- HEADER DEL JUEGO -->
-  <header class="game-header">
-    <button class="btn-exit" (click)="exitGame()">← Volver</button>
-    <div class="game-title">
-      <span>Busca en la imagen</span>
-      <h2>{{ currentLevel.storyTitle }}</h2>
-    </div>
-    <div class="level-badge">Nivel {{ currentLevelIndex + 1 }}/{{ levels.length }}</div>
-  </header>
+<div class="game-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100vh; max-height: 100vh; overflow-y: auto; padding: 4px 0 0 0; margin: 0;">
 
   <!-- BARRA TEMPORIZADORA HORIZONAL -->
-  <div class="timer-container">
-    <div class="timer-bar" [style.width.%]="devMode ? 100 : timerProgress" [class.warning]="timerProgress < 30"></div>
+  <div style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 10px; margin: 0 auto 2px auto; width: 95%; max-width: 700px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;">
+    <div class="timer-container" style="background: rgba(255, 255, 255, 0.12); border-radius: 9999px; overflow: hidden; height: 6px; width: 100%; margin: 0;">
+      <div class="timer-bar" [style.width.%]="devMode ? 100 : timerProgress" [class.warning]="timerProgress < 30" style="height: 100%; border-radius: 9999px; transition: width 0.05s linear;"></div>
+    </div>
   </div>
 
-  <!-- PANEL MODO EDITOR SUPERIOR (CONTROLES + VISOR + POPUP) -->
-  <div *ngIf="devMode && gameState === 'playing'" class="dev-coords-banner">
+  <!-- PANEL MODO EDITOR SUPERIOR -->
+  <div *ngIf="devMode && gameState === 'playing'" class="dev-coords-banner" style="margin: 2px 0; flex-shrink: 0;">
     <div class="dev-controls">
       <button class="btn-dev-action" (click)="openIntroModal()">
         📖 Ver Frase
@@ -40,9 +32,9 @@
     </div>
   </div>
 
-  <!-- ÁREA DE JUEGO (ESCENA DE LA IMAGEN) -->
-  <main class="stage-viewport">
-    <div class="image-wrapper" (click)="onImageMissClick($event)">
+  <!-- ÁREA DE JUEGO (ESCENA DE LA IMAGEN - PEGADA ARRIBA) -->
+  <main class="stage-viewport" style="margin: 0 !important; padding: 0 !important; display: flex; justify-content: center; align-items: flex-start; width: 100%;">
+    <div class="image-wrapper" style="margin: 0 !important;" (click)="onImageMissClick($event)">
       <img [src]="currentLevel.imageUrl" [alt]="currentLevel.storyTitle" class="scene-image" />
 
       <!-- ZONA DE CLIC / TARGET (NORMAL) -->
@@ -70,17 +62,10 @@
     </div>
   </main>
 
-  <!-- POP-UP INICIAL (FRAGMENTO DEL TEXTO + MODO EDITOR) -->
+  <!-- POP-UP INICIAL -->
   <div class="modal-overlay" *ngIf="gameState === 'intro'">
     <div class="modal-card">
       
-      <div class="dev-option">
-        <button class="btn-dev" (click)="toggleDevMode()">
-          ⚙️ Modo Editor: <strong>{{ devMode ? 'ON' : 'OFF' }}</strong>
-        </button>
-      </div>
-
-      <div class="modal-badge">📖 Comprensión Lectora</div>
       <h3>{{ currentLevel.storyTitle }}</h3>
       
       <p class="story-snippet" [innerHTML]="currentLevel.textSnippet"></p>
@@ -88,11 +73,10 @@
       <div class="instruction-box">
         🔍 Encuentra: <strong>{{ currentLevel.targetObjectName }}</strong>
         <span class="timer-hint" *ngIf="!devMode">⏱️ ¡Tienes solo 5 segundos!</span>
-        <span class="timer-hint dev" *ngIf="devMode">🛠️ Modo Editor activado (Temporizador pausado)</span>
       </div>
 
       <button class="btn-primary" (click)="startGame()">
-        {{ devMode ? 'Editar Nivel' : '¡Comenzar!' }}
+        ¡Comenzar!
       </button>
     </div>
   </div>
@@ -121,7 +105,7 @@
 
       <div class="actions">
         <button class="btn-primary" (click)="nextLevel()">
-          {{ currentLevelIndex < levels.length - 1 ? 'Siguiente Nivel' : 'Volver a Jugar' }}
+          {{ currentLevelIndex < levels.length - 1 ? 'Siguiente Nivel' : 'Siguiente' }}
         </button>
       </div>
     </div>

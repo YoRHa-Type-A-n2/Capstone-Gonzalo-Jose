@@ -1,19 +1,11 @@
 <div class="game-container">
-  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
-
   <div *ngIf="!gameOver" class="play-card">
-    <!-- HUD superior -->
-    <div class="hud">
-      <span class="round-indicator">Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
-      <div class="score-group">
-        <span class="potential-badge" [class.frozen]="answered">⚡ +{{ currentPotentialPoints }} pts</span>
-        <span class="score-badge">Total: {{ score }} pts</span>
+    
+    <!-- BARRA TEMPORIZADORA HORIZONAL -->
+    <div style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 10px; margin: 0 auto 2px auto; width: 95%; max-width: 700px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;">
+      <div class="timer-container" style="background: rgba(255, 255, 255, 0.12); border-radius: 9999px; overflow: hidden; height: 6px; width: 100%; margin: 0;">
+        <div class="timer-bar" [style.width.%]="(elapsedTime / TOTAL_TIME) * 100" style="height: 100%; border-radius: 9999px; transition: width 0.05s linear; background-color: #2F8F6E;"></div>
       </div>
-    </div>
-
-    <!-- Barra de Tiempo -->
-    <div class="timer-bar-container">
-      <div class="timer-bar-fill" [style.width.%]="(elapsedTime / TOTAL_TIME) * 100"></div>
     </div>
 
     <!-- GRILLA ADAPTATIVA (PC: Imagen izq, Opciones der | Móvil: Imagen arriba, Opciones abajo) -->
@@ -53,10 +45,10 @@
         </div>
         <h3 class="status-msg">{{ isCorrect ? '¡Correcto!' : '¡Incorrecto!' }}</h3>
         <p class="explanation">
-          {{ isCorrect ? '¡Has identificado el personaje con éxito!' : 'La opción correcta era: ' + challenges[currentIndex].correctCharacter }}
+          {{ isCorrect ? '¡Has identificado el personaje con éxito!' : 'La opción no es la correcta'}}
         </p>
         <button class="btn-next" (click)="nextChallenge()">
-          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Siguiente' }}
         </button>
       </div>
     </div>
@@ -66,7 +58,6 @@
   <!-- Pantalla de Resultados -->
   <div *ngIf="gameOver" class="results-card">
     <h2>🖼️ ¡Desafío Completado!</h2>
-    <p class="final-score">Puntaje total: <strong>{{ score }} pts</strong></p>
     <div class="actions">
       <button class="btn-retry" (click)="restartGame()">Reintentar</button>
       <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
