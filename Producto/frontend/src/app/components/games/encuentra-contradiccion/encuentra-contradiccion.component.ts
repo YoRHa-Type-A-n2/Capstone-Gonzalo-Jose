@@ -81,17 +81,25 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
         }
 
         const rawChallenges = config.challenges || [config];
-        return rawChallenges.map((c: any, idx: number) => ({
-          id: c.id || idx + 1,
-          premiseText: c.premise_text || c.premiseText || '',
-          explanation: c.explanation || '',
-          images: (c.images || []).map((img: any) => ({
+        return rawChallenges.map((c: any, idx: number) => {
+          // Mapeamos las imágenes del JSON de la API
+          let imagesList: ImageOption[] = (c.images || []).map((img: any) => ({
             id: img.id,
             imageSrc: img.image_src || img.imageSrc || '',
             altText: img.alt_text || img.altText || '',
             isContradiction: img.is_contradiction ?? img.isContradiction ?? false
-          }))
-        }));
+          }));
+
+          // Mezclamos el orden de las imágenes al azar para evitar que siempre estén en la misma posición
+          imagesList = this.shuffleArray(imagesList);
+
+          return {
+            id: c.id || idx + 1,
+            premiseText: c.premise_text || c.premiseText || '',
+            explanation: c.explanation || '',
+            images: imagesList
+          };
+        });
       });
 
       if (this.challenges.length > 0) {
@@ -105,6 +113,16 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
       this.hasError = true;
     }
     this.isLoading = false;
+  }
+
+  // Función auxiliar para barajar las opciones al azar (Algoritmo Fisher-Yates)
+  private shuffleArray(array: any[]): any[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   loadGameData(): void {
@@ -170,7 +188,13 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
     this.currentIndex++;
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
-      this.completed.emit(true);
+      
+      // Si acumuló puntaje o respondió correctamente al final
+      if (this.score > 0) {
+        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     } else {
       this.prepareChallenge();
     }

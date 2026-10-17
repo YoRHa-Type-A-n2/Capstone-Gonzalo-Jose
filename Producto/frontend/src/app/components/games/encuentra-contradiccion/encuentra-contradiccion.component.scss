@@ -73,10 +73,12 @@ $alert: #E0575B;
     }
   }
 
+  /* Grilla compacta: columnas del tamaño de su contenido, centradas */
   .game-layout-grid {
     display: grid;
-    grid-template-columns: 1fr 1.1fr 1fr;
-    gap: 0.8rem;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    gap: 0.5rem;
     align-items: center;
     transition: filter 0.3s ease, opacity 0.3s ease;
 
@@ -86,25 +88,19 @@ $alert: #E0575B;
     }
   }
 
+  /* Banner central pegado a las opciones */
   .premise-banner {
     background: $bg-sec;
     border-left: 5px solid $secondary;
-    padding: 0.8rem 1rem;
+    padding: 0.7rem 0.8rem;
     border-radius: 12px;
     text-align: center;
-
-    .tag {
-      font-size: 0.7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: $secondary;
-      display: block;
-      margin-bottom: 0.2rem;
-    }
+    max-width: 240px;
+    margin: 0 auto;
 
     .text {
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 1.425rem;
       font-weight: 700;
       color: $text-main;
       line-height: 1.35;
@@ -114,8 +110,12 @@ $alert: #E0575B;
   .images-column {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    width: 100%;
+    gap: 0.4rem;
+    align-items: center;
+
+    /* Pegar las imágenes hacia el texto central */
+    &.layout-left  { align-items: flex-end; }
+    &.layout-right { align-items: flex-start; }
 
     .image-card {
       position: relative;
@@ -125,14 +125,15 @@ $alert: #E0575B;
       padding: 0;
       background: #f8fafc;
       cursor: pointer;
-      aspect-ratio: 4 / 3;
-      max-height: 240px;
-      width: 100%;
+      aspect-ratio: 1 / 1;
+      width: 230px;      /* -5% (antes 242px) */
+      max-width: 100%;
 
       img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        background: #ffffff;
       }
 
       &.correct-card {
@@ -153,34 +154,35 @@ $alert: #E0575B;
     .game-layout-grid {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.4rem;
     }
 
     .images-column {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.45rem;
+      gap: 0.4rem;
+      width: 100%;
+
+      &.layout-left,
+      &.layout-right { align-items: stretch; }
 
       .image-card {
-        max-height: 400px;
-        aspect-ratio: 4 / 3;
+        width: 100%;
+        max-width: none;
+        aspect-ratio: 1 / 1;
         border-width: 2px;
         border-radius: 10px;
       }
     }
 
     .premise-banner {
-      padding: 0.45rem 0.65rem;
+      max-width: 100%;
+      padding: 0.5rem 0.7rem;
       border-radius: 10px;
 
-      .tag {
-        font-size: 0.6rem;
-        margin-bottom: 0.1rem;
-      }
-
       .text {
-        font-size: 0.82rem;
-        line-height: 1.25;
+        font-size: 1.2rem;
+        line-height: 1.3;
       }
     }
   }
@@ -207,26 +209,49 @@ $alert: #E0575B;
       width: 90%;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 
-      h3 { margin: 0 0 0.6rem 0; color: $text-main; font-size: 1.1rem; }
+      &.premise-dialog {
+        .modal-title-main {
+          font-size: 1.3rem;
+          font-weight: 800;
+          color: $primary;
+          margin: 0 0 0.3rem 0;
+        }
 
-      .premise-highlight {
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: $text-main;
-        background: $bg-sec;
-        padding: 0.7rem;
-        border-radius: 10px;
-        margin-bottom: 0.8rem;
+        .modal-subtitle {
+          font-size: 0.85rem;
+          color: $text-sec;
+          font-weight: 700;
+          margin: 0 0 0.8rem 0;
+        }
+
+        .modal-attention {
+          font-size: 1.15rem;
+          font-weight: 900;
+          color: $accent-cta;
+          margin: 0 0 0.6rem 0;
+          text-transform: uppercase;
+        }
+
+        .premise-highlight {
+          font-size: 1.35rem;
+          font-weight: bold;
+          color: $text-main;
+          background: $bg-sec;
+          padding: 0.8rem;
+          border-radius: 10px;
+          margin-bottom: 1rem;
+          line-height: 1.4;
+        }
       }
 
       .btn-start {
         background: $accent-cta;
         color: white;
         border: none;
-        padding: 0.6rem 1.4rem;
-        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        border-radius: 12px;
         font-weight: 800;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         cursor: pointer;
       }
 
@@ -237,7 +262,7 @@ $alert: #E0575B;
 
         .feedback-badge-icon { font-size: 2rem; margin-bottom: 0.3rem; }
         .status-msg { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; }
-        .explanation { font-size: 0.88rem; color: $text-main; margin-bottom: 1rem; }
+        .explanation { font-size: 0.95rem; color: $text-main; margin-bottom: 1rem; font-weight: 700; }
 
         .btn-next {
           background: $accent-cta;

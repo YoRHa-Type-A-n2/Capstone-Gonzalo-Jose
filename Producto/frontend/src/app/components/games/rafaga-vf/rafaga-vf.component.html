@@ -1,7 +1,5 @@
 <div class="game-container">
-  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
-
-  <!-- Mensajes de estado -->
+    <!-- Mensajes de estado -->
   <div *ngIf="isLoading" class="loading-state">
     <p>⏳ Cargando desafío...</p>
   </div>
@@ -10,13 +8,14 @@
     <p>⚠️ No se pudieron cargar los datos del juego.</p>
   </div>
 
-  <!-- Contenido principal (solo si ya cargó y no hay error) -->
+  <!-- Contenido principal -->
   <ng-container *ngIf="!isLoading && !hasError">
     <!-- Paso 1: Lectura del fragmento -->
     <div *ngIf="!gameStarted" class="intro-card">
-      <h2>⚡ Ráfaga de V/F</h2>
-      <p class="instruction">Lee con atención el siguiente fragmento antes de comenzar:</p>
-      <blockquote class="passage-box">
+      <p class="instruction" style="font-size: 1.9rem; line-height: 1.2; font-weight: 800; margin-bottom: 1.5rem; color: #33403A;">
+        Lee con atención el siguiente fragmento antes de comenzar:
+      </p>
+      <blockquote class="passage-box" style="font-size: 1.3rem; font-weight: bold; font-style: normal; color: #33403A;">
         "{{ passageText }}"
       </blockquote>
       <button class="btn-start" (click)="startGame()">¡Empezar Ráfaga! ({{ timeLimitPerQuestion }}s por afirmación)</button>
@@ -34,18 +33,41 @@
       </div>
 
       <div class="controls">
-        <button class="btn-false" (click)="answer(false)">👈 FALSO</button>
-        <button class="btn-true" (click)="answer(true)">VERDADERO 👉</button>
+        <button 
+          class="btn-false" 
+          [class.pressed-animation]="selectedAnswer === false"
+          [disabled]="buttonsDisabled"
+          (click)="answer(false)">
+          👈 FALSO
+        </button>
+        <button 
+          class="btn-true" 
+          [class.pressed-animation]="selectedAnswer === true"
+          [disabled]="buttonsDisabled"
+          (click)="answer(true)">
+          VERDADERO 👉
+        </button>
       </div>
     </div>
 
-    <!-- Paso 3: Pantalla de Resultados -->
-    <div *ngIf="gameOver" class="results-card">
-      <h2>¡Fin del Juego!</h2>
-      <p class="score-text">Puntaje obtenido: <strong>{{ score }} pts</strong></p>
-      <div class="actions">
-        <button class="btn-start" (click)="startGame()">Reintentar</button>
-        <button class="btn-exit" (click)="exitGame()">Menú Principal</button>
+    <!-- Paso 3: POPUP de resultados finales -->
+    <div *ngIf="gameOver" class="final-overlay">
+      <div class="final-dialog">
+        <h3 class="final-title">¡Ráfaga terminada!</h3>
+
+        <div class="final-results">
+          <div *ngFor="let res of statementResults; let i = index"
+               class="result-chip"
+               [class.ok]="res.isCorrect"
+               [class.bad]="!res.isCorrect">
+            <span class="result-num">{{ i + 1 }}</span>
+            <span class="result-icon">{{ res.isCorrect ? '✔️' : '❌' }}</span>
+          </div>
+        </div>
+
+        <button class="btn-final" (click)="goNext()">
+          {{ isLastGame ? 'Finalizar' : 'Siguiente' }}
+        </button>
       </div>
     </div>
   </ng-container>

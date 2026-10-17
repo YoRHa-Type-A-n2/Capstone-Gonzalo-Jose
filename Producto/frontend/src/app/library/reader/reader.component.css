@@ -4260,3 +4260,18 @@ font-family: 'Outfit', sans-serif;
     transform: scale(0.95);
   }
 }
+
+.minigame-option-btn {
+  background: #312e81;
+  border: 1px solid #4338ca;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.minigame-option-btn:hover {
+  background: #3730a3;
+}

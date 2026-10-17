@@ -204,7 +204,14 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
       this.loadLevel(this.currentLevelIndex + 1, true);
     } else {
       this.gameStatus = 'finished';
-      this.completed.emit(true);
+      
+      // Verificamos si pasó todos los niveles con éxito o si tuvo errores en el historial
+      const hasFailedAny = this.levelResults.some(result => result === false);
+      if (!hasFailedAny && this.levelResults.length === this.levels.length) {
+        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     }
   }
 

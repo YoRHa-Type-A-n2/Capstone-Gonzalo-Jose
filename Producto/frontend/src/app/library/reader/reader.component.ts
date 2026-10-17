@@ -85,6 +85,22 @@ export class ReaderComponent implements OnInit, OnDestroy {
   kokoroDownloading$ = this.kokoroVoice.isDownloadingModel$;
   kokoroProgress$ = this.kokoroVoice.downloadProgress$;
 
+  showMinigameSelectorModal: boolean = false;
+
+  // Listado oficial de los 10 minijuegos disponibles
+  availableMinigamesList = [
+    { code: 'cazador_intrusos', name: '🕵️ Cazador de Intrusos' },
+    { code: 'busca_imagen', name: '🔍 Busca en la Imagen' },
+    { code: 'comics_desordenados', name: '🧩 Cómics Desordenados' },
+    { code: 'completa_dialogo', name: '💬 Completa el Diálogo' },
+    { code: 'emoticono_dialogo', name: '🎭 Emoticono y Diálogo' },
+    { code: 'encuentra_contradiccion', name: '⚡ Encuentra Contradicción' },
+    { code: 'imagen_pixelada', name: '👾 Imagen Pixelada' },
+    { code: 'rafaga_vf', name: '⚡ Ráfaga Verdadero/Falso' },
+    { code: 'reconstruccion_manuscrito', name: '📜 Reconstruir Manuscrito' },
+    { code: 'testigo_ocular', name: '👁️ Testigo Ocular' }
+  ];
+
   toggleKokoroEngine() {
     if (this.kokoroVoice.engineMode$.value === 'local') {
       this.kokoroVoice.setRemoteEngine();
@@ -1819,5 +1835,27 @@ export class ReaderComponent implements OnInit, OnDestroy {
       return base + `talking_${this.activeTalkingFrame}.webp`;
     }
     return base + 'calm.webp'; 
+  }
+
+  openMinigameSelector() {
+    if (!this.bookUuid) {
+      console.error('No se encontró el UUID del libro.');
+      return;
+    }
+    this.showMinigameSelectorModal = true;
+  }
+
+  closeMinigameSelector() {
+    this.showMinigameSelectorModal = false;
+  }
+
+  selectAndLaunchMinigame(gameCode: string) {
+    if (!this.bookUuid) return;
+    this.showMinigameSelectorModal = false;
+    
+    // Esto enviará el código exacto a la ruta de la sesión
+    this.router.navigate(['/games/session', this.bookUuid], { 
+      queryParams: { game: gameCode } 
+    });
   }
 }

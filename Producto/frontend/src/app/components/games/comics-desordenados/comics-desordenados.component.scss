@@ -55,14 +55,6 @@ $alert: #E0575B;
     }
   }
 
-  .instruction {
-    font-size: 0.9rem;
-    color: $text-sec;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-
   .game-board {
     display: flex;
     flex-direction: column;
@@ -82,7 +74,7 @@ $alert: #E0575B;
     gap: 1rem;
     justify-items: center;
     width: 100%;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .comic-card {
@@ -129,7 +121,7 @@ $alert: #E0575B;
 
   .target-slot {
     width: 100%;
-    min-height: 220px;
+    min-height: 176px; /* Reducido un 20% respecto a los 220px originales para dejar espacio al botón inferior */
     border: 3px dashed $primary;
     background: $bg-sec;
     border-radius: 18px;
@@ -186,7 +178,7 @@ $alert: #E0575B;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1.8rem;
+    margin-top: 1rem;
     padding: 0 0.5rem;
 
     .attempts-info {
@@ -283,21 +275,9 @@ $alert: #E0575B;
     padding: 0.4rem;
     border-radius: 16px;
 
-    .hud {
-      font-size: 0.8rem;
-      margin-bottom: 0.25rem;
-
-      .score-badge {
-        padding: 0.2rem 0.55rem;
-        font-size: 0.75rem;
-        border-radius: 8px;
-      }
-    }
-
     .instruction {
-      font-size: 0.72rem;
-      margin-bottom: 0.4rem;
-      line-height: 1.2;
+      font-size: 1rem !important; /* Ajuste proporcional para móviles */
+      line-height: 1.15;
     }
 
     .game-board {
@@ -320,7 +300,7 @@ $alert: #E0575B;
         width: 100%;
         max-width: 100%;
         aspect-ratio: auto;
-        height: 90px; /* 90% de la altura total del área de detección (96px) */
+        height: 75px; 
         padding: 0.15rem;
         border: 2px solid $text-main;
         border-radius: 8px;
@@ -343,7 +323,7 @@ $alert: #E0575B;
 
     .target-slot {
       width: 100%;
-      min-height: 96px; /* Aumentado un 20% respecto a los 80px originales */
+      min-height: 76px; /* Reducido verticalmente en móvil */
       padding: 0.25rem 0.3rem;
       border-width: 2px;
       border-radius: 10px;

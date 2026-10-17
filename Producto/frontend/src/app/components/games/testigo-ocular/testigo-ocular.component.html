@@ -1,15 +1,7 @@
 <div class="game-container" #gameContainer>
 
-  <!-- BOTÓN VOLVER -->
-  <button class="btn-exit" (click)="exitGame()">&larr; Volver al Menú</button>
-
   <!-- HUD SUPERIOR -->
   <div class="hud">
-    <div class="hud-item">
-      <span>PUNTOS:</span>
-      <span class="score-badge">{{ score }}</span>
-    </div>
-    
     <div class="hud-item timer-box" *ngIf="gameStatus === 'answering'">
       <span>TIEMPO:</span>
       <span class="timer-badge" [class.danger]="timeLeft <= 2.0">{{ timeLeft }}s</span>
@@ -86,8 +78,6 @@
       <h2 class="status-msg">
         {{ lives > 0 ? '¡Imagen Completada!' : '¡Sin Vidas en esta Imagen!' }}
       </h2>
-      <p class="explanation">Puntuación Acumulada: <strong>{{ score }} pts</strong></p>
-
       <!-- HISTORIAL DE PREGUNTAS DE ESTA IMAGEN -->
       <div class="results-history">
         <div class="level-summary">
@@ -102,15 +92,10 @@
       </div>
 
       <div class="modal-actions">
-        <!-- Siempre se muestra "Siguiente Imagen" -->
         <button class="btn-action btn-start" (click)="nextLevelOrRestart()">
-          Siguiente Imagen
+          Siguiente
         </button>
 
-        <!-- "Volver al Menú" solo se muestra en la última imagen del demo (Rumpelstiltskin) -->
-        <button *ngIf="!hasNextLevel" class="btn-action btn-exit-final" (click)="exitGame()">
-          Volver al Menú
-        </button>
       </div>
     </div>
 

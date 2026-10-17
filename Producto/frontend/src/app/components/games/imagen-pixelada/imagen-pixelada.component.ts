@@ -9,6 +9,7 @@ interface PixelChallenge {
   imageSrc: string;
   fallbackEmoji: string;
   options: string[];
+  totalTime: number;
 }
 
 @Component({
@@ -29,7 +30,7 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
   currentIndex: number = 0;
   score: number = 0;
 
-  readonly TOTAL_TIME: number = 15;
+  TOTAL_TIME: number = 15;
   elapsedTime: number = 0;
   timerInterval: any = null;
   currentPotentialPoints: number = 100;
@@ -73,14 +74,24 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
       this.challenges = data.flatMap((item, idx) => {
         const config = item.config_data || {};
         const itemsList = config.challenges || [config];
-        
-        return itemsList.map((c: any, subIdx: number) => ({
-          id: c.id || idx * 10 + subIdx,
-          correctCharacter: c.correct_character || c.correctCharacter,
-          imageSrc: c.image_src || c.imageSrc,
-          fallbackEmoji: c.fallback_emoji || c.fallbackEmoji || '❓',
-          options: c.options || []
-        }));
+        const globalTime = config.total_time || config.totalTime;
+
+        return itemsList.map((c: any, subIdx: number) => {
+          // 1. Obtenemos las opciones originales de la API
+          let rawOptions = c.options || [];
+          
+          // 2. Mezclamos las opciones al azar para que no queden fijas en la misma posición
+          let shuffledOptions = this.shuffleArray(rawOptions);
+
+          return {
+            id: c.id || idx * 10 + subIdx,
+            correctCharacter: c.correct_character || c.correctCharacter,
+            imageSrc: c.image_src || c.imageSrc,
+            fallbackEmoji: c.fallback_emoji || c.fallbackEmoji || '❓',
+            options: shuffledOptions, // Asignamos las opciones barajadas
+            totalTime: c.total_time || c.totalTime || globalTime || 15
+          };
+        });
       });
 
       if (this.challenges.length > 0) {
@@ -96,6 +107,16 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
       this.hasError = true;
       this.isLoading = false;
     }
+  }
+
+  // Función auxiliar para barajar arreglos al azar (Algoritmo Fisher-Yates)
+  private shuffleArray(array: string[]): string[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   loadGameData(): void {
@@ -129,6 +150,8 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
     if (this.challenges.length === 0) return;
 
     const currentChallenge = this.challenges[this.currentIndex];
+    this.TOTAL_TIME = currentChallenge.totalTime || 15;
+
     this.imgElement = new Image();
     this.imgElement.src = currentChallenge.imageSrc;
 
@@ -214,7 +237,11 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
     this.currentIndex++;
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
-      this.completed.emit(true);
+      if (this.score > 0) {
+        this.completed.emit(true);  // 🟢 Victoria (10 puntos)[cite: 16]
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     } else {
       this.loadChallenge();
     }

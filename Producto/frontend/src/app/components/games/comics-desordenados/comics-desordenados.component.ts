@@ -109,6 +109,7 @@ export class ComicsDesordenadosComponent implements OnInit {
       }
     });
   }
+
   loadChallenge(index: number): void {
     this.isVerified = false;
     this.isCorrect = false;
@@ -205,12 +206,25 @@ export class ComicsDesordenadosComponent implements OnInit {
 
   nextChallenge(): void {
     this.resetPositions();
+
+    // Si se quedó sin intentos en este desafío, finalizamos el juego enviando false (derrota)
+    if (!this.isCorrect && this.attemptsRemaining === 0) {
+      this.gameOver = true;
+      this.completed.emit(false);
+      return;
+    }
+
     if (this.currentIndex + 1 < this.challenges.length) {
       this.currentIndex++;
       this.loadChallenge(this.currentIndex);
     } else {
       this.gameOver = true;
-      this.completed.emit(true);
+      // Si completó todos los desafíos correctamente
+      if (this.score > 0) {
+        this.completed.emit(true);  // 🟢 Victoria (10 puntos)[cite: 12]
+      } else {
+        this.completed.emit(false); // ❌ Derrota (0 puntos)
+      }
     }
   }
 

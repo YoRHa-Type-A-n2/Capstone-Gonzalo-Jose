@@ -16,6 +16,11 @@ import { CazadorIntrusosComponent } from '../cazador-intrusos/cazador-intrusos.c
 import { BuscaImagenComponent } from '../busca-imagen/busca-imagen.component';
 import { ComicsDesordenadosComponent } from '../comics-desordenados/comics-desordenados.component';
 
+interface GameScoreSummary {
+  name: string;
+  points: number;
+}
+
 @Component({
   selector: 'app-minigame-session',
   standalone: true,
@@ -47,11 +52,21 @@ export class MinigameSessionComponent implements OnInit {
   sessionFinished: boolean = false;
   score: number = 0;
 
+  // Arreglo para almacenar el desglose de puntajes por minijuego
+  gameScoreDetails: GameScoreSummary[] = [];
+
   ngOnInit() {
     const routeId = this.route.snapshot.paramMap.get('bookId');
+    const specificGameCode = this.route.snapshot.queryParamMap.get('game');
+
     if (routeId) {
       this.bookId = routeId;
-      this.loadSession();
+      
+      if (specificGameCode) {
+        this.loadSpecificGameSession(specificGameCode);
+      } else {
+        this.loadSession();
+      }
     } else {
       console.error('❌ [MinigameSession] No se encontró un bookId válido en la ruta.');
       this.isLoading = false;
@@ -59,15 +74,44 @@ export class MinigameSessionComponent implements OnInit {
     }
   }
 
+  loadSpecificGameSession(gameCode: string) {
+    this.isLoading = true;
+    this.minigameService.getMinigameByCode(this.bookId, gameCode).subscribe({
+      next: (games: any[]) => {
+        this.playlist = games;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ [MinigameSession] Error al cargar el minijuego específico:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  getCurrentGameDisplayName(): string {
+    return this.getGameDisplayNameByCode(this.getCurrentGameCode());
+  }
+
+  getGameDisplayNameByCode(code: string): string {
+    const namesMap: { [key: string]: string } = {
+      'cazador_intrusos': 'Cazador de Intrusos',
+      'busca_imagen': 'Busca en la Imagen',
+      'comics_desordenados': 'Cómics Desordenados',
+      'completa_dialogo': 'Completa el Diálogo',
+      'emoticono_dialogo': 'Emoticono diálogo',
+      'encuentra_contradiccion': 'Encuentra la contradicción',
+      'imagen_pixelada': 'Imagen Pixelada',
+      'rafaga_vf': 'Ráfaga Verdadero/Falso',
+      'reconstruccion_manuscrito': 'Reconstruir Manuscrito',
+      'testigo_ocular': 'Testigo Ocular'
+    };
+    return namesMap[code] || 'Minijuego Interactivo';
+  }
+
   loadSession() {
     this.isLoading = true;
-    console.log(`📡 [MinigameSession] Solicitando playlist para el bookId UUID: ${this.bookId}`);
-    
     this.minigameService.getMinigamesSession(this.bookId).subscribe({
       next: (games: any[]) => {
-        console.log('✅ [MinigameSession] Datos crudos devueltos por la API:', games);
-        
-        // 1. Filtramos para asegurar estrictamente UN SOLO minijuego por cada 'minigame_code' único
         const uniqueGamesMap = new Map();
         for (const game of games) {
           const code = game.minigame_code || game.code;
@@ -77,19 +121,9 @@ export class MinigameSessionComponent implements OnInit {
         }
         
         let uniqueList = Array.from(uniqueGamesMap.values());
-
-        // 2. Opcional: Si quieres barajarlos y limitar la sesión a 5 minijuegos diferentes
         uniqueList = uniqueList.sort(() => Math.random() - 0.5);
-        this.playlist = uniqueList.slice(0, 5); // Cambia el número si prefieres otro límite
-
+        this.playlist = uniqueList.slice(0, 5);
         this.isLoading = false;
-        
-        if (this.playlist && this.playlist.length > 0) {
-          console.log('🔍 [MinigameSession] Playlist filtrada y lista (sin repetir tipos):', this.playlist);
-          console.log('🔑 [MinigameSession] Código evaluado (getCurrentGameCode):', this.getCurrentGameCode());
-        } else {
-          console.warn('⚠️ [MinigameSession] La playlist quedó vacía tras el filtrado.');
-        }
       },
       error: (err) => {
         console.error('❌ [MinigameSession] Error en la petición HTTP de la sesión:', err);
@@ -101,25 +135,41 @@ export class MinigameSessionComponent implements OnInit {
   getCurrentGameCode(): string {
     if (this.playlist.length === 0 || this.currentIndex >= this.playlist.length) return '';
     const currentGame = this.playlist[this.currentIndex];
-    
-    // Capturamos 'minigame_code' que es el nombre exacto que manda tu API Django
-    const code = currentGame.minigame_code || currentGame.code || '';
-    
-    return code;
+    return currentGame.minigame_code || currentGame.code || '';
   }
 
-  onGameCompleted(success: any) {
-    console.log(`🎯 [MinigameSession] Evento 'completed' recibido del minijuego [${this.currentIndex}]. Resultado:`, success);
-    if (success) {
-      this.score += 100;
+  onGameCompleted(result: any) {
+    console.log(`[MinigameSession] Evento 'completed' recibido. Resultado:`, result);
+    
+    // 1. Obtenemos el nombre amigable del minijuego actual antes de avanzar de índice
+    const currentGameCode = this.getCurrentGameCode();
+    const currentName = this.getGameDisplayNameByCode(currentGameCode);
+
+    let pointsToAdd = 0;
+    if (typeof result === 'number') {
+      pointsToAdd = result;
+    } 
+    else if (result === true) {
+      pointsToAdd = 10;
+    } 
+    else {
+      pointsToAdd = 0;
     }
+
+    this.score += pointsToAdd;
+    console.log(`Puntos sumados en este juego: ${pointsToAdd} | Puntaje total acumulado: ${this.score}`);
+
+    // 2. ¡IMPORTANTE! Guardamos el nombre y los puntos en el arreglo para la pantalla final
+    this.gameScoreDetails.push({
+      name: currentName,
+      points: pointsToAdd
+    });
 
     if (this.currentIndex < this.playlist.length - 1) {
       this.currentIndex++;
-      console.log(`➡️ [MinigameSession] Avanzando al siguiente minijuego. Nuevo índice: ${this.currentIndex}`);
     } else {
-      console.log('🏁 [MinigameSession] Todos los minijuegos de la playlist han finalizado.');
       this.sessionFinished = true;
+      console.log('🏁 [MinigameSession] Desglose final guardado:', this.gameScoreDetails);
     }
   }
 

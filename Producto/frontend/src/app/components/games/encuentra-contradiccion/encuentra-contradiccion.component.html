@@ -1,17 +1,10 @@
 <div class="game-container">
-  <button class="btn-exit" (click)="exitGame()">← Salir al Menú</button>
-
   <div *ngIf="!gameOver" class="play-card">
-    <div class="hud">
-      <span class="round-indicator">Desafío {{ currentIndex + 1 }} / {{ challenges.length }}</span>
-      <span class="score-badge">Puntos: {{ score }}</span>
-    </div>
-
     <div class="timer-bar-container">
       <div class="timer-bar-fill" [style.width.%]="(timeRemaining / TIME_LIMIT) * 100" [class.warning]="timeRemaining <= 2.5"></div>
     </div>
 
-    <!-- GRILLA ADAPTATIVA DE JUEGO (Arriba, Centro, Abajo en Móvil) -->
+    <!-- GRILLA ADAPTATIVA DE JUEGO (Con columnas más cercanas y centro más angosto) -->
     <div class="game-layout-grid" [class.blurred]="showPremiseModal || answered">
       
       <!-- ZONA SUPERIOR (Móvil) / COLUMNA IZQUIERDA (PC): Imágenes 1 y 2 -->
@@ -27,10 +20,9 @@
         </button>
       </div>
 
-      <!-- ZONA CENTRO: Premisa Reducida pero Legible -->
+      <!-- ZONA CENTRO: Premisa con menor espacio horizontal -->
       <div class="layout-center">
         <div class="premise-banner">
-          <span class="tag">Premisa a Analizar</span>
           <p class="text">"{{ challenges[currentIndex].premiseText }}"</p>
         </div>
       </div>
@@ -50,10 +42,12 @@
 
     </div>
 
-    <!-- MODAL PREMISA -->
+    <!-- MODAL PREMISA ACTUALIZADO -->
     <div *ngIf="showPremiseModal" class="modal-overlay">
-      <div class="modal-dialog">
-        <h3>Lee con atención:</h3>
+      <div class="modal-dialog premise-dialog">
+        <h2 class="modal-title-main">Encuentra la contradicción</h2>
+        <p class="modal-subtitle">Lee el fragmento y encuentra la imagen que contradice el texto</p>
+        <h4 class="modal-attention">Lee con atención</h4>
         <p class="premise-highlight">"{{ challenges[currentIndex].premiseText }}"</p>
         <button class="btn-start" (click)="startTimerAndGame()">¡Entendido, Comenzar!</button>
       </div>
@@ -66,9 +60,10 @@
           {{ isCorrect ? '🎉' : '❌' }}
         </div>
         <h3 class="status-msg">{{ isCorrect ? '¡Excelente ojo!' : '¡Incorrecto!' }}</h3>
-        <p class="explanation">{{ challenges[currentIndex].explanation }}</p>
+        <!-- Texto personalizado para respuestas incorrectas -->
+        <p class="explanation">{{ isCorrect ? challenges[currentIndex].explanation : 'Esa no es la imagen con la contradicción' }}</p>
         <button class="btn-next" (click)="nextChallenge()">
-          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Ver Resultados' }}
+          {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Siguiente' }}
         </button>
       </div>
     </div>

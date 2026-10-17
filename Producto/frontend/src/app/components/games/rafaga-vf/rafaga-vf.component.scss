@@ -1,44 +1,47 @@
-/* Variables de Paleta Cálida / Cozy */
-$cozy-bg: #faf6ed;
-$surface-bg: #ffffff;
-$warm-light: #eae5d8;
-$border-light: #ded8c8;
-$border-dark: #ced8c8;
-$text-main: #0f172a;
-$text-muted: #64748b;
+/* Variables de Paleta Solicitada (8-14 años) */
+$bg-main: #FBF9F2;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
 
-/* Estados Verdadero / Falso */
-$true-bg: #dcfce7;
-$true-border: #22c55e;
-$true-shadow: #15803d;
-$true-text: #14532d;
+/* Estados Verdadero / Falso adaptados a la paleta */
+$true-bg: #EAF3E8;
+$true-border: #52B788;
+$true-shadow: #2F8F6E;
+$true-text: #2F8F6E;
 
-$false-bg: #fee2e2;
-$false-border: #ef4444;
+$false-bg: #fdf2f2;
+$false-border: #E0575B;
 $false-shadow: #b91c1c;
-$false-text: #7f1d1d;
+$false-text: #E0575B;
 
 :host {
   display: block;
   min-height: 100vh;
-  background-color: $cozy-bg;
+  background-color: $bg-main;
 }
 
 .game-container {
   width: 100%;
-  max-width: 650px;
+  max-width: 700px;
   margin: 1.5rem auto;
   padding: 1.5rem;
-  background: $surface-bg;
-  border: 2px solid $border-light;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border: 2px solid $bg-sec;
+  border-radius: 24px;
+  box-shadow: 0 10px 35px rgba(51, 64, 58, 0.05);
   box-sizing: border-box;
 
   .btn-exit {
     background: transparent;
     border: none;
-    color: $text-muted;
+    color: $text-sec;
     cursor: pointer;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -56,48 +59,54 @@ $false-text: #7f1d1d;
 
     h2 {
       color: $text-main;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       margin-top: 0;
       margin-bottom: 0.5rem;
+      font-weight: 800;
     }
 
     .instruction {
-      color: $text-muted;
-      font-size: 0.95rem;
+      color: $text-main;
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1.2;
     }
 
     .passage-box {
-      background: #fffdfa;
-      padding: 1.25rem;
-      border-left: 5px solid #d97706;
-      border-top: 1px solid $border-light;
-      border-right: 1px solid $border-light;
-      border-bottom: 1px solid $border-light;
-      border-radius: 0 14px 14px 0;
-      font-style: italic;
-      color: #334155;
+      background: $bg-main;
+      padding: 1.5rem;
+      border-left: 6px solid $accent-cta;
+      border-top: 2px solid $bg-sec;
+      border-right: 2px solid $bg-sec;
+      border-bottom: 2px solid $bg-sec;
+      border-radius: 0 16px 16px 0;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: $text-main;
       line-height: 1.5;
       margin: 1.5rem 0;
       text-align: left;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      box-shadow: 0 4px 12px rgba(51, 64, 58, 0.03);
     }
   }
 
   .btn-start {
-    background: $text-main;
-    color: white;
+    background: $accent-cta;
+    color: #ffffff;
     border: none;
-    border-bottom: 4px solid #020617;
-    padding: 0.85rem 1.8rem;
+    border-bottom: 4px solid #e08542;
+    padding: 0.95rem 1.8rem;
     font-weight: 800;
-    font-size: 1rem;
-    border-radius: 14px;
+    font-size: 1.1rem;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.12s ease-in-out;
     width: 100%;
+    box-shadow: 0 4px 12px rgba(255, 159, 91, 0.3);
 
     &:hover {
-      background: #334155;
+      background: #f78e47;
       transform: translateY(-2px);
     }
 
@@ -109,127 +118,280 @@ $false-text: #7f1d1d;
 
   /* FASE DE JUEGO */
   .play-stage {
+    position: relative;
+
     .hud {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 800;
-      color: $text-muted;
+      color: $text-sec;
       margin-bottom: 1rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
 
       .timer {
-        background: $warm-light;
-        padding: 0.3rem 0.75rem;
-        border-radius: 10px;
+        background: $bg-sec;
+        padding: 0.4rem 0.9rem;
+        border-radius: 12px;
         color: $text-main;
+        font-weight: 800;
 
         &.warning {
-          background: #fee2e2;
-          color: #b91c1c;
+          background: rgba($alert, 0.15);
+          color: $alert;
           animation: pulse 0.5s infinite alternate;
         }
       }
     }
 
     .statement-card {
-      background: #fffdfa;
-      min-height: 130px;
+      background: $bg-main;
+      min-height: 150px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      border: 2px solid $border-light;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      font-size: 1.15rem;
-      font-weight: 700;
+      padding: 1.8rem;
+      border: 3px solid $primary;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(47, 143, 110, 0.08);
+      font-size: 1.35rem;
+      font-weight: 800;
       color: $text-main;
       text-align: center;
       line-height: 1.4;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.8rem;
     }
 
     /* BOTONES FALSO / VERDADERO 3D */
     .controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 1.2rem;
 
       button {
-        padding: 1rem 0.8rem;
-        font-size: 1rem;
+        padding: 1.2rem 1rem;
+        font-size: 1.15rem;
         font-weight: 900;
-        border-radius: 14px;
+        border-radius: 16px;
         cursor: pointer;
         transition: all 0.12s ease-in-out;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none !important;
+        }
       }
 
       .btn-false {
-        background: linear-gradient(180deg, #fff5f5 0%, $false-bg 100%);
-        border: 2px solid $false-border;
-        border-bottom: 4px solid $false-shadow;
+        background: linear-gradient(180deg, #ffffff 0%, $false-bg 100%);
+        border: 3px solid $false-border;
+        border-bottom: 5px solid $false-shadow;
         color: $false-text;
 
-        &:hover {
-          background: linear-gradient(180deg, $false-bg 0%, #fecaca 100%);
+        &:hover:not(:disabled) {
+          background: linear-gradient(180deg, $false-bg 0%, #fbd5d5 100%);
           transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(239, 68, 68, 0.2);
+          box-shadow: 0 6px 16px rgba(224, 87, 91, 0.25);
         }
 
-        &:active {
+        &:active:not(:disabled) {
           transform: translateY(2px);
           border-bottom-width: 2px;
+        }
+
+        &.pressed-animation {
+          background: $alert !important;
+          color: white !important;
+          transform: scale(0.95);
+          box-shadow: 0 0 20px rgba(224, 87, 91, 0.6);
         }
       }
 
       .btn-true {
-        background: linear-gradient(180deg, #f0fdf4 0%, $true-bg 100%);
-        border: 2px solid $true-border;
-        border-bottom: 4px solid $true-shadow;
+        background: linear-gradient(180deg, #ffffff 0%, $true-bg 100%);
+        border: 3px solid $true-border;
+        border-bottom: 5px solid $true-shadow;
         color: $true-text;
 
-        &:hover {
-          background: linear-gradient(180deg, $true-bg 0%, #bbf7d0 100%);
+        &:hover:not(:disabled) {
+          background: linear-gradient(180deg, $true-bg 0%, #d4edda 100%);
           transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(34, 197, 94, 0.2);
+          box-shadow: 0 6px 16px rgba(82, 183, 136, 0.25);
         }
 
-        &:active {
+        &:active:not(:disabled) {
           transform: translateY(2px);
           border-bottom-width: 2px;
+        }
+
+        &.pressed-animation {
+          background: $success !important;
+          color: white !important;
+          transform: scale(0.95);
+          box-shadow: 0 0 20px rgba(82, 183, 136, 0.6);
         }
       }
     }
   }
 
-  /* PANTALLA DE RESULTADOS */
+  /* MODAL / POPUP DE RETROALIMENTACIÓN POR PREMISA */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(51, 64, 58, 0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    z-index: 100;
+    box-sizing: border-box;
+
+    .modal-dialog {
+      background: #ffffff;
+      padding: 1.8rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+      &.feedback-dialog {
+        border-top: 6px solid $text-sec;
+        &.success { border-top-color: $success; .status-msg { color: $success; } }
+        &.error { border-top-color: $alert; .status-msg { color: $alert; } }
+
+        .feedback-badge-icon { font-size: 2.5rem; margin-bottom: 0.4rem; }
+        .status-msg { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .explanation { font-size: 1rem; color: $text-main; margin-bottom: 1.5rem; }
+
+        .btn-next {
+          background: $accent-cta;
+          color: #ffffff;
+          border: none;
+          padding: 0.8rem 1.6rem;
+          border-radius: 14px;
+          font-weight: 800;
+          font-size: 0.95rem;
+          cursor: pointer;
+          width: 100%;
+          box-shadow: 0 4px 12px rgba(255, 159, 91, 0.3);
+
+          &:hover {
+            background: #f78e47;
+          }
+        }
+      }
+    }
+  }
+
+  /* PANTALLA DE RESULTADOS FINALES */
   .results-card {
     .score-text {
-      font-size: 1.2rem;
-      margin: 1.2rem 0;
+      font-size: 1.4rem;
+      margin: 1.5rem 0;
       color: $text-main;
+      font-weight: 700;
     }
 
     .actions {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.85rem;
 
       .btn-exit {
-        background: $warm-light;
-        border: 2px solid $border-light;
+        background: $bg-sec;
+        border: 2px solid $primary;
         color: $text-main;
-        padding: 0.75rem;
-        border-radius: 12px;
+        padding: 0.85rem;
+        border-radius: 14px;
         font-weight: 800;
         margin-bottom: 0;
+        cursor: pointer;
 
         &:hover {
-          background: $border-light;
+          background: #d8ead5;
         }
       }
+    }
+  }
+}
+
+/* POPUP DE RESULTADOS FINALES (pantalla completa, sobre el juego) */
+.final-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(51, 64, 58, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  z-index: 1000;
+  box-sizing: border-box;
+
+  .final-dialog {
+    background: #ffffff;
+    border-top: 6px solid $primary;
+    border-radius: 20px;
+    padding: 1.8rem 1.6rem;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+    .final-badge { font-size: 2.6rem; margin-bottom: 0.3rem; }
+
+    .final-title {
+      margin: 0 0 1.2rem 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: $text-main;
+    }
+
+    .final-results {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1.6rem;
+
+      .result-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 12px;
+        background: $bg-main;
+        border: 2px solid $bg-sec;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: $text-main;
+
+        &.ok  { border-color: $success; background: rgba($success, 0.12); }
+        &.bad { border-color: $alert;   background: rgba($alert, 0.10); }
+      }
+    }
+
+    .btn-final {
+      background: $accent-cta;
+      color: #ffffff;
+      border: none;
+      border-bottom: 4px solid #e08542;
+      padding: 0.9rem 1.6rem;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(255, 159, 91, 0.3);
+      transition: all 0.12s ease-in-out;
+
+      &:hover { background: #f78e47; transform: translateY(-2px); }
+      &:active { transform: translateY(2px); border-bottom-width: 2px; }
     }
   }
 }
