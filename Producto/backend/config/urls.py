@@ -49,6 +49,7 @@ urlpatterns = [
     path('api/v1/dashboard/', include('dashboard.urls')),
     path('api/v1/core/', include('core.urls')),
     path('api/v1/games/', include('games.urls')),
+    path('api/v1/mochila/', include('mochila.urls')),
 ]
 
 from django.conf import settings

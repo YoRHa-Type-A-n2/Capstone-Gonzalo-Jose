@@ -1,0 +1,408 @@
+/* ==========================================================================
+   Final alterno — estilos globales (ViewEncapsulation.None), todo con prefijo .as-
+   Tema: sigue las clases que el reader ya pone en <body>: theme-dark | light | sepia | nocturno
+   ========================================================================== */
+
+.as-popup,
+.as-pill {
+  --as-surface: #1b2140;
+  --as-surface-2: #252c52;
+  --as-text: #eceff9;
+  --as-muted: #a4abc8;
+  --as-line: rgba(236, 239, 249, 0.16);
+  --as-accent: #8fd6c8;
+  --as-on-accent: #0f2a26;
+  --as-shadow: 0 24px 60px rgba(4, 6, 20, 0.55);
+}
+
+body.theme-nocturno .as-popup,
+body.theme-nocturno .as-pill {
+  --as-surface: #0f1226;
+  --as-surface-2: #1a1f3a;
+}
+
+body.theme-light .as-popup,
+body.theme-light .as-pill {
+  --as-surface: #ffffff;
+  --as-surface-2: #eef2f8;
+  --as-text: #1f2747;
+  --as-muted: #5d6585;
+  --as-line: rgba(31, 39, 71, 0.16);
+  --as-accent: #1f7a6d;
+  --as-on-accent: #ffffff;
+  --as-shadow: 0 24px 60px rgba(31, 39, 71, 0.22);
+}
+
+body.theme-sepia .as-popup,
+body.theme-sepia .as-pill {
+  --as-surface: #f4e9d4;
+  --as-surface-2: #e9dbbf;
+  --as-text: #3a2b1c;
+  --as-muted: #7a6650;
+  --as-line: rgba(58, 43, 28, 0.2);
+  --as-accent: #4f6b3a;
+  --as-on-accent: #fbf6ea;
+  --as-shadow: 0 24px 60px rgba(58, 43, 28, 0.25);
+}
+
+/* ---------- Fondo y ventana ---------- */
+
+.as-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 10, 24, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  touch-action: none;
+  overscroll-behavior: contain;
+  animation: as-fade-in 0.28s ease both;
+}
+
+.as-backdrop.as-leaving {
+  animation: as-fade-out 0.22s ease both;
+}
+
+.as-popup {
+  width: min(100%, 420px);
+  max-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px 20px;
+  color: var(--as-text);
+  background: var(--as-surface);
+  border: 1px solid var(--as-line);
+  border-radius: 22px;
+  box-shadow: var(--as-shadow);
+  animation: as-pop-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.as-title {
+  margin: 0 0 6px;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.as-lead {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--as-muted);
+}
+
+/* ---------- Objetos ---------- */
+
+.as-items {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+.as-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  background: var(--as-surface-2);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.as-item:hover {
+  border-color: var(--as-line);
+}
+
+.as-item.as-selected {
+  border-color: var(--as-accent);
+}
+
+.as-icon {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--as-surface);
+  border: 1px solid var(--as-line);
+}
+
+.as-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.as-icon-fallback {
+  font-size: 1.4rem;
+  color: var(--as-accent);
+}
+
+.as-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.as-text strong {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.as-text small {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--as-muted);
+}
+
+.as-check {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--as-line);
+  display: grid;
+  place-items: center;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.as-selected .as-check {
+  background: var(--as-accent);
+  border-color: var(--as-accent);
+}
+
+.as-selected .as-check::after {
+  content: '';
+  width: 5px;
+  height: 10px;
+  margin-bottom: 2px;
+  border: solid var(--as-on-accent);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- Acciones ---------- */
+
+.as-error {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: #ff9c8f;
+}
+
+body.theme-light .as-error,
+body.theme-sepia .as-error {
+  color: #b3261e;
+}
+
+.as-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.as-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.18s ease, background-color 0.18s ease;
+}
+
+.as-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.as-primary {
+  color: var(--as-on-accent);
+  background: var(--as-accent);
+}
+
+.as-ghost {
+  color: var(--as-text);
+  background: transparent;
+  border-color: var(--as-line);
+}
+
+.as-link {
+  margin-right: auto;
+  padding: 0 4px;
+  color: var(--as-muted);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.as-item:focus-visible,
+.as-btn:focus-visible,
+.as-pill:focus-visible {
+  outline: 2px solid var(--as-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Indicador cuando el final alterno está activo ---------- */
+
+.as-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--as-text);
+  background: var(--as-surface);
+  border: 1px solid var(--as-line);
+  border-radius: 999px;
+  box-shadow: var(--as-shadow);
+  cursor: pointer;
+  animation: as-fade-in 0.5s ease both;
+}
+
+.as-pill-gem {
+  width: 8px;
+  height: 8px;
+  background: var(--as-accent);
+  transform: rotate(45deg);
+}
+
+/* ---------- Corte entre el texto original y el final alterno ---------- */
+/* Vive dentro del DOM del reader: hereda su color de texto con currentColor. */
+
+.as-seam {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 32px;
+  color: inherit;
+}
+
+.as-seam-line {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+  transform: scaleX(0);
+}
+
+.as-seam-left {
+  transform-origin: right center;
+}
+
+.as-seam-right {
+  transform-origin: left center;
+}
+
+.as-seam-gem {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  opacity: 0;
+  transform: rotate(45deg) scale(0.4);
+}
+
+.as-seam-draw .as-seam-line {
+  transform: scaleX(1);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+
+.as-seam-draw .as-seam-gem {
+  animation: as-gem 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.as-seam-static .as-seam-line {
+  transform: scaleX(1);
+}
+
+.as-seam-static .as-seam-gem {
+  opacity: 0.7;
+  transform: rotate(45deg);
+}
+
+/* ---------- Animaciones ---------- */
+
+@keyframes as-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes as-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes as-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes as-gem {
+  from {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.4);
+  }
+  to {
+    opacity: 0.7;
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .as-backdrop,
+  .as-popup,
+  .as-pill,
+  .as-seam-draw .as-seam-gem {
+    animation-duration: 0.01ms;
+  }
+
+  .as-seam-draw .as-seam-line,
+  .as-item,
+  .as-check {
+    transition-duration: 0.01ms;
+  }
+}

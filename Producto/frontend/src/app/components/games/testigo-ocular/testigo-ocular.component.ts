@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface Question {
   id: number;
@@ -28,10 +30,17 @@ interface DemoLevel {
 export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() bookId: string = '';
   @Input() gameData: any = null;
-  // Cambiamos el EventEmitter de boolean a number para enviar el puntaje exacto
   @Output() completed = new EventEmitter<number>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   levels: DemoLevel[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
 
   currentLevelIndex: number = 0;
   currentQuestionIndex: number = 0;
@@ -53,12 +62,6 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnInit(): void {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     if (!this.bookId) {
@@ -72,11 +75,20 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.levels = data.flatMap((item) => {
         const config = item.config_data || {};
         const rawLevels = config.levels || (Array.isArray(config) ? config : [config]);
@@ -107,7 +119,6 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para testigo_ocular en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
@@ -204,7 +215,6 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
     this.clearTimer();
 
     if (option === this.currentQuestion.correctOption) {
-      // Sumamos 5 puntos por cada respuesta correcta (puedes ajustarlo si prefieres otro valor)
       this.score += 5; 
       this.isLastAttemptCorrect = true;
       this.registerResult(true);
@@ -245,6 +255,7 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
   nextQuestionOrLevel(): void {
     if (this.lives <= 0) {
       this.gameStatus = 'finished';
+      this.sendResultToBackend('lost', this.score);
       return;
     }
 
@@ -254,6 +265,8 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
         this.startAnsweringPhase();
       } else {
         this.gameStatus = 'finished';
+        const result = this.score > 0 ? 'won' : 'lost';
+        this.sendResultToBackend(result, this.score);
       }
     } else {
       this.startAnsweringPhase();
@@ -264,9 +277,34 @@ export class TestigoOcularComponent implements OnInit, OnDestroy, AfterViewInit 
     if (this.hasNextLevel) {
       this.loadLevel(this.currentLevelIndex + 1);
     } else {
-      // Emitimos el puntaje total acumulado al terminar todos los niveles
-      this.completed.emit(this.score);
+      const result = this.score > 0 ? 'won' : 'lost';
+      this.sendResultToBackend(result, this.score);
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(this.score);
+      },
+      error: (err) => {
+        console.error('❌ Error registrando testigo_ocular en la API:', err);
+        this.completed.emit(this.score);
+      }
+    });
   }
 
   restartGame(): void {

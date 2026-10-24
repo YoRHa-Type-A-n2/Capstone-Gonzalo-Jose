@@ -1,8 +1,10 @@
-import { Component, ElementRef, ViewChild, ViewChildren, QueryList, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, ViewChild, ViewChildren, QueryList, OnInit, OnDestroy, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { DragDropModule, CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface DialogLevel {
   id: number;
@@ -28,7 +30,15 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   levels: DialogLevel[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
 
   currentLevelIndex: number = 0;
   currentLevel!: DialogLevel;
@@ -46,12 +56,6 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnDestroy(): void {
     this.clearTimer();
   }
@@ -68,11 +72,20 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.levels = data.flatMap((item) => {
         const config = item.config_data || {};
         const rawLevels = config.levels || [config];
@@ -94,7 +107,6 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para completa_dialogo en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
@@ -205,14 +217,37 @@ export class CompletaDialogoComponent implements OnInit, OnDestroy {
     } else {
       this.gameStatus = 'finished';
       
-      // Verificamos si pasó todos los niveles con éxito o si tuvo errores en el historial
       const hasFailedAny = this.levelResults.some(result => result === false);
-      if (!hasFailedAny && this.levelResults.length === this.levels.length) {
-        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
-      } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
-      }
+      const isWin = !hasFailedAny && this.levelResults.length === this.levels.length;
+      const finalResult = isWin ? 'won' : 'lost';
+
+      this.sendResultToBackend(finalResult, this.score);
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando completa_dialogo en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame(): void {

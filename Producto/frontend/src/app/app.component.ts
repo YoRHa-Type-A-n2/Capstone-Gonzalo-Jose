@@ -6,6 +6,8 @@ import { filter } from 'rxjs/operators';
 import { routeTransitionAnimations, shakeAnimation } from './core/animations';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { MochilaComponent } from './components/mochila/mochila.component';
 
 import { SettingsService } from './core/services/settings.service';
 
@@ -145,6 +147,16 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/ink-shop']);
   }
 
+  private dialog = inject(MatDialog);
+
+  openBackpack() {
+  this.dialog.open(MochilaComponent, {
+    width: '750px',
+    maxWidth: '95vw',
+    maxHeight: '90vh',
+    panelClass: 'mochila-modal-wrapper'
+  });
+}
   triggerShake() {
     this.shakeState = 'trigger';
     setTimeout(() => {

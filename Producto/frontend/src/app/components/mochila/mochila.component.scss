@@ -1,0 +1,460 @@
+// ==========================================
+// PALETA DE COLORES (7-14 años)
+// ==========================================
+$bg-primary: #FBF9F2;       // Fondo principal (crema claro)
+$bg-secondary: #EAF3E8;     // Fondo secundario (verde menta suave)
+$text-primary: #33403A;     // Texto principal (verde oscuro)
+$text-secondary: #6E7C74;   // Texto secundario (gris verdoso)
+$color-primary: #2F8F6E;    // Verde principal
+$color-secondary: #4A90A4;  // Azul turquesa
+$color-accent: #FF9F5B;     // Naranja cálido (CTA)
+$color-badge: #FFD166;      // Amarillo insignia / Puntos
+$color-success: #52B788;    // Verde éxito
+$color-alert: #E0575B;      // Rojo alerta
+
+.mochila-container {
+  padding: 24px;
+  color: $text-primary;
+  background-color: $bg-primary;
+  border-radius: 24px;
+  font-family: 'Fredoka', 'Quicksand', 'Nunito', 'Segoe UI', sans-serif;
+  box-shadow: 0 10px 30px rgba(51, 64, 58, 0.12);
+  max-width: 720px;
+  margin: 0 auto;
+
+  // ----------------------------------------
+  // CABECERA DEL POPUP
+  // ----------------------------------------
+  .mochila-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px dashed $color-secondary; // Corregido de border-color() inválido
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: $color-primary;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .close-btn {
+      background: $bg-secondary;
+      border: 2px solid $color-secondary;
+      color: $color-secondary;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $color-alert;
+        border-color: $color-alert;
+        color: #ffffff;
+        transform: scale(1.1) rotate(90deg);
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // TARJETAS DE PUNTOS
+  // ----------------------------------------
+  .points-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .p-card {
+      background: #ffffff;
+      border: 2px solid $bg-secondary;
+      padding: 16px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(47, 143, 110, 0.08);
+      position: relative;
+      overflow: hidden;
+
+      span {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: $text-secondary;
+        margin-bottom: 4px;
+      }
+
+      strong {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: $color-primary;
+      }
+
+      &:first-child {
+        border-color: $color-badge;
+        strong {
+          color: darken($color-badge, 20%);
+        }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // BOTÓN TIENDA (CTA)
+  // ----------------------------------------
+  .shop-redirect-bar {
+    margin-bottom: 24px;
+
+    .btn-shop-link {
+      width: 100%;
+      background: $color-accent;
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 159, 91, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      &:hover {
+        background: lighten($color-accent, 5%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 159, 91, 0.45);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // SECCIONES GENERALES
+  // ----------------------------------------
+  .section-block {
+    margin-bottom: 24px;
+    background: $bg-secondary;
+    padding: 16px 20px;
+    border-radius: 20px;
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+      color: $color-primary;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+
+  // ----------------------------------------
+  // RESUMEN DE ESTADÍSTICAS
+  // ----------------------------------------
+  .stats-summary {
+    display: flex;
+    justify-content: space-around;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+
+    p {
+      margin: 0;
+      font-weight: 600;
+      color: $text-secondary;
+
+      strong {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: $text-primary;
+      }
+
+      &.won strong {
+        color: $color-success;
+      }
+
+      &.lost strong {
+        color: $color-alert;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // TABLA DE HISTORIAL POR MINIJUEGO
+  // ----------------------------------------
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 14px;
+    background: #ffffff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th, td {
+      padding: 10px 14px;
+      text-align: center;
+      border-bottom: 1px solid $bg-secondary;
+    }
+
+    th {
+      background: $color-secondary;
+      color: #ffffff;
+      font-weight: 700;
+      &:first-child { border-top-left-radius: 12px; }
+      &:last-child { border-top-right-radius: 12px; }
+    }
+
+    td {
+      color: $text-primary;
+      font-weight: 600;
+
+      &:first-child {
+        text-align: left;
+        color: $color-primary;
+        font-weight: 700;
+      }
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  // ----------------------------------------
+  // GRILLA DE OBJETOS E INVENTARIO
+  // ----------------------------------------
+  .items-grid, .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .item-card {
+    background: #ffffff;
+    border: 2px solid lighten($color-secondary, 25%);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(47, 143, 110, 0.15);
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      background: $bg-secondary;
+      padding: 6px;
+      border-radius: 14px;
+      transition: filter 0.3s ease;
+
+      // Efecto escala de grises para objetos no obtenidos
+      &.grayscale {
+        filter: grayscale(100%) brightness(90%);
+        opacity: 0.45;
+      }
+    }
+
+    h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: $text-primary;
+    }
+
+    p {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    // Estilo cuando el objeto está bloqueado
+    &.locked-item {
+      background: rgba($bg-secondary, 0.4);
+      border-color: #e2e8f0;
+      border-style: dashed;
+      opacity: 0.9;
+
+      h4 {
+        color: $text-secondary;
+      }
+
+      .status-locked {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: lighten($color-alert, 35%);
+        color: $color-alert;
+        padding: 4px 10px;
+        border-radius: 10px;
+        display: inline-block;
+      }
+    }
+
+    // Estilo cuando el objeto SÍ está obtenido
+    .status-owned {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: lighten($color-success, 35%);
+      color: darken($color-success, 10%);
+      padding: 4px 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+  }
+
+  // ----------------------------------------
+  // TARJETAS DE LA TIENDA
+  // ----------------------------------------
+  .shop-card {
+    background: #ffffff;
+    border: 2px solid $color-badge;
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(47, 143, 110, 0.15);
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      background: $bg-secondary;
+      padding: 6px;
+      border-radius: 14px;
+    }
+
+    h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: $text-primary;
+    }
+
+    p {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+      line-height: 1.3;
+    }
+
+    .price {
+      color: darken($color-badge, 25%);
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      background: lighten($color-badge, 25%);
+      padding: 4px 12px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .btn-buy {
+      width: 100%;
+      background: $color-success;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: darken($color-success, 8%);
+        transform: scale(1.03);
+      }
+
+      &:disabled {
+        background: #cbd5e1;
+        color: $text-secondary;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // BOTÓN DE VOLVER Y ESTADOS SECUNDARIOS
+  // ----------------------------------------
+  .btn-back {
+    background: #ffffff;
+    border: 2px solid $color-secondary;
+    color: $color-secondary;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $color-secondary;
+      color: #ffffff;
+    }
+  }
+
+  .shop-subtitle {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    font-style: italic;
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 40px;
+    color: $color-primary;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+}

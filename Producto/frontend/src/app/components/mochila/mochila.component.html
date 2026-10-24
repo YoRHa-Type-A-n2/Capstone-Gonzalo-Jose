@@ -1,0 +1,117 @@
+<div class="mochila-container">
+  <!-- Cabecera del Popup -->
+  <div class="mochila-header">
+    <h2>{{ currentView === 'inventory' ? '🎒 Mi Mochila' : '🛒 Tienda de Objetos' }}</h2>
+    <button class="close-btn" (click)="close()">✕</button>
+  </div>
+
+  <div class="mochila-content" *ngIf="!isLoading; else loadingTemplate">
+    
+    <!-- 📦 VISTA INVENTARIO Y ESTADÍSTICAS -->
+    <div *ngIf="currentView === 'inventory' && backpackData">
+      
+      <!-- Conteo de Puntos -->
+      <div class="points-cards">
+        <div class="p-card">
+          <span>Puntos Actuales</span>
+          <strong>{{ backpackData.points_balance }} pts</strong>
+        </div>
+        <div class="p-card">
+          <span>Total Histórico Ganado</span>
+          <strong>{{ backpackData.total_points_earned }} pts</strong>
+        </div>
+      </div>
+
+      <!-- Botón de Acceso a la Tienda -->
+      <div class="shop-redirect-bar">
+        <button class="btn-shop-link" (click)="openShop()">🛒 Ir a la Tienda de Objetos</button>
+      </div>
+
+      <!-- Historial Global de Minijuegos (Ganados / Perdidos) -->
+      <div class="section-block">
+        <h3>Resumen de Partidas</h3>
+        <div class="stats-summary">
+          <p>Total jugadas: <strong>{{ backpackData.stats.total_played }}</strong></p>
+          <p class="won">Ganadas: <strong>{{ backpackData.stats.won_count }}</strong></p>
+          <p class="lost">Perdidas: <strong>{{ backpackData.stats.lost_count }}</strong></p>
+        </div>
+      </div>
+
+      <!-- Historial por Minijuego -->
+      <div class="section-block">
+        <h3>Desglose por Minijuego</h3>
+        <div class="table-responsive" *ngIf="backpackData.history_by_minigame?.length > 0; else noHistory">
+          <table>
+            <thead>
+              <tr>
+                <th>Minijuego</th>
+                <th>Jugadas</th>
+                <th>Ganadas</th>
+                <th>Perdidas</th>
+                <th>Puntos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mg of backpackData.history_by_minigame">
+                <td>{{ mg.minigame__name }}</td>
+                <td>{{ mg.played }}</td>
+                <td>{{ mg.won }}</td>
+                <td>{{ mg.lost }}</td>
+                <td>{{ mg.total_points }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noHistory><p class="empty-text">Aún no hay registros de minijuegos.</p></ng-template>
+      </div>
+
+      <!-- Colección de Objetos (A color si se tienen, en gris si faltan) -->
+      <div class="section-block">
+        <h3>Colección de Objetos ({{ backpackData.items?.length || 0 }} obtenidos)</h3>
+        <div class="items-grid" *ngIf="allAvailableItems && allAvailableItems.length > 0; else noItems">
+          <div class="item-card" *ngFor="let item of allAvailableItems" [class.locked-item]="!isItemOwned(item.id)">
+            <img [src]="item.icon || 'assets/images/default-item.png'" [alt]="item.name" [class.grayscale]="!isItemOwned(item.id)">
+            <div class="item-info">
+              <h4>{{ item.name }}</h4>
+              <p>{{ item.description }}</p>
+              <small *ngIf="isItemOwned(item.id)" class="status-owned">✨ ¡Obtenido!</small>
+              <small *ngIf="!isItemOwned(item.id)" class="status-locked">🔒 Bloqueado</small>
+            </div>
+          </div>
+        </div>
+        <ng-template #noItems><p class="empty-text">No hay objetos disponibles en el sistema.</p></ng-template>
+      </div>
+
+    </div>
+
+    <!-- 🛒 VISTA TIENDA INTERNA -->
+    <div *ngIf="currentView === 'shop'">
+      <button class="btn-back" (click)="currentView = 'inventory'">← Volver a la Mochila</button>
+      <p class="shop-subtitle">Adquiere objetos únicos permanentes utilizando tus puntos de minijuegos.</p>
+
+      <div class="shop-grid" *ngIf="shopItems.length > 0; else noShopItems">
+        <div class="shop-card" *ngFor="let sItem of shopItems">
+          <img [src]="sItem.icon || 'assets/images/default-item.png'" [alt]="sItem.name">
+          <div class="shop-card-info">
+            <h4>{{ sItem.name }}</h4>
+            <p>{{ sItem.description }}</p>
+            <span class="price">💰 {{ sItem.points_cost }} pts</span>
+            <button class="btn-buy" 
+                    (click)="buyItem(sItem.id)" 
+                    [disabled]="backpackData.points_balance < sItem.points_cost">
+              Comprar Objeto
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noShopItems><p class="empty-text">No hay objetos disponibles en la tienda por ahora.</p></ng-template>
+    </div>
+
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading-state">
+      <p>Cargando mochila...</p>
+    </div>
+  </ng-template>
+</div>

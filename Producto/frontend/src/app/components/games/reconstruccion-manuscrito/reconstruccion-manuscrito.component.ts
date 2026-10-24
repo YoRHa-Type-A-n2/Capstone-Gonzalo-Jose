@@ -1,8 +1,10 @@
-import { Component, OnInit, ElementRef, ViewChildren, QueryList, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChildren, QueryList, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { DragDropModule, CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 export interface StoryFragment {
   id: number;
@@ -30,7 +32,16 @@ export class ReconstruccionManuscritoComponent implements OnInit {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   challenges: Challenge[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
+
   currentIndex: number = 0;
   score: number = 0;
   attemptsRemaining: number = 2;
@@ -45,12 +56,6 @@ export class ReconstruccionManuscritoComponent implements OnInit {
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnInit(): void {
     if (!this.bookId) {
       this.bookId = this.route.snapshot.paramMap.get('bookId') || '';
@@ -63,11 +68,20 @@ export class ReconstruccionManuscritoComponent implements OnInit {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.challenges = data.flatMap((item) => {
         const config = item.config_data || {};
         const rawChallenges = config.challenges || [config];
@@ -89,7 +103,6 @@ export class ReconstruccionManuscritoComponent implements OnInit {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para reconstruccion_manuscrito en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
@@ -206,10 +219,9 @@ export class ReconstruccionManuscritoComponent implements OnInit {
   nextChallenge(): void {
     this.resetPositions();
 
-    // Si falló y se quedó sin intentos, emitimos false (derrota) inmediatamente
     if (!this.isCorrect && this.attemptsRemaining === 0) {
       this.gameOver = true;
-      this.completed.emit(false);
+      this.sendResultToBackend('lost', 0);
       return;
     }
 
@@ -218,13 +230,35 @@ export class ReconstruccionManuscritoComponent implements OnInit {
       this.loadChallenge(this.currentIndex);
     } else {
       this.gameOver = true;
-      // Si completó todos los desafíos con éxito
-      if (this.isCorrect || this.score > 0) {
-        this.completed.emit(true);  // 🟢 Victoria (10 puntos)[cite: 17]
-      } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
-      }
+      const isWin = this.isCorrect || this.score > 0;
+      const finalResult = isWin ? 'won' : 'lost';
+      this.sendResultToBackend(finalResult, this.score);
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando reconstruccion_manuscrito en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame(): void {

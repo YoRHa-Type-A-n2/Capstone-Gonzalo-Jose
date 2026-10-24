@@ -5,12 +5,30 @@
     <div class="spinner"></div>
   </div>
 
+  <!-- POPUP INSTRUCTIVO INICIAL (DESAFÍOS LITERATUS) -->
+  <div *ngIf="!isLoading && showInstructionsModal" class="unlocked-modal-overlay">
+    <div class="unlocked-modal-card">
+      <div class="modal-badge">🎮 DESAFÍOS LITERATUS</div>
+
+      <h3>Desafíos Literatus</h3>
+      <p class="item-desc">
+        Ahora te enfrentarás a 5 desafíos al azar basados en el libro que acabas de leer.
+      </p>
+
+      <div class="modal-info-box">
+        <p>¡Buena suerte!</p>
+      </div>
+
+      <button class="btn-accept" (click)="startSessionFromInstructions()">Iniciar desafío</button>
+    </div>
+  </div>
+
   <!-- Pantalla de Resultados Finales Centrada -->
-  <div *ngIf="!isLoading && sessionFinished" class="results-screen glass-panel centered-content">
+  <div *ngIf="!isLoading && !showInstructionsModal && sessionFinished" class="results-screen glass-panel centered-content">
     <h2>¡Desafío Completado!</h2>
     <p>Has completado los minijuegos de este libro.</p>
     
-    <!-- Lista detallada: Nombre del minijuego y puntaje al lado -->
+    <!-- Lista detallada -->
     <div class="score-breakdown-list">
       <div *ngFor="let detail of gameScoreDetails" class="score-row-item">
         <span class="game-name">{{ detail.name }}:</span>
@@ -23,15 +41,8 @@
   </div>
 
   <!-- Contenedor del Minigame Actual -->
-  <div *ngIf="!isLoading && !sessionFinished && playlist.length > 0" class="game-wrapper centered-content">
+  <div *ngIf="!isLoading && !showInstructionsModal && !sessionFinished && playlist.length > 0" class="game-wrapper centered-content">
     
-    <!-- CABECERA DE SESIÓN CON TÍTULO DINÁMICO DEL MINIJUEGO -->
-    <div class="session-header">
-      <div style="text-align: center;">
-        <strong style="font-size: 1.1rem; color: #38bdf8;">{{ getCurrentGameDisplayName() }}</strong>
-      </div>
-    </div>
-
     <!-- Renderizado dinámico optimizado con ngSwitch -->
     <ng-container [ngSwitch]="getCurrentGameCode()">
       <app-completa-dialogo *ngSwitchCase="'completa_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-completa-dialogo>
@@ -45,5 +56,25 @@
       <app-busca-imagen *ngSwitchCase="'busca_imagen'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-busca-imagen>
       <app-comics-desordenados *ngSwitchCase="'comics_desordenados'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-comics-desordenados>
     </ng-container>
+  </div>
+
+  <!-- POPUP DE OBJETO DESBLOQUEADO (AL VOLVER A BIBLIOTECA) -->
+  <div *ngIf="showUnlockedItemModal" class="unlocked-modal-overlay">
+    <div class="unlocked-modal-card">
+      <div class="modal-badge">✨ ¡NUEVO OBJETO OBTENIDO! ✨</div>
+      
+      <div class="item-icon-wrapper">
+        <img [src]="unlockedItem?.icon || 'assets/images/default-item.png'" [alt]="unlockedItem?.name">
+      </div>
+
+      <h3>{{ unlockedItem?.name }}</h3>
+      <p class="item-desc">{{ unlockedItem?.description }}</p>
+
+      <div class="modal-info-box">
+        <p>💡 Usa estos objetos la próxima vez que leas el libro para ver qué caminos distintos te depara el futuro.</p>
+      </div>
+
+      <button class="btn-accept" (click)="closeUnlockedModal()">¡Entendido!</button>
+    </div>
   </div>
 </div>

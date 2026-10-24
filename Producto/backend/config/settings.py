@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'ai_engine.apps.AiEngineConfig',
     'dashboard',
     'games',
+    'mochila',
 ]
 
 # Modelo de usuario personalizado

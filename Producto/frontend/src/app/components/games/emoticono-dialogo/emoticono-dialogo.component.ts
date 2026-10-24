@@ -1,8 +1,10 @@
-import { Component, ElementRef, ViewChild, ViewChildren, QueryList, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, ViewChild, ViewChildren, QueryList, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { DragDropModule, CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface DialogueOption {
   id: number;
@@ -34,7 +36,16 @@ export class EmoticonoDialogoComponent implements OnInit {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   challenges: Challenge[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
+
   currentIndex: number = 0;
   score: number = 0;
   
@@ -46,12 +57,6 @@ export class EmoticonoDialogoComponent implements OnInit {
 
   isLoading: boolean = true;
   hasError: boolean = false;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
 
   ngOnInit(): void {
     if (!this.bookId) {
@@ -65,17 +70,25 @@ export class EmoticonoDialogoComponent implements OnInit {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.challenges = data.flatMap((item) => {
         const config = item.config_data || {};
         const itemsList = config.challenges || [config];
 
         return itemsList.map((c: any) => {
-          // Mapeamos las opciones de diálogo originales del JSON
           let dialoguesList: DialogueOption[] = (c.dialogues || []).map((d: any, index: number) => ({
             id: d.id ?? index,
             character: d.character || '',
@@ -83,7 +96,6 @@ export class EmoticonoDialogoComponent implements OnInit {
             isCorrect: d.is_correct ?? d.isCorrect ?? false
           }));
 
-          // Mezclamos el orden de los diálogos al azar para evitar que la respuesta correcta esté siempre en la primera posición
           dialoguesList = this.shuffleArray(dialoguesList);
 
           return {
@@ -102,13 +114,11 @@ export class EmoticonoDialogoComponent implements OnInit {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para emoticono_dialogo en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
   }
 
-  // Función auxiliar para barajar un arreglo de forma aleatoria (Algoritmo Fisher-Yates)
   private shuffleArray(array: any[]): any[] {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -173,13 +183,35 @@ export class EmoticonoDialogoComponent implements OnInit {
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
       
-      // Si acertó los puntos suficientes o el último fue correcto (puedes ajustar esta validación según tu criterio de éxito global)
-      if (this.score > 0) {
-        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
-      } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
-      }
+      const isWin = this.score > 0;
+      const finalResult = isWin ? 'won' : 'lost';
+      this.sendResultToBackend(finalResult, this.score);
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando emoticono_dialogo en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame() {

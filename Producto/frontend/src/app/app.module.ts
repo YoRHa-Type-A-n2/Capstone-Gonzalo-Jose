@@ -42,6 +42,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { AlternateStoryLayerComponent } from './components/alternate-story/alternate-story-layer.component';
+
 
 @NgModule({
   declarations: [
@@ -68,9 +70,11 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
     CategoryDetailComponent,
     VerifyEmailComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    ReaderComponent,
   ],
   imports: [
+    AlternateStoryLayerComponent,
     BrowserModule,
     BrowserAnimationsModule,
     CommonModule,
