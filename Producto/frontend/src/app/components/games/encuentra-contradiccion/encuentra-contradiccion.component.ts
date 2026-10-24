@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface ImageOption {
   id: number;
@@ -29,7 +31,16 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   challenges: ContradictionChallenge[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
+
   currentIndex: number = 0;
   score: number = 0;
 
@@ -47,12 +58,6 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnDestroy(): void {
     this.stopTimer();
   }
@@ -69,11 +74,20 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.challenges = data.flatMap((item) => {
         const config = item.config_data || {};
         if (config.timeLimit || config.time_limit) {
@@ -82,7 +96,6 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
 
         const rawChallenges = config.challenges || [config];
         return rawChallenges.map((c: any, idx: number) => {
-          // Mapeamos las imágenes del JSON de la API
           let imagesList: ImageOption[] = (c.images || []).map((img: any) => ({
             id: img.id,
             imageSrc: img.image_src || img.imageSrc || '',
@@ -90,7 +103,6 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
             isContradiction: img.is_contradiction ?? img.isContradiction ?? false
           }));
 
-          // Mezclamos el orden de las imágenes al azar para evitar que siempre estén en la misma posición
           imagesList = this.shuffleArray(imagesList);
 
           return {
@@ -109,13 +121,11 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para encuentra_contradiccion en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
   }
 
-  // Función auxiliar para barajar las opciones al azar (Algoritmo Fisher-Yates)
   private shuffleArray(array: any[]): any[] {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -189,15 +199,37 @@ export class EncuentraContradiccionComponent implements OnInit, OnDestroy {
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
       
-      // Si acumuló puntaje o respondió correctamente al final
-      if (this.score > 0) {
-        this.completed.emit(true);  // 🟢 Victoria (10 puntos)
-      } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
-      }
+      const isWin = this.score > 0;
+      const finalResult = isWin ? 'won' : 'lost';
+      this.sendResultToBackend(finalResult, this.score);
     } else {
       this.prepareChallenge();
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando encuentra_contradiccion en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame() {

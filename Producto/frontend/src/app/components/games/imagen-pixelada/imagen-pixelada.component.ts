@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface PixelChallenge {
   id: number;
@@ -26,7 +28,16 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   challenges: PixelChallenge[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
+
   currentIndex: number = 0;
   score: number = 0;
 
@@ -48,12 +59,6 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnInit(): void {
     if (!this.bookId) {
       this.bookId = this.route.snapshot.paramMap.get('bookId') || '';
@@ -66,21 +71,27 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.challenges = data.flatMap((item, idx) => {
         const config = item.config_data || {};
         const itemsList = config.challenges || [config];
         const globalTime = config.total_time || config.totalTime;
 
         return itemsList.map((c: any, subIdx: number) => {
-          // 1. Obtenemos las opciones originales de la API
           let rawOptions = c.options || [];
-          
-          // 2. Mezclamos las opciones al azar para que no queden fijas en la misma posición
           let shuffledOptions = this.shuffleArray(rawOptions);
 
           return {
@@ -88,7 +99,7 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
             correctCharacter: c.correct_character || c.correctCharacter,
             imageSrc: c.image_src || c.imageSrc,
             fallbackEmoji: c.fallback_emoji || c.fallbackEmoji || '❓',
-            options: shuffledOptions, // Asignamos las opciones barajadas
+            options: shuffledOptions,
             totalTime: c.total_time || c.totalTime || globalTime || 15
           };
         });
@@ -103,13 +114,11 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     } else {
-      console.warn('No se encontraron datos para pixelado en el libro seleccionado.');
       this.hasError = true;
       this.isLoading = false;
     }
   }
 
-  // Función auxiliar para barajar arreglos al azar (Algoritmo Fisher-Yates)
   private shuffleArray(array: string[]): string[] {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -237,14 +246,37 @@ export class ImagenPixeladaComponent implements OnInit, OnDestroy {
     this.currentIndex++;
     if (this.currentIndex >= this.challenges.length) {
       this.gameOver = true;
-      if (this.score > 0) {
-        this.completed.emit(true);  // 🟢 Victoria (10 puntos)[cite: 16]
-      } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
-      }
+      const isWin = this.score > 0;
+      const finalResult = isWin ? 'won' : 'lost';
+      this.sendResultToBackend(finalResult, this.score);
     } else {
       this.loadChallenge();
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando imagen_pixelada en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame() {

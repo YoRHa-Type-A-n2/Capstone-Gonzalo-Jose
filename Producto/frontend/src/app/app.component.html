@@ -27,6 +27,11 @@
 
       <!-- User Controls (Loggeado) -->
       <ng-container *ngIf="isLoggedIn">
+        <!-- Botón de Acceso a la Mochila -->
+        <li class="backpack-widget" (click)="openBackpack()" title="Mochila y Puntos">
+          <span class="backpack-icon material-symbols-rounded">Mochila</span>
+        </li>
+
         <!-- La Taberna (Ink Widget) -->
         <li class="ink-widget" (click)="openTavern()" [@shake]="shakeState" title="La Taberna - Recarga Tinta">
           <span class="ink-icon material-symbols-rounded">ink_pen</span>

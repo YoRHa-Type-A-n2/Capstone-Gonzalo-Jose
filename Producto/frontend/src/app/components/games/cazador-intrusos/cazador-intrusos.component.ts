@@ -1,7 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild, inject, PLATFORM_ID, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 export interface SceneItem {
   id: string;
@@ -38,9 +40,13 @@ export class CazadorIntrusosComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
 
   levels: LevelData[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
 
   currentLevelIndex: number = 0;
   currentLevel: LevelData | null = null;
@@ -71,11 +77,20 @@ export class CazadorIntrusosComponent implements OnInit {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.levels = data.flatMap((item) => {
         const config = item.config_data || {};
         const rawLevels = config.levels || (Array.isArray(config) ? config : [config]);
@@ -104,7 +119,6 @@ export class CazadorIntrusosComponent implements OnInit {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para cazador_intrusos en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
@@ -227,7 +241,6 @@ export class CazadorIntrusosComponent implements OnInit {
     if (this.gameStatus !== 'playing') return;
 
     let errorsFound = false;
-    let misplacedNames: string[] = [];
 
     for (const item of this.activeItems) {
       const overlap = this.getItemStageOverlapPercentage(item.id);
@@ -235,17 +248,15 @@ export class CazadorIntrusosComponent implements OnInit {
 
       if (item.isIntruder && isInside) {
         errorsFound = true;
-        misplacedNames.push(`Falta eliminar elementos.`);
       } else if (!item.isIntruder && !isInside) {
         errorsFound = true;
-        misplacedNames.push(`Quitaste elementos que pertenecen al texto.`);
       }
     }
 
     if (!errorsFound) {
       this.isLastCheckSuccess = true;
       this.score += 200;
-      this.feedbackMessage = '¡Perfecto! Has identificado correctamente todos los elementos del relato y dejado fuera los intrusos.';
+      this.feedbackMessage = '¡Perfecto! Has identificado correctamente todos los elementos.';
       this.gameStatus = 'feedback';
     } else {
       this.isLastCheckSuccess = false;
@@ -254,7 +265,7 @@ export class CazadorIntrusosComponent implements OnInit {
       if (this.lives <= 0) {
         this.feedbackMessage = `Te has quedado sin vidas.`;
         this.gameStatus = 'finished';
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
+        this.sendResultToBackend('lost', 0);
       } else {
         this.feedbackMessage = `Te queda ${this.lives} vida.`;
         this.gameStatus = 'feedback';
@@ -265,7 +276,7 @@ export class CazadorIntrusosComponent implements OnInit {
   resumeGameFromFeedback(): void {
     if (this.lives <= 0) {
       this.gameStatus = 'finished';
-      this.completed.emit(false); // ❌ Derrota (0 puntos)
+      this.sendResultToBackend('lost', 0);
     } else {
       this.gameStatus = 'playing';
     }
@@ -276,8 +287,33 @@ export class CazadorIntrusosComponent implements OnInit {
       this.loadLevel(this.currentLevelIndex + 1);
     } else {
       this.gameStatus = 'finished';
-      this.completed.emit(true); // 🟢 Victoria (10 puntos)[cite: 11]
+      this.sendResultToBackend('won', this.score);
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        this.completed.emit(result === 'won');
+      },
+      error: (err) => {
+        console.error('❌ Error registrando cazador_intrusos en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   restartGame(): void {

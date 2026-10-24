@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 export interface LevelConfig {
   id: number;
@@ -29,6 +31,12 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
   @Input() gameData: any = null;
   @Output() completed = new EventEmitter<boolean>();
 
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
+
   gameState: 'intro' | 'playing' | 'result' = 'intro';
   resultType: 'success' | 'wrong' | 'timeout' = 'success';
 
@@ -39,6 +47,8 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
 
   currentLevelIndex: number = 0;
   levels: LevelConfig[] = [];
+  bookMinigameId: string = '';
+  minigameId: string = '';
 
   devMode: boolean = false;
   lastDevCoords: string = '';
@@ -49,12 +59,6 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   hasError: boolean = false;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
 
   get currentLevel(): LevelConfig {
     return this.levels[this.currentLevelIndex] || {
@@ -83,11 +87,20 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.stopTimer();
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
+      const firstItem = data[0];
+      this.bookMinigameId = firstItem.id || firstItem.book_minigame_id || '';
+      this.minigameId = firstItem.minigame_id || '';
+
       this.levels = data.flatMap((item) => {
         const config = item.config_data || {};
         const rawLevels = config.levels || (Array.isArray(config) ? config : [config]);
@@ -197,10 +210,9 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.gameState = 'result';
     this.scrollToTopIfMobile();
 
-    // Si falla o se acaba el tiempo en el último nivel (o en general), evaluamos derrota
     if (type === 'wrong' || type === 'timeout') {
       if (this.currentLevelIndex >= this.levels.length - 1) {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
+        this.sendResultToBackend('lost', 0);
       }
     }
   }
@@ -212,13 +224,38 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
       this.gameState = 'intro';
       this.scrollToTopIfMobile();
     } else {
-      // Si llega aquí con éxito en el último nivel
       if (this.resultType === 'success') {
-        this.completed.emit(true); // 🟢 Victoria (10 puntos)[cite: 10]
+        this.sendResultToBackend('won', 10);
       } else {
-        this.completed.emit(false); // ❌ Derrota (0 puntos)
+        this.sendResultToBackend('lost', 0);
       }
     }
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        const isWin = result === 'won';
+        this.completed.emit(isWin);
+      },
+      error: (err) => {
+        console.error('❌ Error al registrar resultado en la API:', err);
+        this.completed.emit(result === 'won');
+      }
+    });
   }
 
   openIntroModal(): void {
@@ -249,7 +286,6 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    
     const clickX = event.clientX - rect.left;
     const clickY = event.clientY - rect.top;
 

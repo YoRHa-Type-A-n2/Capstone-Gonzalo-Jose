@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MinigameService } from '../../../services/minigame.service';
+import { environment } from '../../../../environments/environment';
 
 interface Statement {
   text: string;
@@ -26,12 +28,20 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
   @Input() bookId: string = '';
   @Input() gameData: any = null;
   @Input() isLastGame: boolean = false; 
-  // Cambiamos el EventEmitter de boolean a number para enviar el puntaje exacto
   @Output() completed = new EventEmitter<number>();
+
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private minigameService = inject(MinigameService);
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl || 'http://localhost:8000/api/v1';
 
   passageText: string = '';
   statements: Statement[] = [];
   timeLimitPerQuestion: number = 3;
+
+  bookMinigameId: string = '';
+  minigameId: string = '';
 
   currentIndex: number = 0;
   score: number = 0;
@@ -49,12 +59,6 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   hasError: boolean = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private minigameService: MinigameService
-  ) {}
-
   ngOnInit(): void {
     if (!this.bookId) {
       this.bookId = this.route.snapshot.paramMap.get('bookId') || '';
@@ -67,12 +71,20 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
     }
   }
 
+  private buildUrl(path: string): string {
+    const rawUrl = `${this.apiUrl}/${path}`;
+    return rawUrl.replace(/([^:]\/)\/+/g, '$1');
+  }
+
   processGameData(data: any[]): void {
     this.isLoading = true;
     this.hasError = false;
 
     if (Array.isArray(data) && data.length > 0) {
       const item = data[0];
+      this.bookMinigameId = item.id || item.book_minigame_id || '';
+      this.minigameId = item.minigame_id || '';
+
       const config = item.config_data || {};
       
       this.passageText = config.passage_text || config.passageText || 'Lee con atención las afirmaciones a continuación.';
@@ -90,7 +102,6 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
         this.hasError = true;
       }
     } else {
-      console.warn('No se encontraron datos para rafaga-vf en el libro seleccionado.');
       this.hasError = true;
     }
     this.isLoading = false;
@@ -164,7 +175,7 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
     const isCorrect = (userChoice !== null && userChoice === current.isTrue);
 
     if (isCorrect) {
-      this.score += 5; // Suma 5 puntos por cada respuesta correcta
+      this.score += 5; 
     }
 
     this.statementResults.push({
@@ -186,10 +197,37 @@ export class RafagaVfComponent implements OnInit, OnDestroy {
   endGame() {
     this.gameOver = true;
     clearInterval(this.timerInterval);
+
+    // Determinar si ganó o perdió (en ráfaga V/F, definimos victoria si el score > 0)
+    const result = this.score > 0 ? 'won' : 'lost';
+    this.sendResultToBackend(result, this.score);
+  }
+
+  private sendResultToBackend(result: 'won' | 'lost', score: number): void {
+    const payload: any = {
+      book_id: this.bookId,
+      result: result,
+      score: score
+    };
+
+    if (this.bookMinigameId) {
+      payload.book_minigame_id = this.bookMinigameId;
+    }
+    if (this.minigameId) {
+      payload.minigame_id = this.minigameId;
+    }
+
+    this.http.post(this.buildUrl('mochila/minigames/record/'), payload).subscribe({
+      next: (res: any) => {
+        // Actualizamos el score con lo que respondió la API si aplica
+      },
+      error: (err) => {
+        console.error('❌ Error registrando rafaga_vf en la API:', err);
+      }
+    });
   }
 
   goNext() {
-    // Emitimos el puntaje total acumulado (ej: 0, 5, 10 o 15 puntos)
     this.completed.emit(this.score);
   }
 

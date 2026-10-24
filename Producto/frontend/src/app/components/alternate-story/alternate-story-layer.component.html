@@ -1,0 +1,73 @@
+<div
+  class="as-backdrop"
+  *ngIf="popupOpen"
+  [class.as-leaving]="popupLeaving"
+  (click)="cancel()"
+>
+  <section
+    class="as-popup"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="as-popup-title"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="as-popup-title" class="as-title">¿Quieres usar un objeto de tu mochila?</h2>
+    <p class="as-lead">Lo que elijas puede cambiar cómo sigue esta historia.</p>
+
+    <ul class="as-items">
+      <li *ngFor="let item of activeGroup?.items">
+        <button
+          type="button"
+          class="as-item"
+          [class.as-selected]="selectedItem?.id === item.id"
+          [attr.aria-pressed]="selectedItem?.id === item.id"
+          (click)="select(item)"
+        >
+          <span class="as-icon">
+            <img *ngIf="item.icon; else noIcon" [src]="item.icon" alt="" loading="lazy" />
+            <ng-template #noIcon><span class="as-icon-fallback" aria-hidden="true">✦</span></ng-template>
+          </span>
+          <span class="as-text">
+            <strong>{{ item.name }}</strong>
+            <small *ngIf="item.description">{{ item.description }}</small>
+          </span>
+          <span class="as-check" aria-hidden="true"></span>
+        </button>
+      </li>
+    </ul>
+
+    <p class="as-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+    <div class="as-actions">
+      <button type="button" class="as-btn as-ghost" [disabled]="isUsing" (click)="cancel()">Cancelar</button>
+      <button
+        type="button"
+        class="as-btn as-link"
+        *ngIf="state === 'done'"
+        [disabled]="isUsing"
+        (click)="revertToOriginal()"
+      >
+        Volver al final original
+      </button>
+      <button
+        type="button"
+        class="as-btn as-primary"
+        [disabled]="!selectedItem || isUsing"
+        (click)="confirmUse()"
+      >
+        {{ isUsing ? 'Usando…' : 'Usar objeto' }}
+      </button>
+    </div>
+  </section>
+</div>
+
+<button
+  type="button"
+  class="as-pill"
+  *ngIf="state === 'done' && !popupOpen"
+  (click)="openPopup(appliedGroup)"
+  [attr.aria-label]="'Final alterno activo: ' + activeTitle + '. Abrir la mochila'"
+>
+  <span class="as-pill-gem" aria-hidden="true"></span>
+  Final alterno activo
+</button>
