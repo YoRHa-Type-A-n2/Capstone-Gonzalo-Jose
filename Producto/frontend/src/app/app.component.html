@@ -58,20 +58,7 @@
 
     <!-- 3. GRUPO DERECHO: ACCIONES DE USUARIO -->
     <div class="nav-group-right" [class.active]="menuOpen">
-      <!-- Botón Verde: Literatus Games (40px) -->
-      <a routerLink="/literatus-games" class="btn-games-action" (click)="menuOpen = false" title="Literatus Games">
-        <span class="joystick-icon">
-          <svg class="joystick-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="joy-base" d="M4 15C4 13.5 6 13 12 13C18 13 20 13.5 20 15V17.5C20 19 18 19.5 12 19.5C6 19.5 4 19 4 17.5V15Z" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1.6"/>
-            <g class="joy-stick-group">
-              <line x1="12" y1="13" x2="12" y2="6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="12" cy="5" r="3" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/>
-            </g>
-          </svg>
-        </span>
-        <span class="btn-text">Literatus Games</span>
-      </a>
-
+      
       <!-- SI ESTÁ LOGUEADO -->
       <ng-container *ngIf="isLoggedIn">
         <!-- Botón Mochila (Tienda e Inventario) -->

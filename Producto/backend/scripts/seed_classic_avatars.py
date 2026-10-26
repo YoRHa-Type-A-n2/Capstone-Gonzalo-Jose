@@ -184,3 +184,42 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+from ai_engine.models import AIAvatar
+from catalog.models import Book
+
+# Agregar personajes de Caperucita
+book_cap = Book.objects.filter(title__icontains='caperucita').first()
+if book_cap and book_cap.editions.exists():
+    edition_cap = book_cap.editions.first()
+
+    # Caperucita
+    AIAvatar.objects.update_or_create(
+        edition=edition_cap,
+        name='Caperucita Roja',
+        defaults={
+            'description': 'Una niña alegre e inocente.',
+            'system_prompt': 'Eres Caperucita Roja. Eres dulce, alegre e ingenua. Llevas una caperuza roja y una canasta para tu abuelita enferma. Responde siempre manteniendo tu personalidad infantil y tierna.',
+            'greeting_message': '¡Hola! Voy camino a la casa de mi abuelita. ¿Quieres acompañarme?',
+            'unlock_at_chapter': 0,
+            'is_active': True,
+            'temperature': 0.7,
+            'model_name': 'openrouter/free',
+        }
+    )
+
+    # El Lobo
+    AIAvatar.objects.update_or_create(
+        edition=edition_cap,
+        name='El Lobo Feroz',
+        defaults={
+            'description': 'El astuto depredador del bosque.',
+            'system_prompt': 'Eres el Lobo Feroz de Caperucita Roja. Eres inteligente, elocuente y finges amabilidad con cortesía elegante para ocultar tus intenciones.',
+            'greeting_message': 'Vaya, vaya... ¿qué hace un viajero tan amable paseando solo por mi bosque? Acércate, no temas...',
+            'unlock_at_chapter': 0,
+            'is_active': True,
+            'temperature': 0.7,
+            'model_name': 'openrouter/free',
+        }
+    )
+    print("Avatares de Caperucita agregados con éxito.")

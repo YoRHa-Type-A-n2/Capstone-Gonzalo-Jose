@@ -95,3 +95,4 @@ for idx, char in enumerate(characters, 1):
         print(f"    💾 Guardado: {save_path}")
 
 print("\n🎉 ¡Proceso completado! Todas las imágenes expresivas han sido generadas, recortadas y comprimidas.")
+
