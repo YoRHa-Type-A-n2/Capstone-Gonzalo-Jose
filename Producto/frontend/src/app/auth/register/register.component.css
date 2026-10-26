@@ -3,6 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 80px);
+  background-color: var(--bg-main);
   padding: 20px;
 }
 
@@ -11,10 +12,17 @@
   max-width: 450px;
   padding: 40px 35px;
   text-align: center;
+  background: var(--bg-surface);
+  border: 2px solid var(--bg-alt);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .login-box h2 {
+  font-family: var(--font-display);
   font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-main);
   margin-bottom: 5px;
 }
 
@@ -33,42 +41,45 @@
   display: block;
   margin-bottom: 8px;
   font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .is-invalid {
-  border-color: #ef4444 !important;
+  border-color: #EF4444 !important;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
 }
 
 .validation-error {
-  color: #fca5a5;
+  color: #DC2626;
   font-size: 0.8rem;
   margin-top: 6px;
   margin-left: 4px;
+  font-weight: 500;
 }
 
 .error-banner {
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid #ef4444;
-  color: #fca5a5;
+  background: #FEE2E2;
+  border-left: 4px solid #EF4444;
+  color: #991B1B;
   padding: 12px;
   margin-bottom: 20px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.85rem;
   text-align: left;
+  font-weight: 500;
 }
 
 .success-banner {
-  background: rgba(16, 185, 129, 0.1);
-  border-left: 4px solid #10b981;
-  color: #6ee7b7;
+  background: #DCFCE7;
+  border-left: 4px solid #16A34A;
+  color: #166534;
   padding: 12px;
   margin-bottom: 20px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.85rem;
   text-align: center;
+  font-weight: 600;
 }
 
 .footer-link {
@@ -78,13 +89,13 @@
 }
 
 .footer-link a {
-  color: var(--glow-accent);
+  color: #7E22CE;
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s;
+  font-weight: 700;
+  transition: color 0.2s;
 }
 
 .footer-link a:hover {
   text-decoration: underline;
-  color: white;
+  color: var(--btn-primary-bg);
 }

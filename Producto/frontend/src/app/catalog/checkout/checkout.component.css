@@ -4,7 +4,8 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem 4rem;
-  color: #fff;
+  color: var(--text-main);
+  font-family: var(--font-body);
 }
 
 @media (min-width: 768px) {
@@ -28,35 +29,35 @@
 .checkout-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+  color: var(--btn-primary-bg);
 }
 
 .checkout-header h1 {
   font-size: 2.2rem;
   margin: 0 0 0.5rem;
-  background: linear-gradient(90deg, #fff, #00ccff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-main);
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .checkout-header p {
-  color: #aaa;
+  color: var(--text-muted);
 }
 
 .error-banner {
-  background: rgba(255, 60, 60, 0.15);
-  border: 1px solid rgba(255, 60, 60, 0.4);
-  border-radius: 12px;
+  background: var(--pastel-peach-bg);
+  border: 1px solid var(--pastel-peach-border);
+  border-radius: var(--radius-btn);
   padding: 1rem 1.5rem;
-  color: #ff8080;
+  color: #D65A15;
   text-align: center;
 }
 
 .glass-panel {
-  background: rgba(20, 20, 35, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .order-summary {
@@ -77,34 +78,37 @@
 .ink-icon {
   font-size: 4rem;
   flex-shrink: 0;
+  color: var(--btn-primary-bg);
 }
 
 .product-image {
   width: 100px;
   height: 150px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px;
   flex-shrink: 0;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
 .product-type-badge {
   font-size: 0.8rem;
-  color: #00ccff;
+  color: var(--btn-primary-bg);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 .product-title {
   font-size: 1.4rem;
   margin: 0 0 0.5rem;
-  color: #fff;
+  color: var(--text-main);
+  font-weight: 700;
 }
 
 .product-synopsis {
   font-size: 0.95rem;
-  color: #aaa;
+  color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
 }
@@ -114,18 +118,18 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid var(--glass-border);
 }
 
 .price-label {
-  color: #aaa;
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
 .price-value {
   font-size: 1.8rem;
-  font-weight: 700;
-  color: #ffd700;
+  font-weight: 800;
+  color: var(--btn-primary-bg);
 }
 
 .security-section {
@@ -138,10 +142,11 @@
 .security-badge {
   font-size: 0.85rem;
   padding: 0.4rem 0.9rem;
-  background: rgba(0, 204, 255, 0.08);
-  border: 1px solid rgba(0, 204, 255, 0.2);
+  background: var(--pastel-blue-bg);
+  border: 1px solid var(--pastel-blue-border);
   border-radius: 20px;
-  color: #00ccff;
+  color: #2563EB;
+  font-weight: 600;
 }
 
 .action-buttons {
@@ -152,42 +157,44 @@
 .btn-cancel {
   flex: 1;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #aaa;
-  transition: all 0.3s ease;
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  color: var(--text-main);
+  transition: all 0.2s ease;
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
+  background: var(--bg-main);
 }
 
 .btn-pay {
   flex: 2;
   padding: 1rem 2rem;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
-  background: linear-gradient(135deg, #005FFF, #00BBFF);
+  background: var(--btn-primary-bg);
   border: none;
-  color: #fff;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 95, 255, 0.4);
+  color: var(--text-on-accent);
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
 }
 
 .btn-pay:hover:not(:disabled) {
+  background: var(--btn-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(0, 95, 255, 0.6);
+  box-shadow: 0 6px 0 var(--btn-primary-shadow);
 }
 
 .btn-pay:disabled {
-  opacity: 0.6;
+  background: #E2E8F0;
+  color: #94A3B8;
+  box-shadow: 0 4px 0 #CBD5E1;
   cursor: not-allowed;
   transform: none;
 }

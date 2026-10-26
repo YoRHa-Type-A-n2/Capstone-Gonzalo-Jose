@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
 import { HttpParams } from '@angular/common/http';
 
@@ -14,11 +14,16 @@ interface PaginatedResponse<T> {
   templateUrl: './author-list.component.html',
   styleUrls: ['./author-list.component.css']
 })
-export class AuthorListComponent implements OnInit {
+export class AuthorListComponent implements OnInit, AfterViewInit, OnDestroy {
   authors: any[] = [];
   filteredAuthors: any[] = [];
   loading = true;
   api = inject(ApiService);
+
+  // Animación del separador ondulado
+  @ViewChild('waveSeparator') waveSeparatorRef?: ElementRef;
+  isWaveAnimated = false;
+  private waveObserver?: IntersectionObserver;
 
   // Paginación
   totalCount = 0;
@@ -39,6 +44,31 @@ export class AuthorListComponent implements OnInit {
 
   ngOnInit() {
     this.fetchAuthors();
+  }
+
+  ngAfterViewInit() {
+    if (typeof IntersectionObserver !== 'undefined' && this.waveSeparatorRef) {
+      this.waveObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.isWaveAnimated = true;
+              this.waveObserver?.disconnect();
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      this.waveObserver.observe(this.waveSeparatorRef.nativeElement);
+    } else {
+      this.isWaveAnimated = true;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.waveObserver) {
+      this.waveObserver.disconnect();
+    }
   }
 
   fetchAuthors(page = 1) {
@@ -105,5 +135,20 @@ export class AuthorListComponent implements OnInit {
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
     this.fetchAuthors(page);
+  }
+
+  handleAuthorImageError(event: Event, author: any): void {
+    const img = event.target as HTMLImageElement;
+    const defaultAvatar = 'assets/default_avatar.jpg';
+
+    if (author?.book_cover_url && img.src !== author.book_cover_url && !img.dataset['fallbackCoverAttempted']) {
+      img.dataset['fallbackCoverAttempted'] = 'true';
+      img.src = author.book_cover_url;
+      return;
+    }
+
+    if (img.src !== defaultAvatar) {
+      img.src = defaultAvatar;
+    }
   }
 }

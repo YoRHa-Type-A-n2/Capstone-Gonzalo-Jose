@@ -1,12 +1,13 @@
 .app-footer {
   position: relative;
-  margin-top: 4rem;
+  margin-top: 0;
   padding: 4rem 6vw 2rem;
-  background: var(--bg-surface);
-  border-top: 1px solid var(--glass-border);
+  background: var(--bg-main);
+  border-top: 1.5px solid #E5E1D8;
   overflow: hidden;
   color: var(--text-muted);
   font-family: var(--font-body);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .footer-container {
@@ -15,33 +16,33 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 3rem;
+  align-items: flex-start;
+  gap: 3.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .footer-brand {
-  flex: 1;
-  min-width: 250px;
+  flex: 1 1 320px;
+  max-width: 420px;
 }
 
 .logo {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   display: inline-block;
 }
 
-.literatus {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -1px;
+.footer-logo-img {
+  height: 75px;
+  width: auto;
+  max-width: 380px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  transition: transform 0.25s ease;
 }
 
-.novelist {
-  font-family: var(--font-ui);
-  font-weight: 300;
-  color: #a855f7;
+.logo:hover .footer-logo-img {
+  transform: scale(1.03);
 }
 
 .brand-tagline {
@@ -52,25 +53,28 @@
 
 .glow-span {
   font-style: italic;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-display);
-  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  background: linear-gradient(135deg, var(--btn-primary-bg), #8B5CF6);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .footer-links-grid {
   display: flex;
-  gap: 4rem;
+  gap: 5rem;
   flex-wrap: wrap;
 }
 
 .footer-col h4 {
   color: var(--text-main);
-  font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-family: var(--font-ui), var(--font-body), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
   margin: 0 0 1.2rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .footer-col ul {
@@ -86,12 +90,12 @@
   color: var(--text-muted);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
 }
 
 .footer-col a:hover, .footer-col span:hover {
-  color: #c4b5fd;
-  text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+  color: var(--color-primary);
+  text-shadow: none;
 }
 
 .footer-bottom {

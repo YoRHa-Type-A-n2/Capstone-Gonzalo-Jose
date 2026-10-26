@@ -172,6 +172,11 @@ export class BookDetailPageComponent implements OnInit, AfterViewInit, OnDestroy
     this.liyumi.stopSpeaking();
   }
 
+  get isFree(): boolean {
+    if (!this.book?.editions || this.book.editions.length === 0) return true;
+    return Number(this.book.editions[0].price) === 0;
+  }
+
   handleAction(): void {
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
@@ -309,5 +314,35 @@ export class BookDetailPageComponent implements OnInit, AfterViewInit, OnDestroy
         console.error('Error submitting review:', err);
       }
     });
+  }
+
+  handleAuthorCardImgError(event: Event, author: any): void {
+    const img = event.target as HTMLImageElement;
+    const defaultAvatar = 'assets/default_avatar.jpg';
+
+    if (this.book?.cover_image && img.src !== this.book.cover_image && !img.dataset['fallbackCoverAttempted']) {
+      img.dataset['fallbackCoverAttempted'] = 'true';
+      img.src = this.book.cover_image;
+      return;
+    }
+
+    if (img.src !== defaultAvatar) {
+      img.src = defaultAvatar;
+    }
+  }
+
+  handleAvatarImgError(event: Event, avatar: any): void {
+    const img = event.target as HTMLImageElement;
+    const defaultAvatar = 'assets/default_avatar.jpg';
+
+    if (this.book?.cover_image && img.src !== this.book.cover_image && !img.dataset['fallbackCoverAttempted']) {
+      img.dataset['fallbackCoverAttempted'] = 'true';
+      img.src = this.book.cover_image;
+      return;
+    }
+
+    if (img.src !== defaultAvatar) {
+      img.src = defaultAvatar;
+    }
   }
 }

@@ -29,7 +29,7 @@ def clean_content(html_soup, book_slug):
             img.decompose()
             continue
         filename = os.path.basename(src)
-        img['src'] = f"/media/books/literatus-games/{book_slug}/images/{filename}"
+        img['src'] = f"/media/books/{book_slug}/images/{filename}"
         img['style'] = "max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px;"
     return str(html_soup)
 
@@ -105,7 +105,7 @@ def get_metadata_from_opf(epub_path):
         return None, None
 
 def main():
-    root_dir = Path("media/books/literatus-games")
+    root_dir = Path("media/books")
     if not root_dir.exists():
         print(f"La ruta {root_dir} no existe.")
         return
@@ -161,7 +161,7 @@ def main():
         Edition.objects.get_or_create(
             book=book_obj, 
             format='epub', 
-            defaults={'file': f"books/literatus-games/{slug}/{epub_path.name}", 'price': Decimal('0.00')}
+            defaults={'file': f"books/{slug}/{epub_path.name}", 'price': Decimal('0.00')}
         )
         
         book_obj.chapters.all().delete()

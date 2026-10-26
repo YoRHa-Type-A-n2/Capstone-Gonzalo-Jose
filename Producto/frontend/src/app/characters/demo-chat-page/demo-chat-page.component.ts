@@ -209,6 +209,21 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  handleAvatarError(event: Event, avatar: any): void {
+    const img = event.target as HTMLImageElement;
+    const defaultAvatar = 'assets/default_avatar.jpg';
+
+    if (avatar?.book_cover_url && img.src !== avatar.book_cover_url && !img.dataset['fallbackCoverAttempted']) {
+      img.dataset['fallbackCoverAttempted'] = 'true';
+      img.src = avatar.book_cover_url;
+      return;
+    }
+
+    if (img.src !== defaultAvatar) {
+      img.src = defaultAvatar;
+    }
+  }
+
   ngOnDestroy(): void {
     this.speechService.stopListening();
     this.kokoroVoice.stop();

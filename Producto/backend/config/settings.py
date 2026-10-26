@@ -255,22 +255,16 @@ FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:4200')
 ELEVENLABS_API_KEY = env('ELEVENLABS_API_KEY', default='PLACEHOLDER_KEY')
 
 # ---------------------------------------------------------------------------
-# Correos / SMTP o Consola para Desarrollo
+# Correos / SMTP (Resend)
 # ---------------------------------------------------------------------------
 
-if DEBUG:
-    # En desarrollo local, los correos se imprimen en la consola/terminal
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    # En producción usa Resend vía SMTP
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = env('EMAIL_HOST', default='smtp.resend.com')
-    EMAIL_PORT = env.int('EMAIL_PORT', default=465)
-    EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=True)
-    EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=False)
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='resend')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='no-reply@novelatus.tech')
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.resend.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=465)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=True)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=False)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='resend')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
 
 # Auto-reload trigger

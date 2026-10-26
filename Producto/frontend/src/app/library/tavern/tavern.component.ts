@@ -11,20 +11,24 @@ import { ChatService } from '../../core/services/chat.service';
 export class TavernComponent implements OnInit, AfterViewInit {
   private api = inject(ApiService);
   private chatService = inject(ChatService);
+  private router = inject(Router);
 
   inkBalance: number = 0;
   displayBalance: number = 0;
 
   adLoading: boolean = false;
   adTimer: number = 0;
+  rewardEarned: boolean = false;
 
   chests = [
-    { title: 'Cofre de Aprendiz', amount: 500, price: '$2.000', icon: 'package', color: '#00ccff' },
-    { title: 'Cofre de Erudito', amount: 1500, price: '$5.000', icon: 'landmark', color: '#8b5cf6' },
-    { title: 'Cofre de Maestro', amount: 5000, price: '$14.990', icon: 'crown', color: '#ffd700' }
+    { title: 'Bolsa del Explorador', amount: 500, displayAmount: '500', price: '$2.000', icon: 'compass', emoji: '🧭', color: '#FF9F5B', tagline: 'Comienza tu aventura.', messages: 250 },
+    { title: 'Mochila del Aventurero', amount: 1500, displayAmount: '1.500', price: '$5.000', icon: 'backpack', emoji: '🎒', color: '#2F8F6E', tagline: 'La favorita de los lectores.', popular: true, messages: 750 },
+    { title: 'Cofre del Gran Lector', amount: 5000, displayAmount: '5.000', price: '$14.990', icon: 'castle', emoji: '🏰', color: '#4A90A4', tagline: 'Para grandes aventuras.', bestValue: true, messages: 2500 }
   ];
 
-  private router = inject(Router);
+  getEstimatedMessages(amount: number): number {
+    return Math.floor(amount / 2);
+  }
 
   ngOnInit(): void {
     if (this.isLoggedIn()) {
@@ -67,9 +71,7 @@ export class TavernComponent implements OnInit, AfterViewInit {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function (easeOutExpo)
       const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-
       this.displayBalance = Math.floor(start + (end - start) * ease);
 
       if (progress < 1) {
@@ -107,6 +109,10 @@ export class TavernComponent implements OnInit, AfterViewInit {
         this.chatService.updateInkBalance(this.inkBalance);
         this.animateOdometer();
         this.adLoading = false;
+        this.rewardEarned = true;
+        setTimeout(() => {
+          this.rewardEarned = false;
+        }, 2200);
       },
       error: () => {
         this.adLoading = false;

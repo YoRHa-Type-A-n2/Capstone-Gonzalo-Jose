@@ -19,10 +19,10 @@
       <div class="dchat-avatar-card">
         <div class="dchat-avatar-img-wrap">
           <img
-            [src]="avatar.avatar_image_url || 'assets/default_avatar.jpg'"
+            [src]="avatar.avatar_image_url || avatar.book_cover_url || 'assets/default_avatar.jpg'"
             [alt]="avatar.name"
             class="dchat-avatar-img"
-            onerror="this.src='assets/default_cover.jpg'"
+            (error)="handleAvatarError($event, avatar)"
           />
         </div>
 
@@ -66,9 +66,9 @@
         </button>
         <div class="dchat-header-avatar">
           <img
-            [src]="avatar.avatar_image_url || 'assets/default_avatar.jpg'"
+            [src]="avatar.avatar_image_url || avatar.book_cover_url || 'assets/default_avatar.jpg'"
             [alt]="avatar.name"
-            onerror="this.src='assets/default_cover.jpg'"
+            (error)="handleAvatarError($event, avatar)"
           />
           <div class="dchat-header-status">
             <span class="dchat-pulse-sm"></span>

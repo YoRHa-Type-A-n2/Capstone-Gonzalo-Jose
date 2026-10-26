@@ -112,6 +112,41 @@ export class MochilaComponent implements OnInit {
     });
   }
 
+  readonly defaultItemIcon = 'assets/images/default-item.png';
+
+  getItemIcon(iconPath: string | null | undefined): string {
+    if (!iconPath) {
+      return this.defaultItemIcon;
+    }
+    const trimmed = iconPath.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+      return trimmed;
+    }
+
+    const backendBase = (environment.apiUrl || 'http://localhost:8000/api/v1')
+      .replace(/\/api\/v1\/?$/, '')
+      .replace(/\/api\/?$/, '');
+
+    if (trimmed.startsWith('/media/') || trimmed.startsWith('/static/')) {
+      return `${backendBase}${trimmed}`;
+    }
+    if (trimmed.startsWith('media/') || trimmed.startsWith('static/')) {
+      return `${backendBase}/${trimmed}`;
+    }
+    if (trimmed.startsWith('assets/')) {
+      return trimmed;
+    }
+    return `${backendBase}/media/${trimmed}`;
+  }
+
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    if (imgElement) {
+      imgElement.onerror = null;
+      imgElement.src = this.defaultItemIcon;
+    }
+  }
+
   close() {
     this.dialogRef.close();
   }

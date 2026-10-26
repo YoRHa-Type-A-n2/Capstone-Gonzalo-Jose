@@ -1,161 +1,357 @@
 <div class="hub-container">
 
-  <!-- 1. HERO CAROUSEL (Personajes al azar destacados) -->
-  <section class="hero-section" *ngIf="!isLoading || heroCharacters.length > 0">
-    <div class="hero-carousel">
-      <div class="hero-slide" *ngFor="let char of heroCharacters; let i = index"
-        [class.active]="i === currentHeroIndex">
-        
-        <!-- Fondo desenfocado -->
-        <div class="hero-bg"
-          [style.backgroundImage]="'url(' + (char.avatar_image_url || 'assets/images/default-avatar.png') + ')'"></div>
-        
-        <!-- Degradado para legibilidad -->
-        <div class="hero-overlay"></div>
+  <!-- 1. HERO BANNER A ANCHO COMPLETO -->
+  <header class="characters-hero-banner">
+    <!-- Bloque de Texto Centrado con Velo Suave Difuso -->
+    <div class="hero-text-block">
+      <div class="hero-badge">
+        <span class="badge-icon" aria-hidden="true">🎭</span>
+        <span>GALERÍA NARRATIVA</span>
+      </div>
+      <h1 class="hero-title">Conoce a los personajes</h1>
+      <p class="hero-subtitle">
+        Descubre a los héroes, heroínas y escritores que dan vida a nuestras historias. ¡Conversa con ellos y sumérgete en sus mundos!
+      </p>
+    </div>
 
-        <!-- Layout Dividido (Texto Izquierda, Imagen Derecha) -->
-        <div class="hero-content-wrapper">
-          <div class="hero-content">
-            <span class="hero-badge">Destacado</span>
-            <h1 class="hero-name">{{ char.name }}</h1>
-            <p class="hero-book">{{ char.book_title }}</p>
-            <p class="hero-desc">{{ char.description | slice:0:120 }}...</p>
-            <div class="hero-actions">
-              <button class="btn-primary" (click)="openChat(char)">
-                <span class="icon"><svg lucideMessageCircle [size]="18" class="lucide-icon"></svg></span> Conversar ahora
+    <!-- Buscador Principal centrado dentro del Banner -->
+    <div class="hero-search-wrap">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔎</span>
+        <input 
+          type="text" 
+          [ngModel]="searchQuery" 
+          (ngModelChange)="onSearchInput($event)"
+          placeholder="Busca personajes, libros o autores..." 
+          class="search-input"
+          aria-label="Busca personajes, libros o autores"
+        />
+        @if (searchQuery) {
+          <button 
+            type="button" 
+            class="clear-btn" 
+            (click)="clearSearch()" 
+            title="Limpiar búsqueda" 
+            aria-label="Limpiar búsqueda">✕</button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. CONTROLES: FILTROS DE PÍLDORAS Y ORDENACIÓN (ZONA CREMA) -->
+  <section class="controls-section" aria-label="Filtros y ordenación de personajes">
+    <!-- Filtros de Píldoras y Selector de Orden -->
+    <div class="filter-and-sort-bar">
+      <div class="filter-pills-rail" role="tablist" aria-label="Filtros de personajes">
+        @for (filter of filterOptions; track filter.key) {
+          <button 
+            type="button" 
+            role="tab"
+            class="filter-pill" 
+            [class.active]="activeFilter === filter.key"
+            [attr.aria-selected]="activeFilter === filter.key"
+            (click)="setFilter(filter.key)">
+            <span class="pill-icon" aria-hidden="true">{{ filter.icon }}</span>
+            <span>{{ filter.label }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="sort-selector-wrap">
+        <label for="sort-select" class="sort-label">Ordenar:</label>
+        <div class="custom-select-wrap">
+          <select 
+            id="sort-select" 
+            class="sort-select" 
+            [ngModel]="selectedSort" 
+            (ngModelChange)="setSort($event)">
+            @for (option of sortOptions; track option.key) {
+              <option [value]="option.key">{{ option.label }}</option>
+            }
+          </select>
+          <span class="select-chevron" aria-hidden="true">▾</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. SECCIÓN DESTACADOS DE LA COMUNIDAD (Top 4 por popularidad, solo página 1 sin búsqueda) -->
+  @if (showFeaturedSection && featuredCharacters.length > 0) {
+    <section class="featured-section" aria-label="Personajes destacados de la comunidad">
+      <div class="section-heading-row">
+        <div>
+          <span class="section-kicker">⭐ SELECCIÓN DE LA COMUNIDAD</span>
+          <h2 class="section-title">Personajes más populares</h2>
+          <p class="section-subtitle">Los favoritos con quienes más lectores conversan.</p>
+        </div>
+      </div>
+
+      <div class="featured-grid">
+        @for (char of featuredCharacters; track char.id) {
+          <article class="character-card featured-card" [class.author-card]="char.is_author">
+            <!-- Metadatos superiores de la tarjeta -->
+            <div class="card-header-meta">
+              <span class="role-badge" [ngClass]="getRoleBadge(char).cssClass">
+                {{ getRoleBadge(char).icon }} {{ getRoleBadge(char).label }}
+              </span>
+              @if (char.chat_count && char.chat_count > 0) {
+                <span class="chat-count-badge" title="Número de conversaciones">
+                  💬 {{ char.chat_count }}
+                </span>
+              }
+            </div>
+
+            <!-- Marco de retrato / Avatar determinístico -->
+            <div class="card-portrait-wrap">
+              @if (char.avatar_image_url && !isAvatarBroken(char.id)) {
+                <img 
+                  [src]="char.avatar_image_url" 
+                  [alt]="char.name" 
+                  class="portrait-img"
+                  (error)="handleAvatarError(char.id)" />
+              } @else {
+                <div class="avatar-letter-circle" [style.backgroundColor]="getDeterministicBg(char.name)">
+                  <span class="avatar-initial">{{ getInitial(char.name) }}</span>
+                </div>
+              }
+
+              @if (char.book_cover_url && !isCoverBroken(char.id)) {
+                <div class="book-mini-badge" title="Libro asociado">
+                  <img 
+                    [src]="char.book_cover_url" 
+                    [alt]="char.book_title || 'Portada'" 
+                    class="book-mini-cover"
+                    (error)="handleCoverError(char.id)" />
+                </div>
+              }
+            </div>
+
+            <!-- Contenido de la tarjeta -->
+            <div class="card-body">
+              <h3 class="char-name">{{ char.name }}</h3>
+              <p class="char-book" [title]="char.book_title || 'Biblioteca Literatus'">
+                <span class="book-icon" aria-hidden="true">📖</span>
+                <span class="book-title-text">{{ char.book_title || 'Historia Literatus' }}</span>
+              </p>
+
+              @if (char.description) {
+                <p class="char-desc">{{ char.description }}</p>
+              } @else {
+                <p class="char-desc default-desc">Descubre sus secretos, hazle preguntas y sumérgete en su mundo.</p>
+              }
+
+              <div class="card-actions">
+                <button 
+                  type="button" 
+                  class="btn-book-action" 
+                  (click)="goToBook(char.book_slug)"
+                  title="Conocer más en el libro">
+                  Libro →
+                </button>
+                <button 
+                  type="button" 
+                  class="btn-chat-action" 
+                  (click)="openChat(char)"
+                  title="Conversar con este personaje">
+                  💬 Chatear
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ANCLA PARA SCROLL SUAVE AL PAGINAR -->
+  <div id="characters-grid-anchor"></div>
+
+  <!-- 4. ENCABEZADO DE LA GALERÍA PRINCIPAL -->
+  <div class="main-grid-header">
+    <div class="header-titles">
+      <h2 class="main-grid-title">
+        @if (searchQuery.trim()) {
+          Resultados para "{{ searchQuery }}"
+        } @else if (activeFilter === 'protagonists') {
+          ⭐ Protagonistas de historias
+        } @else if (activeFilter === 'authors') {
+          ✍️ Escritores y escritoras
+        } @else {
+          Explora todos los personajes
+        }
+      </h2>
+      @if (!isLoading && totalCount > 0) {
+        <span class="count-tag">
+          Página {{ currentPage }} de {{ totalPages }} ({{ totalCount }} personajes)
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- 5. ESTADO DE CARGA (8 SKELETON CARDS SHIMMER) -->
+  @if (isLoading) {
+    <div class="characters-grid" aria-busy="true" aria-label="Cargando personajes">
+      @for (i of skeletonCards; track $index) {
+        <div class="character-card skeleton-card">
+          <div class="skeleton-header">
+            <div class="skeleton-pill"></div>
+            <div class="skeleton-pill mini"></div>
+          </div>
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line book"></div>
+            <div class="skeleton-line text"></div>
+            <div class="skeleton-actions">
+              <div class="skeleton-btn"></div>
+              <div class="skeleton-btn primary"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (errorMsg) {
+    <!-- Estado de error ilustrado -->
+    <div class="illustrated-state-card error-state" role="alert">
+      <div class="state-icon-bubble" aria-hidden="true">
+        <span>🧭</span>
+      </div>
+      <h3 class="state-title">¡Ups! Nos perdimos en el camino</h3>
+      <p class="state-desc">{{ errorMsg }}</p>
+      <button type="button" class="btn-state-cta" (click)="retryLoad()">
+        Intentar de nuevo
+      </button>
+    </div>
+  } @else if (characters.length === 0) {
+    <!-- Estado vacío (sin resultados) -->
+    <div class="illustrated-state-card empty-state" role="status">
+      <div class="state-icon-bubble" aria-hidden="true">
+        <span>🔎</span>
+      </div>
+      <h3 class="state-title">No encontramos a ningún personaje</h3>
+      <p class="state-desc">Prueba buscando con otro nombre o seleccionando otro filtro.</p>
+      <button type="button" class="btn-state-cta" (click)="clearSearch(); setFilter('all');">
+        Ver todos los personajes
+      </button>
+    </div>
+  } @else {
+    <!-- Grid de personajes paginados -->
+    <div class="characters-grid">
+      @for (char of characters; track char.id) {
+        <article class="character-card" [class.author-card]="char.is_author">
+          <!-- Metadatos superiores de la tarjeta -->
+          <div class="card-header-meta">
+            <span class="role-badge" [ngClass]="getRoleBadge(char).cssClass">
+              {{ getRoleBadge(char).icon }} {{ getRoleBadge(char).label }}
+            </span>
+            @if (char.chat_count && char.chat_count > 0) {
+              <span class="chat-count-badge" title="Número de conversaciones">
+                💬 {{ char.chat_count }}
+              </span>
+            }
+          </div>
+
+          <!-- Marco de retrato / Avatar determinístico -->
+          <div class="card-portrait-wrap">
+            @if (char.avatar_image_url && !isAvatarBroken(char.id)) {
+              <img 
+                [src]="char.avatar_image_url" 
+                [alt]="char.name" 
+                class="portrait-img"
+                (error)="handleAvatarError(char.id)" />
+            } @else {
+              <div class="avatar-letter-circle" [style.backgroundColor]="getDeterministicBg(char.name)">
+                <span class="avatar-initial">{{ getInitial(char.name) }}</span>
+              </div>
+            }
+
+            @if (char.book_cover_url && !isCoverBroken(char.id)) {
+              <div class="book-mini-badge" title="Libro asociado">
+                <img 
+                  [src]="char.book_cover_url" 
+                  [alt]="char.book_title || 'Portada'" 
+                  class="book-mini-cover"
+                  (error)="handleCoverError(char.id)" />
+              </div>
+            }
+          </div>
+
+          <!-- Contenido de la tarjeta -->
+          <div class="card-body">
+            <h3 class="char-name">{{ char.name }}</h3>
+            <p class="char-book" [title]="char.book_title || 'Biblioteca Literatus'">
+              <span class="book-icon" aria-hidden="true">📖</span>
+              <span class="book-title-text">{{ char.book_title || 'Historia Literatus' }}</span>
+            </p>
+
+            @if (char.description) {
+              <p class="char-desc">{{ char.description }}</p>
+            } @else {
+              <p class="char-desc default-desc">Descubre sus secretos, hazle preguntas y sumérgete en su mundo.</p>
+            }
+
+            <div class="card-actions">
+              <button 
+                type="button" 
+                class="btn-book-action" 
+                (click)="goToBook(char.book_slug)"
+                title="Conocer más en el libro">
+                Libro →
+              </button>
+              <button 
+                type="button" 
+                class="btn-chat-action" 
+                (click)="openChat(char)"
+                title="Conversar con este personaje">
+                💬 Chatear
               </button>
             </div>
           </div>
-          
-          <div class="hero-image-container">
-             <img [src]="char.avatar_image_url || 'assets/images/default-avatar.png'" [alt]="char.name" class="hero-portrait"
-               onerror="this.src='assets/images/default-avatar.png'">
-          </div>
-        </div>
-      </div>
-
-      <!-- Indicadores -->
-      <div class="carousel-indicators">
-        <span *ngFor="let dot of heroCharacters; let i = index" [class.active]="i === currentHeroIndex"
-          (click)="setHeroIndex(i)"></span>
-      </div>
+        </article>
+      }
     </div>
-  </section>
+  }
 
-  <!-- 2. SEARCH BAR -->
-  <section class="search-section">
-    <div class="search-bar-wrapper">
-      <span class="search-icon"><svg lucideSearch [size]="18" class="lucide-icon"></svg></span>
-      <input type="text" [(ngModel)]="searchQuery" (input)="onSearchChange()"
-        placeholder="Busca personajes, libros o autores..." class="search-input">
-      <button class="clear-btn" *ngIf="searchQuery" (click)="searchQuery=''; onSearchChange()">
-        <svg lucideX [size]="18" class="lucide-icon"></svg>
-      </button>
-    </div>
-  </section>
+  <!-- 9. BARRA DE PAGINACIÓN INTELIGENTE (1 … 4 5 6 … N) -->
+  @if (!isLoading && totalPages > 1) {
+    <nav class="pagination-bar" aria-label="Navegación de páginas">
+      <span class="results-count-text">{{ totalCount }} personajes en total</span>
+      
+      <div class="pagination-controls">
+        <button 
+          type="button"
+          class="page-btn nav-btn" 
+          [disabled]="currentPage === 1" 
+          (click)="goToPage(currentPage - 1)"
+          aria-label="Página anterior">
+          ‹ Anterior
+        </button>
+        
+        @for (page of visiblePages; track $index) {
+          @if (page === '…') {
+            <span class="page-ellipsis" aria-hidden="true">…</span>
+          } @else {
+            <button 
+              type="button"
+              class="page-btn number-btn"
+              [class.active]="currentPage === page"
+              [attr.aria-current]="currentPage === page ? 'page' : null"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          }
+        }
 
-  <!-- 3. RESULTADOS DE BÚSQUEDA -->
-  <section class="results-section" *ngIf="isSearching">
-    <h2 class="section-title">Resultados de "{{ searchQuery }}"</h2>
-    <div class="character-grid">
-      <div class="char-card premium-card" *ngFor="let char of filteredCharacters" (click)="openChat(char)">
-        <div class="card-img-wrapper">
-          <img [src]="char.avatar_image_url || 'assets/images/default-avatar.png'" [alt]="char.name" class="char-img"
-            onerror="this.src='assets/images/default-avatar.png'">
-          <div class="overlay-gradient"></div>
-        </div>
-        <div class="card-content">
-          <h3 class="char-name">{{ char.name }}</h3>
-          <p class="book-origin">{{ char.book_title }}</p>
-        </div>
+        <button 
+          type="button"
+          class="page-btn nav-btn" 
+          [disabled]="currentPage === totalPages" 
+          (click)="goToPage(currentPage + 1)"
+          aria-label="Página siguiente">
+          Siguiente ›
+        </button>
       </div>
-      <div class="no-results" *ngIf="filteredCharacters.length === 0 && !isLoading">
-        <p>No se encontraron personajes que coincidan con tu búsqueda.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. CONTENIDO PRINCIPAL (Solo si no está buscando) -->
-  <ng-container *ngIf="!isSearching">
-
-    <!-- RECIENTES -->
-    <section class="hub-section" *ngIf="recentCharacters.length > 0">
-      <div class="section-header">
-        <h2 class="section-title"><span class="icon"><svg lucideClock [size]="20" class="lucide-icon"></svg></span> Continuar conversación</h2>
-      </div>
-      <div class="horizontal-scroll">
-        <div class="char-card mini-card" *ngFor="let char of recentCharacters" (click)="openChat(char)">
-          <div class="card-img-wrapper">
-            <img [src]="char.avatar_image_url || 'assets/images/default-avatar.png'" [alt]="char.name" class="char-img"
-              onerror="this.src='assets/images/default-avatar.png'">
-            <div class="overlay-gradient"></div>
-          </div>
-          <div class="card-content">
-            <h3 class="char-name">{{ char.name }}</h3>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DESTACADOS (Por popularidad) -->
-    <section class="hub-section">
-      <div class="section-header">
-        <h2 class="section-title"><span class="icon"><svg lucideFlame [size]="20" class="lucide-icon"></svg></span> Más Destacados</h2>
-        <p class="section-subtitle">Los personajes que más cautivan a la comunidad.</p>
-      </div>
-
-      <div class="horizontal-scroll" *ngIf="!isLoading">
-        <div class="char-card premium-card" *ngFor="let char of featuredCharacters" (click)="openChat(char)">
-          <div class="card-img-wrapper">
-            <img [src]="char.avatar_image_url || 'assets/images/default-avatar.png'" [alt]="char.name" class="char-img"
-              onerror="this.src='assets/images/default-avatar.png'">
-            <div class="overlay-gradient"></div>
-            <div class="trend-overlay">
-              <span class="chat-count"><svg lucideUsers [size]="14" class="lucide-icon inline-icon"></svg> {{ char.chat_count || 0 }}</span>
-            </div>
-          </div>
-          <div class="card-content">
-            <h3 class="char-name">{{ char.name }}</h3>
-            <p class="book-origin">{{ char.book_title }}</p>
-            <div class="badges-container">
-              <span class="badge" *ngFor="let tag of char.tags">{{ tag }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Skeleton Loading -->
-      <div class="horizontal-scroll" *ngIf="isLoading">
-        <div class="char-card skeleton-card" *ngFor="let s of skeletonArray">
-          <div class="shimmer-img"></div>
-          <div class="shimmer-content">
-            <div class="shimmer-line title"></div>
-            <div class="shimmer-line subtitle"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXPLORAR TODOS -->
-    <section class="hub-section">
-      <div class="section-header">
-        <h2 class="section-title"><span class="icon"><svg lucideLibrary [size]="20" class="lucide-icon"></svg></span> Todos los Personajes</h2>
-      </div>
-      <div class="character-grid">
-        <div class="char-card premium-card" *ngFor="let char of allCharacters" (click)="openChat(char)">
-          <div class="card-img-wrapper">
-            <img [src]="char.avatar_image_url || 'assets/images/default-avatar.png'" [alt]="char.name" class="char-img"
-              onerror="this.src='assets/images/default-avatar.png'">
-            <div class="overlay-gradient"></div>
-          </div>
-          <div class="card-content">
-            <h3 class="char-name">{{ char.name }}</h3>
-            <p class="book-origin">{{ char.book_title }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </ng-container>
+    </nav>
+  }
 
 </div>

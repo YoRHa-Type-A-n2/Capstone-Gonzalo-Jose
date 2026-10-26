@@ -16,7 +16,7 @@
     <!-- AUTHOR HERO SECTION -->
     <div class="author-hero glass-panel">
       <div class="author-image-container">
-        <img [src]="author.photo || 'assets/default_avatar.png'" alt="{{ author.full_name }}" class="author-image">
+        <img [src]="author.photo || author.book_cover_url || 'assets/default_avatar.jpg'" alt="{{ author.full_name }}" class="author-image" (error)="handleAuthorImageError($event, author)">
       </div>
       
       <div class="author-info">

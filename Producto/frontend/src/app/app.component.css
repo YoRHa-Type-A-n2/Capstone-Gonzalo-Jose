@@ -1,177 +1,447 @@
+/* ==========================================================================
+   LITERATUS NOVELIST - NAVBAR SUPERIOR ESTANDARIZADA (UI/UX PROFESIONAL)
+   ========================================================================== */
+
+/* Barra de navegación principal (Sticky + Glassmorphism) */
 .glass-navbar {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: var(--glass-bg);
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
-  padding: 1rem 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  width: 100%;
 }
 
+/* Contenedor Flexbox de 3 grupos principales con alineación vertical perfecta */
 .nav-container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  justify-content: space-between;
+  height: 68px;
+  padding: 0 32px;
+  box-sizing: border-box;
+  gap: 24px;
+}
+
+/* ==========================================================================
+   1. GRUPO IZQUIERDO: LOGO ORNAMENTAL
+   ========================================================================== */
+.nav-group-left {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .logo {
-  font-size: 1.4rem;
-  font-weight: 600;
-  cursor: pointer;
-  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.logo-img {
+  height: 44px; /* Altura estandarizada proporcional al header */
+  width: auto;
+  max-width: 240px;
+  object-fit: contain;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
+  filter: drop-shadow(0 2px 6px rgba(47, 143, 110, 0.12));
+}
+
+.logo:hover .logo-img {
+  transform: scale(1.03) translateY(-1px);
+  filter: drop-shadow(0 4px 10px rgba(47, 143, 110, 0.2));
+}
+
+/* ==========================================================================
+   2. GRUPO CENTRAL: MENÚ PRINCIPAL
+   ========================================================================== */
+.nav-group-center {
   display: flex;
   align-items: center;
-  gap: 0;
-}
-
-.literatus {
-  /*
-   * Cinzel: fuente romana clásíca inspirada en inscripciones del Imperio Romano.
-   * Perfecta para una marca literaria — comunica autoridad, atemporalidad, cultura.
-   * Contrasta elegantemente con la fuente sans-serif del resto de la UI.
-   */
-  font-family: var(--font-brand);
-  font-weight: 600;
-  font-size: 1.35rem;
-  color: var(--text-main);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.novelist {
-  font-family: var(--font-brand);
-  font-weight: 400;  /* Lighter weight crea contraste elegante dentro del mismo logo */
-  font-size: 1.35rem;
-  color: var(--glow-accent);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.nav-links {
-  display: flex;
-  gap: 28px;
+  justify-content: center;
   list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px; /* Espaciado uniforme y equidistante */
+  flex: 1 1 auto;
+}
+
+.nav-item {
+  display: inline-flex;
   align-items: center;
 }
 
-.nav-links a, .nav-links li.logout {
-  font-family: var(--font-ui);
-  font-weight: 500;           /* Plus Jakarta Sans 500 es la misma “Medium” que usa Linear, Vercel */
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;     /* Micro-tracking para elegancia */
-  color: var(--text-muted);
+.nav-item a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espaciado exacto entre icono y texto */
+  padding: 8px 14px; /* Margen y padding unificado */
+  border-radius: 12px;
+  font-family: var(--font-ui), system-ui, -apple-system, sans-serif;
+  font-size: 14px; /* 14px sans-serif */
+  font-weight: 600;
+  color: #475569; /* Color gris oscuro elegante */
   text-decoration: none;
-  transition: color 0.25s ease;
-  cursor: pointer;
+  white-space: nowrap;
   position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-links a:hover, .nav-links li.logout:hover {
-  color: var(--text-main);
+.nav-item a:hover {
+  color: #0F172A;
+  background-color: rgba(47, 143, 110, 0.08);
+  transform: translateY(-1px);
 }
 
-.auth-btn a {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--glass-border);
+/* Estandarización de iconos a 24x24px uniformes */
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.auth-btn.highlight a {
-  background: var(--glow-accent);
-  color: white;
-  border: none;
+.nav-item a:hover .nav-icon {
+  transform: scale(1.15) rotate(-3deg);
 }
 
-/* --- Menu Hamburguesa (Mobile First) --- */
-.menu-icon {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
+.nav-label {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 600;
 }
 
-.bar {
-  width: 25px;
-  height: 3px;
-  background-color: var(--text-main);
-  transition: 0.3s;
-  border-radius: 5px;
+/* Estado activo del menú (subrayado verde sutil y color primario) */
+.nav-item a.active-link {
+  color: #2F8F6E !important;
+  font-weight: 700 !important;
+  background-color: rgba(47, 143, 110, 0.08);
 }
 
-@media (max-width: 768px) {
-  .menu-icon {
-    display: flex;
-  }
-  
-  .nav-links {
-    position: absolute;
-    top: 70px;
-    right: -100%;
-    flex-direction: column;
-    background: var(--bg-color);
-    width: 100%;
-    padding: 20px 0;
-    transition: 0.3s ease-in-out;
-    border-bottom: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-  }
-
-  .nav-links.active {
-    right: 0;
-  }
+.nav-item a.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  left: 14px;
+  right: 14px;
+  height: 2.5px;
+  background: #2F8F6E;
+  border-radius: 2px;
 }
 
-/* --- Dark Premium Aesthetic Additions --- */
-.active-link {
-  color: var(--text-main) !important;
-  /*
-   * Subrayado dorado animado: en lugar del borde estático, usamos un gradiente
-   * en el pseudo-elemento para una línea más fina y elegante.
-   * El color dorado (#f59e0b) es la señal visual clásica de "seleccionado" en apps premium.
-   */
-  padding-bottom: 3px;
-  border-bottom: 1.5px solid var(--glow-gold);
-  transition: border-color 0.3s ease;
-}
-
-.ink-widget {
+/* ==========================================================================
+   3. GRUPO DERECHO: ACCIONES DE USUARIO (ALTURA ESTANDARIZADA A 40px)
+   ========================================================================== */
+.nav-group-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
-  background: var(--bg-surface);
-  border: 1px solid var(--glass-border);
-  padding: 8px 18px;
-  border-radius: 24px;
+  flex: 0 0 auto;
+}
+
+/* --- Botón Verde: Literatus Games (40px) --- */
+.btn-games-action {
+  height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2F8F6E 0%, #1E6B52 100%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
   cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(47, 143, 110, 0.28);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-games-action:hover {
+  background: linear-gradient(135deg, #36a37e 0%, #237c60 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(47, 143, 110, 0.45);
+  color: #FFFFFF !important;
+}
+
+.btn-games-action:active {
+  transform: translateY(0);
+}
+
+.joystick-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.joystick-svg {
+  width: 100%;
+  height: 100%;
+  color: #FFFFFF;
+  overflow: visible;
+}
+
+.joy-stick-group {
+  transform-origin: 12px 13px;
+  animation: joystick-tilt 2.5s ease-in-out infinite;
+}
+
+.btn-games-action:hover .joy-stick-group {
+  animation: joystick-tilt-fast 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes joystick-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(10deg); }
+}
+
+@keyframes joystick-tilt-fast {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(18deg); }
+}
+
+/* --- Botón Mochila: Tienda e Inventario (40px) --- */
+.nav-btn.mochila-btn {
+  height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 15px;
+  border-radius: 20px;
+  background: #F3E8FF;
+  border: 1.5px solid #A855F7;
+  color: #6B21A8;
+  cursor: pointer;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 13.5px;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
+}
+
+.nav-btn.mochila-btn:hover {
+  transform: translateY(-2px);
+  background: #E9D5FF;
+  box-shadow: 0 5px 14px rgba(168, 85, 247, 0.3);
+}
+
+.nav-btn.mochila-btn:active {
+  transform: translateY(0);
+}
+
+.nav-btn.mochila-btn .mochila-icon {
+  font-size: 19px;
+  color: #9333EA;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Botón Tinta: Widget Naranja (40px) --- */
+.btn-ink-action {
+  height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border-radius: 20px;
+  background: #FFF3E6;
+  border: 1.5px solid #FF9F5B;
+  color: #8C4718;
+  cursor: pointer;
+  font-family: var(--font-ui), sans-serif;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(255, 159, 91, 0.15);
+}
+
+.btn-ink-action:hover {
+  transform: translateY(-2px);
+  background: #FFE8D1;
+  box-shadow: 0 5px 14px rgba(255, 159, 91, 0.32);
+}
+
+.btn-ink-action:active {
+  transform: translateY(0);
+}
+
+.btn-ink-action .ink-icon {
+  font-size: 19px;
+  color: #E67E22;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-ink-action .ink-balance {
+  color: #8C4718;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1;
+  font-family: var(--font-ui), sans-serif;
+}
+
+.btn-ink-action .ink-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #B25316;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2px 7px;
+  border-radius: 10px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* --- Círculo de Perfil: Diámetro 40px idéntico a la altura de los botones --- */
+.profile-avatar-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.avatar-profile-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  border: 2px solid #3B82F6 !important; /* Borde azul destacado */
+  background: #3B82F6 !important;
+  box-sizing: border-box !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease !important;
+}
+
+.avatar-profile-btn:hover {
+  transform: scale(1.08) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #FFFFFF;
+  background-color: #3B82F6; /* Círculo azul con inicial */
+  box-sizing: border-box;
   user-select: none;
 }
 
-.ink-widget:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.2);
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.ink-icon {
-  font-size: 1.1rem;
-  color: #facc15;
-  filter: hue-rotate(-10deg) saturate(2); /* Ajuste para que el emoji sea más dorado puro */
+/* --- Botones Fallback Usuario no autenticado (40px) --- */
+.btn-auth-login {
+  height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 20px;
+  border: 1.5px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #334155;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.ink-balance {
-  color: var(--glow-gold);
+.btn-auth-login:hover {
+  border-color: #94A3B8;
+  background: #F8FAFC;
+  color: #0F172A;
+  transform: translateY(-1px);
+}
+
+.btn-auth-register {
+  height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, #FF9F5B 0%, #F57C00 100%);
+  color: #FFFFFF !important;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 14px;
   font-weight: 700;
-  font-size: 1rem;
-  font-family: var(--font-ui);
-  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(245, 124, 0, 0.25);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ── Material Symbols Rounded en el dropdown del perfil ── */
+.btn-auth-register:hover {
+  background: linear-gradient(135deg, #FFA96B 0%, #FA8510 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 124, 0, 0.38);
+}
+
+/* ==========================================================================
+   DROPDOWN DEL PERFIL (Material Menu Overrides)
+   ========================================================================== */
 .mat-symbol {
   font-family: 'Material Symbols Rounded';
   font-weight: normal;
@@ -192,58 +462,6 @@
   transition: color 0.2s ease, font-variation-settings 0.2s ease;
 }
 
-.profile-dropdown-container {
-  display: flex;
-  align-items: center;
-}
-
-.avatar-btn {
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--glass-border);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.initials-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--glow-accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.2rem;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  transition: background 0.3s ease;
-}
-
-.avatar-btn:hover {
-  border-color: #fbbf24;
-  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
-}
-
-.user-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Material Menu Overrides — Dark Premium con Material Symbols Rounded */
 ::ng-deep .dark-premium-menu {
   background: var(--bg-surface) !important;
   backdrop-filter: blur(20px) !important;
@@ -269,7 +487,6 @@
   color: #fff !important;
 }
 
-/* Material Symbols Rounded dentro del menu */
 ::ng-deep .dark-premium-menu .mat-symbol {
   color: var(--text-muted) !important;
   font-size: 18px !important;
@@ -279,17 +496,7 @@
 
 ::ng-deep .dark-premium-menu .mat-mdc-menu-item:hover .mat-symbol {
   color: var(--glow-gold) !important;
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20 !important; /* Se "rellena" al hover */
-}
-
-/* mat-icon legacy (por si queda alguno) */
-::ng-deep .dark-premium-menu .mat-icon {
-  color: #64748b !important;
-  font-size: 18px !important;
-}
-
-::ng-deep .dark-premium-menu .mat-mdc-menu-item:hover .mat-icon {
-  color: var(--glow-gold) !important;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20 !important;
 }
 
 .menu-header {
@@ -313,4 +520,98 @@
 
 .logout-btn .mat-icon {
   color: #ef4444 !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (HAMBURGER Y ADAPTACIÓN MÓVIL)
+   ========================================================================== */
+.menu-icon {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: var(--text-main);
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.bar.open:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.bar.open:nth-child(2) {
+  opacity: 0;
+}
+
+.bar.open:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+@media (max-width: 1080px) {
+  .nav-container {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .nav-group-center {
+    gap: 2px;
+  }
+  .nav-item a {
+    padding: 6px 10px;
+    font-size: 13.5px;
+  }
+  .btn-games-action {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 860px) {
+  .menu-icon {
+    display: flex;
+  }
+  
+  .nav-group-center {
+    display: none;
+  }
+
+  .nav-group-center.active {
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    gap: 8px;
+    z-index: 999;
+  }
+
+  .nav-group-right {
+    display: none;
+  }
+
+  .nav-group-right.active {
+    position: absolute;
+    top: calc(68px + 300px);
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    display: flex;
+    justify-content: center;
+    padding: 0 24px 24px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    gap: 12px;
+    z-index: 999;
+  }
 }

@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
+import { environment } from '../../../environments/environment';
 
 import { AlternateStoryService } from './alternate-story.service';
 import {
@@ -367,5 +368,40 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
     this.selectedItem = null;
     this.popupOpen = false;
     this.state = 'idle';
+  }
+
+  readonly defaultItemIcon = 'assets/images/default-item.png';
+
+  getItemIcon(iconPath: string | null | undefined): string {
+    if (!iconPath) {
+      return this.defaultItemIcon;
+    }
+    const trimmed = iconPath.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+      return trimmed;
+    }
+
+    const backendBase = (environment.apiUrl || 'http://localhost:8000/api/v1')
+      .replace(/\/api\/v1\/?$/, '')
+      .replace(/\/api\/?$/, '');
+
+    if (trimmed.startsWith('/media/') || trimmed.startsWith('/static/')) {
+      return `${backendBase}${trimmed}`;
+    }
+    if (trimmed.startsWith('media/') || trimmed.startsWith('static/')) {
+      return `${backendBase}/${trimmed}`;
+    }
+    if (trimmed.startsWith('assets/')) {
+      return trimmed;
+    }
+    return `${backendBase}/media/${trimmed}`;
+  }
+
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    if (imgElement) {
+      imgElement.onerror = null;
+      imgElement.src = this.defaultItemIcon;
+    }
   }
 }
