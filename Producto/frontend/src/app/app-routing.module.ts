@@ -38,9 +38,12 @@ import { CazadorIntrusosComponent } from './components/games/cazador-intrusos/ca
 import { BuscaImagenComponent } from './components/games/busca-imagen/busca-imagen.component';
 import { ComicsDesordenadosComponent } from './components/games/comics-desordenados/comics-desordenados.component';
 import { MinigameSessionComponent } from './components/games/minigame-session/minigame-session.component';
+import { WelcomeComponent } from './components/welcome/welcome.component';
 
 const routes: Routes = [
+  { path: 'literatus-games', component: WelcomeComponent },
   { path: 'home', component: HomeComponent },
+
   { path: 'tavern', component: TavernComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },

@@ -1,0 +1,143 @@
+<div class="welcome-container">
+  <div class="welcome-top-nav">
+    <a routerLink="/" class="btn-back-home" title="Volver al inicio">
+      ← Volver al Inicio
+    </a>
+  </div>
+
+  <header class="header">
+    <div class="header-badge">Literatus the game 🎮</div>
+    <h1>Selecciona un Minijuego</h1>
+    <p>¡Desafíos interactivos para entrenar tu mente y comprensión lectora!</p>
+    <div class="welcome-kid-pill">
+      <span class="pill-sparkle">⭐</span>
+      <span>¡Elige cualquier juego y selecciona la historia con la que deseas jugar!</span>
+    </div>
+  </header>
+
+  <!-- Grilla de los 10 Minijuegos -->
+  <div class="games-grid">
+    <div
+      *ngFor="let game of minigames; let i = index"
+      class="game-card"
+      [ngClass]="'theme-' + ((i % 5) + 1)"
+      [class.disabled]="game.comingSoon"
+    >
+      <div class="card-status-badge" *ngIf="game.comingSoon">
+        Próximamente
+      </div>
+
+      <div class="icon-bubble">
+        <span class="icon">{{ game.icon }}</span>
+      </div>
+
+      <div class="card-content">
+        <h2>{{ game.title }}</h2>
+        <p>{{ game.description }}</p>
+      </div>
+
+      <!-- Botón Jugar que abre el modal selector de libros -->
+      <button
+        *ngIf="!game.comingSoon"
+        type="button"
+        class="btn-play"
+        (click)="openGameModal(game)"
+      >
+        ¡Jugar! 🚀
+      </button>
+
+      <button
+        *ngIf="game.comingSoon"
+        class="btn-play btn-disabled"
+        disabled
+      >
+        Bloqueado 🔒
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL SELECTOR DE HISTORIA / LIBRO -->
+  <div 
+    *ngIf="isModalOpen" 
+    class="book-modal-backdrop" 
+    (click)="closeGameModal()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title-heading"
+  >
+    <div class="book-modal-card" (click)="$event.stopPropagation()">
+      
+      <!-- Botón de Cerrar Modal -->
+      <button 
+        type="button" 
+        class="btn-close-modal" 
+        (click)="closeGameModal()" 
+        title="Cerrar ventana"
+      >
+        ✕
+      </button>
+
+      <!-- Cabecera del Modal con Título Requerido -->
+      <div class="modal-header">
+        <div class="modal-badge">
+          <span class="game-icon">{{ selectedGame?.icon }}</span>
+          <span>Aventura Literaria</span>
+        </div>
+        <h2 id="modal-title-heading" class="modal-title">
+          ¿Con qué historia quieres jugar a {{ selectedGame?.title }}?
+        </h2>
+        <p class="modal-subtitle">
+          Elige una obra clásica para comenzar la sesión temática con sus personajes y desafíos:
+        </p>
+      </div>
+
+      <!-- Estado de Carga de Libros -->
+      <div *ngIf="isLoadingBooks" class="books-loading">
+        <div class="loading-icon">📜</div>
+        <p>Buscando libros disponibles en la biblioteca...</p>
+      </div>
+
+      <!-- Grilla de Tarjetas de Libros -->
+      <div *ngIf="!isLoadingBooks" class="modal-books-grid">
+        <div 
+          *ngFor="let book of booksWithMinigames" 
+          class="book-theme-card"
+          (click)="selectBookAndPlay(book)"
+          tabindex="0"
+          (keydown.enter)="selectBookAndPlay(book)"
+        >
+          <!-- Portada del Libro con Sombra y Badge de Acción -->
+          <div class="book-cover-wrapper">
+            <img 
+              [src]="book.cover_image" 
+              [alt]="'Portada de ' + book.title"
+              class="book-cover-img"
+              (error)="onCoverError($event)"
+            />
+            <div class="cover-overlay">
+              <span class="play-badge">¡Comenzar! ⚔️</span>
+            </div>
+          </div>
+
+          <!-- Título y Autor Requeridos -->
+          <div class="book-meta">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">
+              <span class="author-icon">✒️</span>
+              <span class="author-name">{{ book.author_name }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeGameModal()">
+          Volver a Minijuegos
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

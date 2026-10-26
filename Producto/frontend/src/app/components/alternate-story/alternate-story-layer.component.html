@@ -24,8 +24,7 @@
           (click)="select(item)"
         >
           <span class="as-icon">
-            <img *ngIf="item.icon; else noIcon" [src]="item.icon" alt="" loading="lazy" />
-            <ng-template #noIcon><span class="as-icon-fallback" aria-hidden="true">✦</span></ng-template>
+            <img [src]="getItemIcon(item.icon)" (error)="onImageError($event)" [alt]="item.name || 'Objeto'" loading="lazy" />
           </span>
           <span class="as-text">
             <strong>{{ item.name }}</strong>

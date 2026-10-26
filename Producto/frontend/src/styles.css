@@ -13,27 +13,60 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Paleta de color — Classic Literature Artisanal (Default) */
-  --bg-color:        #0A1914;  /* Deep Emerald Dark */
-  --bg-surface:      #11261d;  /* Darker surface */
-  --text-main:       #fcfaf2;  /* Parchment white */
-  --text-muted:      #bbaea0;  /* Aged paper gray */
-  --text-subtle:     #8a7f72;
-  --glass-bg:        rgba(10, 25, 20, 0.4);
-  --glass-border:    rgba(212, 175, 55, 0.15); /* Old Gold */
-  --glow-accent:     #D4AF37;  /* Old Gold */
-  --glow-purple:     #8B0000;  /* Deep Burgundy */
-  --glow-gold:       #D4AF37;  /* Old Gold */
+  /* Fondos */
+  --bg-main: #FBF9F2;
+  --bg-secondary: #EAF3E8;
+  --bg-surface: #FFFFFF;
+  --bg-alt: #EAF3E8;
 
-  /* Sistema tipográfico Default */
-  --font-display:    'Cormorant Garamond', 'EB Garamond', Georgia, serif;
-  --font-ui:         'Plus Jakarta Sans', 'Outfit', system-ui, sans-serif;
-  --font-body:       'EB Garamond', Georgia, serif;
-  --font-brand:      'Cinzel', 'Trajan Pro', Georgia, serif;
+  /* Tipografía */
+  --text-main: #33403A;
+  --text-muted: #6E7C74;
+  --text-subtle: #857D72;
+  --text-on-accent: #FFFFFF;
+
+  /* Colores oficiales */
+  --color-primary: #2F8F6E;
+  --color-secondary: #4A90A4;
+  --color-accent: #FF9F5B;
+  --color-badge: #FFD166;
+  --color-success: #52B788;
+  --color-alert: #E0575B;
+
+  /* Botones y Acentos Primarios / CTA */
+  --btn-primary-bg: var(--color-accent);     /* #FF9F5B */
+  --btn-primary-hover: #E88E4A;
+  --btn-primary-shadow: #D67A38;
+  
+  /* Paleta de Tarjetas Pastel */
+  --pastel-blue-bg: #EBF3FE;     --pastel-blue-border: #D0E2FB;
+  --pastel-mint-bg: #EAF3E8;     --pastel-mint-border: #CBE3C9;
+  --pastel-peach-bg: #FFF3E6;    --pastel-peach-border: #FEE0C2;
+  --pastel-purple-bg: #F4ECFB;   --pastel-purple-border: #E4D3F8;
+  --pastel-yellow-bg: #FAF5EE;   --pastel-yellow-border: #F0E6D8;
+
+  /* Bordes y Sombras */
+  --radius-card: 18px;
+  --radius-btn: 12px;
+  --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.04);
+
+  /* Compatibilidad con clases existentes */
+  --bg-color:        var(--bg-main);
+  --glass-bg:        #FFFFFF;
+  --glass-border:    #E5E3DC;
+  --glow-accent:     var(--color-primary);
+  --glow-purple:     var(--color-secondary);
+  --glow-gold:       var(--color-badge);
+
+  /* Sistema tipográfico */
+  --font-display:    'Cormorant Garamond', Georgia, serif;
+  --font-ui:         'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:       'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-brand:      'Cinzel', Georgia, serif;
   --font-literary:   'EB Garamond', Georgia, serif;
 }
 
-/* Tema Clásico Original (Neón) para demo al cliente */
+/* Tema Clásico (Neon) preservado opcionalmente */
 [data-theme="neon"] {
   --bg-color:        #0b0f1a;
   --bg-surface:      #0f172a;
@@ -44,28 +77,11 @@
   --glass-border:    rgba(255, 255, 255, 0.08);
   --glow-accent:     #3b82f6;
   --glow-purple:     #8b5cf6;
-  --glow-gold:       #a855f7; /* Override para que los bordes gold sean morados */
-  
-  --font-body:       'Plus Jakarta Sans', 'Outfit', system-ui, sans-serif;
-}
-
-/* Tema Light Gallery (Minimalista, Estilo Galería de Arte) */
-[data-theme="light-gallery"] {
-  --bg-color:        #FAFAFA;
-  --bg-surface:      #FFFFFF;
-  --text-main:       #111111;
-  --text-muted:      #555555;
-  --text-subtle:     #888888;
-  --glass-bg:        rgba(255, 255, 255, 0.85);
-  --glass-border:    rgba(0, 0, 0, 0.08);
-  --glow-accent:     #000000;
-  --glow-purple:     #333333;
-  --glow-gold:       #000000;
-  
+  --glow-gold:       #eab308;
   --font-body:       'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-display:    'Cormorant Garamond', 'EB Garamond', Georgia, serif;
 }
 
+/* Reset & Normalización Global */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -73,11 +89,11 @@
 }
 
 html {
-  overflow-x: clip; /* Evita desbordamiento horizontal sin causar doble scrollbar */
+  overflow-x: clip;
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: var(--bg-main) !important;
   color: var(--text-main);
   font-family: var(--font-body);
   font-size: 16px;
@@ -86,80 +102,247 @@ body {
   min-height: 100vh;
   margin: 0;
   padding-top: env(safe-area-inset-top, 0px);
-  overflow-x: clip; /* Usar clip en vez de hidden impide la creación de un contexto de scroll en Windows */
+  overflow-x: clip;
   overflow-y: visible !important;
-  /*
-   * FONDO ARTESANAL — Tres capas:
-   */
+  /* Patrón sutil de puntos (Dot Grid) con 5% de opacidad sobre #FBF9F2 */
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse 60% 50% at 15% 55%, rgba(212, 175, 55, 0.08), transparent),
-    radial-gradient(ellipse 55% 45% at 85% 25%, rgba(139, 0, 0, 0.06), transparent),
-    radial-gradient(ellipse 40% 35% at 50% 100%, rgba(212, 175, 55, 0.03), transparent);
+    radial-gradient(rgba(51, 64, 58, 0.05) 1.5px, transparent 1.5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 60% 50% at 15% 55%, rgba(255, 159, 91, 0.05), transparent),
+    radial-gradient(ellipse 55% 45% at 85% 25%, rgba(47, 143, 110, 0.04), transparent);
   background-attachment: fixed;
-  background-size: 300px 300px, 100% 100%, 100% 100%, 100% 100%;
+  background-size: 24px 24px, 300px 300px, 100% 100%, 100% 100%;
 }
 
-[data-theme="neon"] body {
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse 60% 50% at 15% 55%, rgba(59, 130, 246, 0.12), transparent),
-    radial-gradient(ellipse 55% 45% at 85% 25%, rgba(139, 92, 246, 0.14), transparent),
-    radial-gradient(ellipse 40% 35% at 50% 100%, rgba(245, 158, 11, 0.04), transparent);
+/* ──────────────────────────────────────────────────────────────────────────
+   REGLAS GLOBALES SEGÚN LA PALETA DE COLORES OFICIAL
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Títulos principales → --text-main (#33403A) */
+h1, h2, h3, h4, h5, h6,
+.title-font,
+.hero-title,
+.hero-headline,
+.section-title,
+.page-title,
+.book-title {
+  color: var(--text-main);
 }
 
-[data-theme="light-gallery"] body {
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse 60% 50% at 15% 55%, rgba(0, 0, 0, 0.02), transparent),
-    radial-gradient(ellipse 55% 45% at 85% 25%, rgba(0, 0, 0, 0.01), transparent);
+/* 2. Elementos de marca y menú → --color-primary (#2F8F6E) */
+.novelist,
+.brand,
+.brand-name,
+.brand-logo,
+.logo-accent,
+.menu-brand {
+  color: var(--color-primary);
 }
 
-/* Base Glass Container */
+.nav-links a:hover,
+.nav-links li.logout:hover,
+.nav-item:hover,
+.footer-col a:hover {
+  color: var(--color-primary);
+}
+
+.active-link,
+.nav-item.active {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.menu-icon .bar {
+  background-color: var(--color-primary);
+}
+
+/* 3. Botones de acción principal (CTA) → --color-accent (#FF9F5B) */
+/* 3. Botones de acción principal (CTA) → UI Gamer 3D con fondo #FF9F5B */
+.btn-primary-3d,
+.glass-btn,
+.btn-primary,
+.cta-primary,
+.cta-btn,
+.btn-cta,
+.auth-btn.highlight a {
+  background-color: var(--color-accent);
+  color: var(--text-on-accent);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-btn);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  box-shadow: 0 5px 0 #D97736;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary-3d:hover,
+.glass-btn:hover,
+.btn-primary:hover,
+.cta-primary:hover,
+.cta-btn:hover,
+.btn-cta:hover,
+.auth-btn.highlight a:hover {
+  background-color: var(--btn-primary-hover);
+  color: var(--text-on-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #D97736;
+}
+
+.btn-primary-3d:active,
+.glass-btn:active,
+.btn-primary:active,
+.cta-primary:active,
+.cta-btn:active,
+.btn-cta:active,
+.auth-btn.highlight a:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #D97736;
+}
+
+/* Botón secundario UI Gamer */
+.btn-secondary,
+.cta-secondary,
+.cta-ghost {
+  background-color: #EAF3E8;
+  color: #2F8F6E;
+  border: 2px solid #2F8F6E;
+  border-radius: var(--radius-btn);
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  box-shadow: 0 4px 0 #236E55;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-secondary:hover,
+.cta-secondary:hover,
+.cta-ghost:hover {
+  background-color: #2F8F6E;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #236E55;
+}
+
+.btn-secondary:active,
+.cta-secondary:active,
+.cta-ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #236E55;
+}
+
+/* Base Glass & Card Container */
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg-surface);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 /* Native Inputs & Forms */
 .glass-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
   color: var(--text-main);
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   font-family: var(--font-ui);
   font-size: 1rem;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: var(--glow-accent);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(47, 143, 110, 0.15);
 }
 
-/* Premium Buttons: Artesanal */
-.glass-btn {
-  background: var(--bg-surface);
-  color: var(--glow-gold);
-  border: 1px solid var(--glass-border);
+/* Botón Gamer 3D con Sombra Inferior */
+.btn-primary-3d, .glass-btn {
+  background-color: var(--btn-primary-bg);
+  color: var(--text-on-accent);
+  border: none;
   padding: 12px 24px;
-  border-radius: 4px; /* Menos redondeado, más clásico */
+  border-radius: var(--radius-btn);
   font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+  font-weight: 700;
   font-family: var(--font-ui);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  box-shadow: inset 0 0 0 0 var(--glow-gold);
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary-3d:hover, .glass-btn:hover {
+  background-color: var(--btn-primary-hover);
+  color: var(--text-on-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--btn-primary-shadow);
+}
+
+.btn-primary-3d:active, .glass-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--btn-primary-shadow);
+}
+
+.glass-btn:disabled, .btn-primary-3d:disabled {
+  background-color: #E2E8F0;
+  color: #94A3B8;
+  box-shadow: 0 4px 0 #CBD5E1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tarjetas Pastel Utilitarias */
+.card-pastel-blue {
+  background-color: var(--pastel-blue-bg);
+  border: 1px solid var(--pastel-blue-border);
+  border-radius: var(--radius-card);
+}
+
+.card-pastel-mint {
+  background-color: var(--pastel-mint-bg);
+  border: 1px solid var(--pastel-mint-border);
+  border-radius: var(--radius-card);
+}
+
+.card-pastel-peach {
+  background-color: var(--pastel-peach-bg);
+  border: 1px solid var(--pastel-peach-border);
+  border-radius: var(--radius-card);
+}
+
+.card-pastel-purple {
+  background-color: var(--pastel-purple-bg);
+  border: 1px solid var(--pastel-purple-border);
+  border-radius: var(--radius-card);
+}
+
+.card-pastel-yellow {
+  background-color: var(--pastel-yellow-bg);
+  border: 1px solid var(--pastel-yellow-border);
+  border-radius: var(--radius-card);
 }
 
 [data-theme="neon"] .glass-btn {
@@ -572,4 +755,400 @@ body:has(.container.dashboard-mode) {
 [data-theme="light-gallery"] .legal-text { color: #555 !important; }
 [data-theme="light-gallery"] .tts-btn { color: #000 !important; border-color: #000 !important; }
 [data-theme="light-gallery"] .tts-btn:hover { background: rgba(0,0,0,0.1) !important; }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   EXPERIENCIA INFANTIL & GAMIFICACIÓN EDUCATIVA — LiteratusNovelist
+   Micro-interacciones, celebraciones, gamificación y guiado visual (tooltips)
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* 1. KEYFRAMES DE ANIMACIÓN LÚDICA */
+@keyframes playful-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  28% {
+    transform: translateY(-6px) scale(1.04);
+  }
+  55% {
+    transform: translateY(1px) scale(0.98);
+  }
+  75% {
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+@keyframes playful-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgba(255, 159, 91, 0.35);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 8px 24px rgba(255, 159, 91, 0.55);
+  }
+}
+
+@keyframes playful-wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-7deg);
+  }
+  40% {
+    transform: rotate(7deg);
+  }
+  60% {
+    transform: rotate(-4deg);
+  }
+  80% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% {
+    transform: scale(0.9) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.25) rotate(180deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px #FFD166);
+  }
+}
+
+@keyframes progress-energy-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes celebration-card-pop {
+  0% {
+    transform: scale(0.85) translateY(20px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03) translateY(-4px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes confetti-rain {
+  0% {
+    transform: translateY(-20px) rotate(0deg) scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150px) rotate(360deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes guide-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* 2. MICRO-INTERACCIONES EN BOTONES Y ACCIONES PRINCIPALES */
+.btn-primary-3d,
+.cta-primary,
+.cta-secondary,
+.btn-talk-action,
+.btn-play,
+.btn-start,
+.btn-retry,
+.btn-verify,
+.playful-bounce-btn {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s ease,
+              background-color 0.2s ease !important;
+}
+
+.btn-primary-3d:hover,
+.cta-primary:hover,
+.btn-play:hover,
+.btn-start:hover,
+.btn-retry:hover,
+.btn-talk-action:hover,
+.playful-bounce-btn:hover {
+  transform: translateY(-4px) scale(1.025) !important;
+  box-shadow: 0 8px 18px rgba(217, 119, 54, 0.35) !important;
+}
+
+.cta-secondary:hover {
+  transform: translateY(-4px) scale(1.025) !important;
+  box-shadow: 0 8px 18px rgba(47, 143, 110, 0.25) !important;
+}
+
+.btn-primary-3d:active,
+.cta-primary:active,
+.cta-secondary:active,
+.btn-play:active,
+.btn-start:active,
+.btn-retry:active,
+.btn-talk-action:active,
+.playful-bounce-btn:active {
+  transform: translateY(2px) scale(0.97) !important;
+}
+
+/* Anillos de foco claros y accesibles */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* 3. MICRO-INTERACCIONES EN TARJETAS DE LIBROS Y PERSONAJES */
+.collectible-card,
+.collectible-book-card,
+.character-game-card,
+.game-card {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.28s ease,
+              border-color 0.25s ease !important;
+}
+
+.collectible-card:hover,
+.collectible-book-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 16px 32px rgba(47, 143, 110, 0.16) !important;
+  border-color: var(--color-accent) !important;
+}
+
+.collectible-card:hover .level-chip,
+.collectible-book-card:hover .level-badge-tag {
+  animation: playful-wiggle 0.5s ease;
+  background-color: var(--color-badge) !important;
+}
+
+.collectible-card:hover .card-cover-img,
+.collectible-book-card:hover .cover-img {
+  transform: scale(1.05);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.character-game-card:hover .char-avatar-box {
+  animation: playful-wiggle 0.6s ease;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 16px rgba(255, 159, 91, 0.4) !important;
+}
+
+/* 4. GAMIFICACIÓN: BARRAS DE PROGRESO Y NIVELES DINÁMICOS */
+.card-progress-fill,
+.adventure-xp-fill,
+.playful-progress-fill {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.card-progress-fill::after,
+.adventure-xp-fill::after,
+.playful-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: progress-energy-shimmer 2.2s infinite linear;
+}
+
+.level-badge-large {
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.level-badge-large:hover {
+  transform: translateY(-3px) scale(1.04);
+}
+
+.stat-bubble-chip {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease !important;
+}
+
+.stat-bubble-chip:hover {
+  transform: translateY(-4px) scale(1.04) !important;
+  box-shadow: 0 8px 18px rgba(47, 143, 110, 0.15) !important;
+  border-color: var(--color-accent) !important;
+}
+
+.stat-bubble-chip:hover .stat-icon {
+  display: inline-block;
+  animation: playful-wiggle 0.5s ease;
+}
+
+/* 5. SISTEMA DE CELEBRACIÓN Y GAMIFICACIÓN EN RESULTADOS DE MINIJUEGOS */
+.results-card {
+  position: relative;
+  overflow: hidden;
+  animation: celebration-card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  border: 3px solid var(--color-badge) !important;
+  box-shadow: 0 16px 36px rgba(255, 209, 102, 0.3), 0 4px 12px rgba(47, 143, 110, 0.08) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF7 100%) !important;
+  padding: 2.2rem 1.8rem !important;
+  text-align: center;
+}
+
+.results-card::before {
+  content: '🎉 ✨ 🏆 ✨ 🎉';
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: 6px;
+  animation: playful-wiggle 1.5s ease-in-out infinite alternate;
+}
+
+.results-card h2 {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 1.8rem !important;
+  color: var(--text-main) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.results-card .score-text,
+.results-card .final-score {
+  display: inline-block;
+  background: var(--pastel-peach-bg, #FFF3E6);
+  border: 2px dashed var(--color-accent, #FF9F5B);
+  color: #B25316 !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  padding: 0.6rem 1.6rem;
+  border-radius: 20px;
+  margin: 1rem 0 1.5rem 0 !important;
+  animation: playful-pulse 2s infinite ease-in-out;
+}
+
+/* 6. GUIADO E INDICADORES CLAVES (TOOLTIPS Y PISTAS LÚDICAS) */
+.kid-guide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #FFF3E6;
+  border: 1.5px solid #FF9F5B;
+  color: #8C4718;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(255, 159, 91, 0.2);
+  animation: guide-bob 3s ease-in-out infinite;
+}
+
+.kid-guide-pill .guide-sparkle {
+  color: var(--color-accent);
+  font-size: 1rem;
+}
+
+.kid-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.kid-tooltip-wrap:hover .kid-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kid-tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: #33403A;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 120;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.kid-tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #33403A transparent transparent transparent;
+}
+
+/* Botones de navegación intuitivos y grandes ("Volver", "Salir") */
+.game-container .btn-exit,
+.btn-nav-back {
+  background: #FFFFFF !important;
+  border: 2px solid var(--color-primary, #2F8F6E) !important;
+  color: var(--color-primary, #2F8F6E) !important;
+  padding: 8px 18px !important;
+  border-radius: 20px !important;
+  cursor: pointer;
+  font-weight: 700 !important;
+  font-size: 0.92rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 3px 8px rgba(47, 143, 110, 0.12) !important;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  margin-bottom: 1.2rem !important;
+  text-decoration: none !important;
+}
+
+.game-container .btn-exit:hover,
+.btn-nav-back:hover {
+  background: var(--color-primary, #2F8F6E) !important;
+  color: #FFFFFF !important;
+  transform: translateX(-3px) scale(1.03) !important;
+  box-shadow: 0 6px 16px rgba(47, 143, 110, 0.25) !important;
+}
+
+.game-container .btn-exit:active,
+.btn-nav-back:active {
+  transform: translateY(2px) scale(0.97) !important;
+}
+
+/* Ajuste de contenedor modal redondeado */
+.mochila-dialog-container .mat-mdc-dialog-surface,
+.mochila-dialog-container .mat-dialog-container,
+.mochila-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface,
+.mochila-modal-wrapper .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 24px !important;
+  max-height: 88vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
 

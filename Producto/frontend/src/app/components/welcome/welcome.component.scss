@@ -1,0 +1,616 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.welcome-container {
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 1rem 1.2rem;
+  box-sizing: border-box;
+
+  .welcome-top-nav {
+    margin-bottom: 0.8rem;
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      color: $primary;
+      border: 2px solid $primary;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(47, 143, 110, 0.12);
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      &:hover {
+        background: $primary;
+        color: #ffffff;
+        transform: translateX(-3px) scale(1.03);
+        box-shadow: 0 6px 14px rgba(47, 143, 110, 0.25);
+      }
+    }
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+    .header-badge {
+      display: inline-block;
+      background: #ffffff;
+      color: $primary;
+      border: 1px solid rgba(47, 143, 110, 0.3);
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .welcome-kid-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF3E6;
+      border: 1.5px solid $accent-cta;
+      color: #924513;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-top: 0.6rem;
+      box-shadow: 0 2px 8px rgba(255, 159, 91, 0.2);
+      animation: guide-bob 3s ease-in-out infinite;
+
+      .pill-sparkle {
+        color: $accent-cta;
+        font-size: 1rem;
+        animation: star-twinkle 2s infinite ease-in-out;
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-weight: 900;
+      color: $text-main;
+      margin: 0 0 0.3rem 0;
+    }
+
+    p {
+      color: $text-sec;
+      font-size: clamp(0.88rem, 1.4vw, 1rem);
+      font-weight: 600;
+      margin: 0 auto;
+    }
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1rem;
+
+    @media (min-width: 1100px) {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 0.75rem;
+    }
+  }
+
+  /* BASE DE TARJETAS DE JUEGO */
+  .game-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 1rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 12px rgba(51, 64, 58, 0.04);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(.disabled) {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(51, 64, 58, 0.1);
+    }
+
+    &.disabled {
+      opacity: 0.75;
+      background: #eae5d8 !important;
+      border-color: #ded8c8 !important;
+      border-bottom-color: #ced8c8 !important;
+    }
+
+    .card-status-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #fef2f2;
+      color: $alert;
+      border: 1px solid rgba(224, 87, 91, 0.3);
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 8px;
+    }
+
+    .icon-bubble {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.6rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+
+      .icon {
+        font-size: 1.6rem;
+      }
+    }
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-bottom: 0.8rem;
+
+      h2 {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: $text-main;
+        margin: 0 0 0.3rem 0;
+        line-height: 1.25;
+      }
+
+      p {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: $text-sec;
+        margin: 0;
+        line-height: 1.35;
+      }
+    }
+
+    .btn-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      text-decoration: none;
+      box-sizing: border-box;
+      transition: all 0.1s ease-in-out;
+      cursor: pointer;
+
+      background: linear-gradient(180deg, #ffad73 0%, $accent-cta 100%);
+      color: #ffffff;
+      border: 2px solid $accent-cta;
+      border-bottom: 4px solid #e57e38;
+      box-shadow: 0 4px 10px rgba(255, 159, 91, 0.25);
+
+      &:hover:not(.btn-disabled) {
+        transform: translateY(-2px);
+        background: linear-gradient(180deg, $accent-cta 0%, #f78d43 100%);
+      }
+
+      &:active:not(.btn-disabled) {
+        transform: translateY(2px);
+        border-bottom-width: 2px;
+      }
+
+      &.btn-disabled {
+        background: #d8d2c4;
+        color: $text-sec;
+        border: 2px solid #c8c2b4;
+        border-bottom: 3px solid #b4aeA0;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+    }
+
+    &.theme-1 {
+      background: #EBF5F8;
+      border-color: #D0E4EC;
+      border-bottom: 5px solid #BACED6;
+    }
+
+    &.theme-2 {
+      background: #EAF3E8;
+      border-color: #CDE2CC;
+      border-bottom: 5px solid #B5CDB4;
+    }
+
+    &.theme-3 {
+      background: #FAF3E6;
+      border-color: #F0E1C8;
+      border-bottom: 5px solid #DFCBB0;
+    }
+
+    &.theme-4 {
+      background: #F5EEF8;
+      border-color: #E2D2ED;
+      border-bottom: 5px solid #CDBAD8;
+    }
+
+    &.theme-5 {
+      background: #FAF0E6;
+      border-color: #F3D8C5;
+      border-bottom: 5px solid #DEC0AC;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// MODAL SELECTOR DE LIBROS (ESTILO INFANTIL AVENTURERO)
+// -------------------------------------------------------------
+.book-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(26, 15, 10, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
+  animation: modalFadeIn 0.22s ease-out;
+}
+
+.book-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #fffdf8 0%, #fbf3e6 100%);
+  border: 2.5px solid #d99a4e;
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 65px rgba(0, 0, 0, 0.55),
+    inset 0 0 25px rgba(217, 154, 78, 0.12);
+  padding: 2.2rem 2.5rem 1.8rem 2.5rem;
+  box-sizing: border-box;
+  animation: modalCardScale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Barra de scroll estilizada estilo pergamino
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1e4cf;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c99352;
+    border-radius: 10px;
+  }
+
+  // Botón cerrar (esquina superior derecha)
+  .btn-close-modal {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f7e7d2;
+    border: 2px solid #c99352;
+    color: #5c351b;
+    font-size: 1.15rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: #e27d3b;
+      color: #ffffff;
+      border-color: #d16b29;
+      transform: rotate(90deg) scale(1.08);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  // Cabecera del modal
+  .modal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-right: 2rem;
+    padding-left: 2rem;
+
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fef3c7;
+      border: 1.5px solid #d97706;
+      color: #92400e;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.25rem 0.9rem;
+      border-radius: 20px;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+
+      .game-icon {
+        font-size: 1.05rem;
+      }
+    }
+
+    .modal-title {
+      font-size: clamp(1.4rem, 2.5vw, 1.95rem);
+      font-weight: 900;
+      color: #2b1810;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-subtitle {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: #6b432a;
+      margin: 0 auto;
+      max-width: 680px;
+      line-height: 1.45;
+    }
+  }
+
+  // Estado de carga de libros
+  .books-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 1rem;
+
+    .loading-icon {
+      font-size: 3rem;
+      animation: guide-bob 2s ease-in-out infinite;
+    }
+
+    p {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #63381a;
+      margin: 0;
+    }
+  }
+
+  // Grilla de tarjetas de libros
+  .modal-books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 1.35rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.9rem;
+    }
+  }
+
+  // Tarjeta de Libro Individual
+  .book-theme-card {
+    background: #ffffff;
+    border: 2px solid #ecd8bd;
+    border-radius: 18px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(70, 40, 15, 0.06);
+    transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+    outline: none;
+
+    // Efecto interactivo al pasar el cursor (hover zoom / elevación)
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-8px) scale(1.035);
+      border-color: #d97706;
+      box-shadow: 
+        0 16px 34px rgba(180, 100, 30, 0.22),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+
+      .book-cover-wrapper {
+        .cover-overlay {
+          opacity: 1;
+        }
+
+        .book-cover-img {
+          transform: scale(1.06);
+        }
+      }
+
+      .book-title {
+        color: #d97706;
+      }
+    }
+
+    &:active {
+      transform: translateY(-2px) scale(0.99);
+    }
+
+    // Contenedor de la Portada
+    .book-cover-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      background: #ecdac1;
+
+      .book-cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.35s ease;
+      }
+
+      .cover-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(30, 15, 5, 0.75) 100%);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 0.85rem;
+        opacity: 0;
+        transition: opacity 0.22s ease;
+
+        .play-badge {
+          background: linear-gradient(180deg, #ffad73 0%, #f97316 100%);
+          color: #ffffff;
+          font-weight: 800;
+          font-size: 0.82rem;
+          padding: 0.35rem 0.75rem;
+          border-radius: 14px;
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+          border: 1.5px solid #ffedd5;
+          letter-spacing: 0.02em;
+        }
+      }
+    }
+
+    // Metadatos (Título y Autor)
+    .book-meta {
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .book-title {
+        margin: 0;
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: #2b1810;
+        line-height: 1.25;
+        transition: color 0.2s ease;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .book-author {
+        margin: 0;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #7b4a28;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+
+        .author-icon {
+          font-size: 0.85rem;
+        }
+
+        .author-name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
+  // Pie del modal
+  .modal-footer {
+    display: flex;
+    justify-content: center;
+    border-top: 1.5px dashed rgba(180, 120, 60, 0.25);
+    padding-top: 1.25rem;
+
+    .btn-cancel {
+      background: #fdf5e8;
+      border: 1.5px solid #c99352;
+      color: #63381a;
+      padding: 0.6rem 1.6rem;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f2dec0;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+}
+
+// Animaciones
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalCardScale {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes guide-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(18deg) scale(1.2); }
+}

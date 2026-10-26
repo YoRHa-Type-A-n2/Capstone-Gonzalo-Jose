@@ -57,7 +57,8 @@
           <!-- STICKY ACTION BAR -->
           <div class="action-bar">
             <div class="action-price" *ngIf="!isOwned && book.editions && book.editions.length > 0">
-              <span class="price-val">{{ book.editions[0].price }} <span class="ink-text">Tinta</span></span>
+              <span class="price-val" *ngIf="book.editions[0].price > 0">${{ book.editions[0].price | number:'1.0-0' }} <span class="ink-text" style="color: #cbd5e1;">CLP</span></span>
+              <span class="price-val" *ngIf="book.editions[0].price == 0" style="color: #34d399;">Gratis</span>
             </div>
             <div class="action-price" *ngIf="isOwned">
               <span class="price-val" style="color: #34d399;"><svg lucideCheckCircle></svg> Adquirido</span>
@@ -69,15 +70,24 @@
               </div>
               <button class="action-btn" 
                       [class.guest-btn]="!(auth.isLoggedIn$ | async)"
-                      [class.buy-btn]="(auth.isLoggedIn$ | async) && !isOwned" 
+                      [class.free-btn]="(auth.isLoggedIn$ | async) && !isOwned && isFree"
+                      [class.buy-btn]="(auth.isLoggedIn$ | async) && !isOwned && !isFree" 
                       [class.read-btn]="(auth.isLoggedIn$ | async) && isOwned"
+                      [disabled]="purchaseLoading"
                       (click)="handleAction()">
                 <ng-container *ngIf="!(auth.isLoggedIn$ | async)">
                   <svg lucideLogIn></svg> Ingresar para Explorar
                 </ng-container>
                 <ng-container *ngIf="(auth.isLoggedIn$ | async)">
-                  <span *ngIf="!isOwned" class="flex-center"><svg lucideShoppingCart></svg> Adquirir Obra</span>
-                  <span *ngIf="isOwned" class="flex-center"><svg lucideBookOpen></svg> Empezar Lectura</span>
+                  <span *ngIf="!isOwned && isFree" class="flex-center">
+                    <svg lucideBookPlus></svg> {{ purchaseLoading ? 'Añadiendo...' : 'Obtener Gratis / Añadir a Mi Biblioteca' }}
+                  </span>
+                  <span *ngIf="!isOwned && !isFree" class="flex-center">
+                    <svg lucideShoppingCart></svg> Adquirir Obra ({{ book.editions[0].price | number:'1.0-0' }} CLP)
+                  </span>
+                  <span *ngIf="isOwned" class="flex-center">
+                    <svg lucideBookOpen></svg> Empezar Lectura
+                  </span>
                 </ng-container>
               </button>
 
@@ -116,7 +126,7 @@
           <ng-container *ngIf="book.book_authors[0] as rel">
             <div class="author-card-content">
               <div class="author-card-image">
-                <img [src]="$any(rel).author.photo || 'assets/default_avatar.png'" alt="{{ $any(rel).author.full_name }}">
+                <img [src]="$any(rel).author.photo || $any(rel).author.book_cover_url || book.cover_image || 'assets/default_avatar.jpg'" alt="{{ $any(rel).author.full_name }}" (error)="handleAuthorCardImgError($event, $any(rel).author)">
               </div>
               <div class="author-card-info">
                 <h3>{{ $any(rel).author.full_name | uppercase }}</h3>
@@ -140,7 +150,7 @@
           <div class="avatars-carousel" #avatarCarousel>
             <div class="avatar-card" *ngFor="let avatar of displayAvatars" (click)="selectAvatar(avatar)">
               <div class="avatar-img-container">
-                <img [src]="avatar.avatar_image || 'assets/default_avatar.png'" alt="{{avatar.name}}" class="avatar-img">
+                <img [src]="avatar.avatar_image || avatar.book_cover_url || book.cover_image || 'assets/default_avatar.jpg'" alt="{{avatar.name}}" class="avatar-img" (error)="handleAvatarImgError($event, avatar)">
                 <div class="avatar-overlay">
                   <svg lucideMessageCircle style="color: white;"></svg>
                 </div>
@@ -251,10 +261,10 @@
   <div class="mini-modal-content glass-panel" (click)="$event.stopPropagation()">
     <svg lucideShoppingCart class="purchase-modal-icon"></svg>
     <h2 class="purchase-modal-title">Adquirir Obra</h2>
-    <p class="purchase-modal-text">¿Confirmas el intercambio de <strong class="ink-highlight">{{ book.price }} de Tinta</strong> por esta obra?</p>
+    <p class="purchase-modal-text">¿Confirmas la compra de esta obra por <strong class="ink-highlight">${{ (book.editions && book.editions[0] ? book.editions[0].price : 0) | number:'1.0-0' }} CLP</strong>?</p>
     
-    <div class="purchase-modal-balance">
-      Tu balance actual: <span>{{ userInkBalance }} Tinta</span>
+    <div class="purchase-modal-balance" *ngIf="book.editions && book.editions[0]">
+      Precio final: <span>${{ book.editions[0].price | number:'1.0-0' }} CLP</span>
     </div>
     
     <div class="modal-actions">

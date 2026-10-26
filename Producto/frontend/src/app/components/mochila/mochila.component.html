@@ -70,7 +70,7 @@
         <h3>Colección de Objetos ({{ backpackData.items?.length || 0 }} obtenidos)</h3>
         <div class="items-grid" *ngIf="allAvailableItems && allAvailableItems.length > 0; else noItems">
           <div class="item-card" *ngFor="let item of allAvailableItems" [class.locked-item]="!isItemOwned(item.id)">
-            <img [src]="item.icon || 'assets/images/default-item.png'" [alt]="item.name" [class.grayscale]="!isItemOwned(item.id)">
+            <img [src]="getItemIcon(item.icon)" (error)="onImageError($event)" [alt]="item.name" [class.grayscale]="!isItemOwned(item.id)">
             <div class="item-info">
               <h4>{{ item.name }}</h4>
               <p>{{ item.description }}</p>
@@ -91,7 +91,7 @@
 
       <div class="shop-grid" *ngIf="shopItems.length > 0; else noShopItems">
         <div class="shop-card" *ngFor="let sItem of shopItems">
-          <img [src]="sItem.icon || 'assets/images/default-item.png'" [alt]="sItem.name">
+          <img [src]="getItemIcon(sItem.icon)" (error)="onImageError($event)" [alt]="sItem.name">
           <div class="shop-card-info">
             <h4>{{ sItem.name }}</h4>
             <p>{{ sItem.description }}</p>

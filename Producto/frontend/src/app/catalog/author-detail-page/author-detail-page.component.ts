@@ -43,4 +43,19 @@ export class AuthorDetailPageComponent implements OnInit {
   goToBook(slug: string): void {
     this.router.navigate(['/book', slug]);
   }
+
+  handleAuthorImageError(event: Event, author: any): void {
+    const img = event.target as HTMLImageElement;
+    const defaultAvatar = 'assets/default_avatar.jpg';
+
+    if (author?.book_cover_url && img.src !== author.book_cover_url && !img.dataset['fallbackCoverAttempted']) {
+      img.dataset['fallbackCoverAttempted'] = 'true';
+      img.src = author.book_cover_url;
+      return;
+    }
+
+    if (img.src !== defaultAvatar) {
+      img.src = defaultAvatar;
+    }
+  }
 }

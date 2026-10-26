@@ -14,6 +14,7 @@ export interface Book {
   is_featured: boolean;
   cover_image: string | null;
   tags?: { name: string; slug: string }[];
+  genres?: any[];
   price?: number;
   author_name?: string;
   ai_character_count?: number;
@@ -54,6 +55,121 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   discoveryBooks: Book[] = [];
   randomDiscoveryBooks: Book[] = [];
   totalBooksCount: number = 1854;
+  isHowItWorksAnimated: boolean = false;
+
+  // ── GAMIFICACIÓN: HISTORIAS COLECCIONABLES (SECCIÓN 1) ──
+  featuredCollectibleStories: any[] = [
+    {
+      id: 'b1',
+      title: 'Peter Pan y Wendy',
+      author: 'J. M. Barrie',
+      genre: 'Aventura',
+      level: 'Nivel 1',
+      chaptersCount: 17,
+      progress: 0,
+      cover: '/media/books/peter-pan-y-wendy-j-m-barrie/cover.jpg',
+      slug: 'peter-pan-y-wendy-j-m-barrie'
+    },
+    {
+      id: 'b2',
+      title: 'Las Aventuras de Alicia en el País de las Maravillas',
+      author: 'Lewis Carroll',
+      genre: 'Fantasía',
+      level: 'Nivel 1',
+      chaptersCount: 12,
+      progress: 0,
+      cover: '/media/books/las-aventuras-de-alicia-en-el-pais-de-las-maravillas-carroll-lewis/cover.jpg',
+      slug: 'las-aventuras-de-alicia-en-el-pais-de-las-maravillas-carroll-lewis'
+    },
+    {
+      id: 'b3',
+      title: 'Las Aventuras de Tom Sawyer',
+      author: 'Mark Twain',
+      genre: 'Aventura',
+      level: 'Nivel 2',
+      chaptersCount: 35,
+      progress: 0,
+      cover: '/media/books/las-aventuras-de-tom-sawyer-mark-twain/cover.jpg',
+      slug: 'las-aventuras-de-tom-sawyer-mark-twain'
+    },
+    {
+      id: 'b4',
+      title: 'El Principito',
+      author: 'Antoine de Saint-Exupéry',
+      genre: 'Fantasía',
+      level: 'Nivel 1',
+      chaptersCount: 27,
+      progress: 0,
+      cover: '/media/books/el-principito-antoine-de-saint-exupery/cover.jpg',
+      slug: 'el-principito-antoine-de-saint-exupery'
+    }
+  ];
+
+  // ── GAMIFICACIÓN: PERSONAJES JUGABLES (SECCIÓN 2) ──
+  featuredGameCharacters = [
+    {
+      id: 1,
+      name: 'Sherlock Holmes',
+      role: 'Detective Astuto',
+      description: 'Resuelve misterios arcanos utilizando la deducción y la lógica.',
+      avatarUrl: 'assets/default_avatar.jpg',
+      slug: 'sherlock-holmes'
+    },
+    {
+      id: 2,
+      name: 'Alicia',
+      role: 'Exploradora de Maravillas',
+      description: 'Curiosa y valiente ante los enigmas del mundo subterráneo.',
+      avatarUrl: 'assets/default_avatar.jpg',
+      slug: 'alicia'
+    },
+    {
+      id: 3,
+      name: 'El Principito',
+      role: 'Soñador Estelar',
+      description: 'Viajero de asteroides que ve lo esencial con el corazón.',
+      avatarUrl: 'assets/default_avatar.jpg',
+      slug: 'el-principito'
+    },
+    {
+      id: 4,
+      name: 'Don Quijote',
+      role: 'Caballero Andante',
+      description: 'Defensor de ideales nobles que convierte molinos en gigantes.',
+      avatarUrl: 'assets/default_avatar.jpg',
+      slug: 'don-quijote'
+    }
+  ];
+
+  // ── GAMIFICACIÓN: ESTADO "TU AVENTURA" (SECCIÓN 3) ──
+  userAdventureState = {
+    level: 3,
+    levelTitle: 'Explorador de Leyendas',
+    currentXp: 120,
+    maxXp: 250,
+    xpPercentage: 48,
+    badgesCount: 5,
+    storiesRead: 3,
+    chatsCount: 14
+  };
+
+  // ── GAMIFICACIÓN: RUTA DE LA HISTORIA (SECCIÓN 4) ──
+  storyTrailNodes = [
+    { chapter: 1, title: 'El Comienzo del Viaje', type: 'reading', status: 'completed', icon: '📖' },
+    { chapter: 2, title: 'El Encuentro con el Sabio', type: 'chat', status: 'completed', icon: '💬' },
+    { chapter: 3, title: 'La Encrucijada de Sombras', type: 'decision', status: 'current', icon: '🧭' },
+    { chapter: 4, title: 'El Desafío en el Templo', type: 'challenge', status: 'locked', icon: '🔒' },
+    { chapter: 5, title: 'El Final de la Aventura', type: 'reward', status: 'locked', icon: '⭐' }
+  ];
+
+  // ── GAMIFICACIÓN: INSIGNIAS Y LOGROS (SECCIÓN 5) ──
+  achievementsList = [
+    { id: 'a1', title: 'Primera Aventura', description: 'Comenzaste tu primer viaje lector', icon: '🏆', unlocked: true },
+    { id: 'a2', title: 'Lector Curioso', description: 'Completaste 3 capítulos seguidos', icon: '📚', unlocked: true },
+    { id: 'a3', title: 'Explorador de Mundos', description: 'Descubriste 5 palabras de Lore', icon: '🗺️', unlocked: true },
+    { id: 'a4', title: 'Maestro de Diálogos', description: 'Conversaste con 3 personajes IA', icon: '💬', unlocked: true },
+    { id: 'a5', title: 'Final Desbloqueado', description: 'Completa una historia completa', icon: '⭐', unlocked: false }
+  ];
 
   // Avatars showcase (from API)
   showcaseAvatars: DemoAvatar[] = [];
@@ -103,6 +219,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         loop: true,
         autoplay: true,
         path: 'assets/lottie/saludo.json'
+      });
+    }
+  }
+
+  private _closingContainer?: ElementRef;
+  @ViewChild('closingContainer') set closingContainer(el: ElementRef) {
+    if (el && !this._closingContainer) {
+      this._closingContainer = el;
+      lottie.loadAnimation({
+        container: el.nativeElement,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'assets/lottie/magic.json'
       });
     }
   }
@@ -258,6 +388,26 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     document.querySelectorAll('.reveal-section:not(.visible)').forEach(el => revealObserver.observe(el));
 
+    // Observador para animar el camino naranja de ¿Cómo funciona?
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.isHowItWorksAnimated = true;
+    } else {
+      const howEl = document.querySelector('.how-it-works-section');
+      if (howEl) {
+        const howObserver = new IntersectionObserver(
+          (entries) => entries.forEach(e => {
+            if (e.isIntersecting) {
+              this.isHowItWorksAnimated = true;
+              this.cdr.detectChanges();
+              howObserver.unobserve(e.target);
+            }
+          }),
+          { threshold: 0.15 }
+        );
+        howObserver.observe(howEl);
+      }
+    }
+
     const statsEl = document.querySelector('.stats-section');
     if (statsEl) {
       const statsObserver = new IntersectionObserver(
@@ -403,6 +553,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.trendingBooks = this.allBooks.filter(b => b.is_featured).slice(0, 20);
     if (this.trendingBooks.length === 0) {
       this.trendingBooks = this.allBooks.slice(0, 20);
+    }
+
+    const sampleWithCovers = this.allBooks.filter(b => b.cover_image && b.cover_image.length > 0).slice(0, 4);
+    if (sampleWithCovers.length > 0) {
+      this.featuredCollectibleStories = sampleWithCovers.map((b, idx) => ({
+        id: b.id,
+        title: b.title,
+        author: b.author_name || 'Autor Clásico',
+        genre: (b.genres && b.genres.length > 0) ? (typeof b.genres[0] === 'string' ? b.genres[0] : (b.genres[0].name || 'Clásico')) : 'Clásico',
+        level: `Nivel ${(idx % 3) + 1}`,
+        chaptersCount: 10 + (idx * 4),
+        progress: 0,
+        cover: b.cover_image || 'assets/default_cover.jpg',
+        slug: b.slug
+      }));
     }
 
     const trendingSlugs = new Set(this.trendingBooks.map(b => b.slug));

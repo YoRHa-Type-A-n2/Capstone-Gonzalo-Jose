@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100vh - 64px); /* Evitar tapar el navbar principal */
-  background: var(--bg-color);
+  min-height: calc(100vh - 64px);
+  background: var(--bg-main);
   font-family: var(--font-ui);
   position: relative;
   overflow: hidden;
@@ -28,8 +28,8 @@
 .dchat-spinner {
   width: 48px;
   height: 48px;
-  border: 3px solid rgba(212, 175, 55, 0.1);
-  border-top-color: var(--glow-gold);
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--btn-primary-bg);
   border-radius: 50%;
   animation: dchat-spin 1s linear infinite;
 }
@@ -47,31 +47,20 @@
   max-width: 1400px;
   margin: 0 auto;
   height: calc(100vh - 64px);
-  border-left: 1px solid var(--glass-border);
-  border-right: 1px solid var(--glass-border);
-  background: rgba(0, 0, 0, 0.15);
+  border-left: 1.5px solid var(--glass-border);
+  border-right: 1.5px solid var(--glass-border);
+  background: #FFFFFF;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   1. SIDEBAR: Character Profile Card
-   ────────────────────────────────────────────────────────────────────────── */
+/* 1. SIDEBAR: Character Profile Card */
 .dchat-sidebar {
   display: flex;
   flex-direction: column;
   padding: 24px;
-  background: rgba(17, 38, 29, 0.3); /* dark surface glass */
-  border-right: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border-right: 1.5px solid var(--glass-border);
   overflow-y: auto;
   gap: 24px;
-}
-
-[data-theme="neon"] .dchat-sidebar {
-  background: rgba(15, 23, 42, 0.3);
-}
-
-[data-theme="light-gallery"] .dchat-sidebar {
-  background: #ffffff;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Volver a Personajes */
@@ -79,12 +68,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: 1px solid var(--glass-border);
-  color: var(--text-muted);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  color: var(--text-main);
   font-family: var(--font-ui);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
@@ -93,15 +82,9 @@
 }
 
 .dchat-back-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-  border-color: var(--glow-gold);
-}
-
-[data-theme="light-gallery"] .dchat-back-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #000;
-  border-color: #000;
+  background: var(--pastel-peach-bg);
+  color: var(--btn-primary-bg);
+  border-color: var(--pastel-peach-border);
 }
 
 /* Avatar Card */
@@ -117,11 +100,12 @@
   position: relative;
   width: 160px;
   height: 160px;
-  border-radius: 24px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 2px solid var(--glass-border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
   transition: transform 0.3s ease;
+  background: var(--pastel-purple-bg);
 }
 
 .dchat-avatar-img-wrap:hover {
@@ -139,10 +123,9 @@
   bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  color: var(--glow-gold);
+  background: #FFFFFF;
+  border: 1px solid var(--glass-border);
+  color: var(--btn-primary-bg);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 4px 10px;
@@ -152,30 +135,21 @@
   align-items: center;
   gap: 6px;
   letter-spacing: 0.05em;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .dchat-pulse {
   width: 6px;
   height: 6px;
-  background-color: var(--glow-gold);
+  background-color: var(--btn-primary-bg);
   border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
   animation: dchat-pulse-anim 1.5s infinite;
 }
 
 @keyframes dchat-pulse-anim {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(212, 175, 55, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
-  }
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(0.95); }
 }
 
 .dchat-char-name {
@@ -189,7 +163,8 @@
 .dchat-char-book {
   font-family: var(--font-ui);
   font-size: 0.9rem;
-  color: var(--glow-gold);
+  color: var(--btn-primary-bg);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: -8px 0 0 0;
@@ -205,16 +180,17 @@
 
 .dchat-tag {
   font-size: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  color: var(--text-muted);
+  background: var(--pastel-purple-bg);
+  border: 1px solid var(--pastel-purple-border);
+  color: #7C3AED;
   padding: 4px 8px;
   border-radius: 6px;
+  font-weight: 600;
 }
 
 .dchat-char-desc {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.5;
   margin: 8px 0 0 0;
@@ -226,7 +202,7 @@
 /* Counter & Limits */
 .dchat-counter {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-main);
   border: 1px solid var(--glass-border);
   padding: 12px;
   border-radius: 12px;
@@ -241,16 +217,16 @@
 .dchat-counter-bar {
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #EAE8E1;
   border-radius: 3px;
   overflow: hidden;
 }
 
 .dchat-counter-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--glow-gold), var(--glow-purple));
+  background: var(--btn-primary-bg);
   border-radius: 3px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s ease;
 }
 
 /* Register CTA */
@@ -260,6 +236,7 @@
   border-radius: 12px;
   border: 1px dashed var(--glass-border);
   text-align: center;
+  background: var(--pastel-peach-bg);
 }
 
 .dchat-sidebar-cta p {
@@ -269,32 +246,24 @@
 }
 
 .dchat-register-btn {
-  background: var(--glow-purple);
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--text-on-accent);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 10px 16px;
   cursor: pointer;
   width: 100%;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   font-family: var(--font-ui);
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
 }
 
 .dchat-register-btn:hover {
+  background: var(--btn-primary-hover);
   transform: translateY(-1px);
-  filter: brightness(1.2);
-  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
-}
-
-[data-theme="neon"] .dchat-register-btn {
-  background: linear-gradient(135deg, var(--glow-accent), var(--glow-purple));
-}
-
-[data-theme="light-gallery"] .dchat-register-btn {
-  background: #000000;
-  color: #ffffff;
+  box-shadow: 0 5px 0 var(--btn-primary-shadow);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -457,49 +426,36 @@
 /* Bubble */
 .dchat-msg-bubble {
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.5;
   color: var(--text-main);
   position: relative;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
 .dchat-msg-bubble--char {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
   border-top-left-radius: 4px;
   display: flex;
   flex-direction: column;
 }
 
-[data-theme="light-gallery"] .dchat-msg-bubble--char {
-  background: #f1f5f9;
-  border-color: rgba(0, 0, 0, 0.05);
-}
-
 .dchat-msg-bubble--user {
-  background: linear-gradient(135deg, rgba(139, 0, 0, 0.15), rgba(212, 175, 55, 0.05));
-  border: 1px solid var(--glass-border);
+  background: var(--btn-primary-bg);
+  color: var(--text-on-accent);
   border-top-right-radius: 4px;
-}
-
-[data-theme="neon"] .dchat-msg-bubble--user {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.15));
-}
-
-[data-theme="light-gallery"] .dchat-msg-bubble--user {
-  background: #000000;
-  color: #ffffff;
-  border: none;
+  box-shadow: 0 3px 0 var(--btn-primary-shadow);
+  font-weight: 600;
 }
 
 .dchat-msg-name {
   font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--glow-gold);
+  color: var(--btn-primary-bg);
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -532,11 +488,11 @@
 
 /* Limit banner */
 .dchat-limit-banner {
-  background: rgba(139, 0, 0, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: var(--pastel-peach-bg);
+  border: 1px solid var(--pastel-peach-border);
   margin: 16px 24px;
   padding: 16px 24px;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -544,7 +500,7 @@
 }
 
 .dchat-limit-banner span {
-  color: var(--glow-gold);
+  color: var(--btn-primary-bg);
   font-size: 2rem;
 }
 
@@ -566,27 +522,29 @@
 }
 
 .dchat-cta-btn {
-  background: var(--glow-gold);
-  color: #000;
+  background: var(--btn-primary-bg);
+  color: var(--text-on-accent);
   border: none;
   font-weight: 700;
   font-size: 0.9rem;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .dchat-cta-btn:hover {
+  background: var(--btn-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 6px 0 var(--btn-primary-shadow);
 }
 
 /* Footer Input Area */
 .dchat-input-wrap {
   padding: 16px 24px 24px;
-  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.4) 30%);
+  background: transparent;
   z-index: 10;
 }
 
@@ -594,23 +552,17 @@
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
   padding: 6px 12px 6px 20px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="light-gallery"] .dchat-input-inner {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-card);
 }
 
 .dchat-input-inner:focus-within {
-  border-color: var(--glow-gold);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+  border-color: var(--btn-primary-bg);
+  box-shadow: 0 0 0 3px rgba(255, 131, 62, 0.15);
 }
 
 .dchat-input {
@@ -620,14 +572,10 @@
   outline: none;
   color: var(--text-main);
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   resize: none;
   padding: 8px 0;
   max-height: 120px;
-}
-
-[data-theme="light-gallery"] .dchat-input {
-  color: #000;
 }
 
 .dchat-send-btn {

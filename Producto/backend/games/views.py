@@ -1,9 +1,53 @@
 import random
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Q
+from catalog.models import Book
 from .models import BookMinigame, Minigame
 from .serializers import BookMinigameSerializer, MinigameSerializer
+
+class AvailableBooksWithMinigamesView(APIView):
+    """
+    Devuelve la lista de libros que tienen minijuegos asociados en la base de datos.
+    Estructura JSON por libro:
+    - id
+    - title
+    - author_name
+    - cover_image
+    - synopsis
+    """
+    def get(self, request):
+        books = Book.objects.filter(
+            Q(minigames__isnull=False) | Q(chapters__minigames__isnull=False)
+        ).prefetch_related('book_authors__author').distinct().order_by('title')
+
+        data = []
+        for book in books:
+            book_authors = list(book.book_authors.all())
+            author_name = "Autor Desconocido"
+            if book_authors:
+                main_author = next((ba for ba in book_authors if ba.role == 'author'), None) or book_authors[0]
+                author_name = main_author.author.full_name
+
+            cover_image_url = None
+            if book.cover_image:
+                try:
+                    cover_image_url = request.build_absolute_uri(book.cover_image.url)
+                except Exception as err:
+                    print(f"Error building absolute URI for cover image: {err}")
+                    cover_image_url = book.cover_image.url
+
+            data.append({
+                'id': str(book.id),
+                'title': book.title,
+                'author_name': author_name,
+                'cover_image': cover_image_url,
+                'synopsis': book.synopsis or ''
+            })
+
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class BookMinigameListView(generics.ListAPIView):
     serializer_class = BookMinigameSerializer

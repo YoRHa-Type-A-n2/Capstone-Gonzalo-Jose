@@ -1,188 +1,442 @@
 <div class="tavern-wrapper">
 
-
-  <!-- PARTÍCULAS MÁGICAS -->
+  <!-- PARTÍCULAS MÁGICAS DECORATIVAS -->
   <div class="particles-field" aria-hidden="true">
-    <span class="particle p1"></span>
-    <span class="particle p2"></span>
-    <span class="particle p3"></span>
-    <span class="particle p4"></span>
-    <span class="particle p5"></span>
-    <span class="particle p6"></span>
-    <span class="particle p7"></span>
-    <span class="particle p8"></span>
+    <span class="particle p1">✨</span>
+    <span class="particle p2">📖</span>
+    <span class="particle p3">🧪</span>
+    <span class="particle p4">🪶</span>
+    <span class="particle p5">⭐</span>
+    <span class="particle p6">✨</span>
   </div>
 
-  <!-- ═══════════ HERO ═══════════ -->
-  <header class="hero-section reveal">
-    <div class="hero-eyebrow">
-      <span class="eyebrow-dot"></span>
-      <span>Bienvenido a la taberna</span>
-      <span class="eyebrow-dot"></span>
-    </div>
-    <div class="hero-title-row">
-      <div class="ink-factory-sprite" aria-hidden="true"></div>
-      <h1 class="hero-title">La Taberna de Tinta</h1>
-      <div class="ink-factory-sprite ink-factory-sprite--mirror" aria-hidden="true"></div>
-    </div>
-    <p class="hero-subtitle">
-      Cada conversación escribe una historia distinta.<br>
-      Obtén tinta y continúa tu aventura junto a personajes inolvidables.
-    </p>
-  </header>
-
-  <!-- ═══════════ CARRUSEL NARRATIVO ═══════════ -->
-  <section class="carousel-section reveal" aria-label="¿Qué puedes hacer con la tinta?">
-    <p class="carousel-label">¿Qué puedes hacer con la tinta?</p>
-    <div class="carousel-track">
-      <div class="carousel-slide slide-1">
-        <div class="carousel-icon">✦</div>
-        <h3>Conversa con personajes únicos</h3>
-        <p>Interactúa con figuras literarias que recuerdan tu historia y evolucionan contigo.</p>
-      </div>
-      <div class="carousel-slide slide-2">
-        <div class="carousel-icon">⟡</div>
-        <h3>Descubre rutas alternativas</h3>
-        <p>Cada decisión abre un camino diferente. La tinta te permite explorarlos todos.</p>
-      </div>
-      <div class="carousel-slide slide-3">
-        <div class="carousel-icon">◈</div>
-        <h3>Desbloquea secretos narrativos</h3>
-        <p>Algunos personajes guardan secretos que solo comparten cuando los conoces de verdad.</p>
-      </div>
-      <div class="carousel-slide slide-4">
-        <div class="carousel-icon">❋</div>
-        <h3>Crea historias irrepetibles</h3>
-        <p>Tu aventura nunca será idéntica a la de otro lector. Cada gota de tinta es única.</p>
-      </div>
-    </div>
-    <div class="carousel-dots">
-      <span class="cdot cdot-1"></span>
-      <span class="cdot cdot-2"></span>
-      <span class="cdot cdot-3"></span>
-      <span class="cdot cdot-4"></span>
-    </div>
-  </section>
-
-  <!-- ═══════════ BALANCE + ANUNCIO ═══════════ -->
-  <section class="top-row reveal">
-
-    <!-- BALANCE CARD -->
-    <div class="balance-card glass-panel">
-      <div class="balance-inner">
-        <span class="balance-label">Tu Reserva de Tinta</span>
-        <div class="balance-counter">
-          <span class="ink-glyph" aria-hidden="true">🖋</span>
-          <span class="balance-number">{{ displayBalance }}</span>
-          <span class="balance-unit">tinta</span>
-        </div>
-        <p class="balance-hint" *ngIf="isLoggedIn()">
-          Utiliza tinta para conversar con personajes y desbloquear nuevas historias.
-        </p>
-        <p class="balance-hint hint-login" *ngIf="!isLoggedIn()">
-          <a routerLink="/login">Inicia sesión</a> para ver tu reserva de tinta.
-        </p>
-      </div>
-    </div>
-
-    <!-- AD CARD -->
-    <div class="ad-card glass-panel" [class.is-loading]="adLoading">
-      <div class="ad-inner">
-        <div class="ad-icon-wrap" aria-hidden="true">📜</div>
-        <h3 class="ad-title">Pergamino de Recompensa</h3>
-        <p class="ad-text">Observa un anuncio breve y recibe tinta adicional para continuar tu aventura.</p>
-
-        <button class="btn-premium" (click)="watchAd()" [disabled]="adLoading" id="watch-ad-btn">
-          <span class="btn-glow"></span>
-          <span *ngIf="!adLoading">✦ Ver Anuncio <em>(+10 Tinta)</em></span>
-          <span *ngIf="adLoading">Visualizando... ({{ adTimer }}s)</span>
-        </button>
-
-        <div class="progress-track" *ngIf="adLoading" role="progressbar">
-          <div class="progress-fill" [style.width.%]="(5 - adTimer) * 20"></div>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ═══════════ COFRES ═══════════ -->
-  <section class="chests-section reveal">
-    <h2 class="section-title">Escoge tu cofre de tinta</h2>
-
-    <div class="chests-grid">
-      <div
-        *ngFor="let chest of chests; let i = index"
-        class="chest-card glass-panel"
-        [class.chest-featured]="i === 1"
-        [class.chest-master]="i === 2"
-        [attr.id]="'chest-' + i">
-
-        <!-- Badge -->
-        <span class="chest-badge" *ngIf="i === 1">✦ Más popular</span>
-        <span class="chest-badge chest-badge--value" *ngIf="i === 2">Mejor valor</span>
-
-        <!-- Icono -->
-        <div class="chest-icon-wrap" [ngSwitch]="chest.icon">
-          <svg *ngSwitchCase="'package'" lucidePackage [size]="i === 1 ? 56 : 44" class="lucide-icon" [style.color]="chest.color"></svg>
-          <svg *ngSwitchCase="'landmark'" lucideLandmark [size]="i === 1 ? 56 : 44" class="lucide-icon" [style.color]="chest.color"></svg>
-          <svg *ngSwitchCase="'crown'" lucideCrown [size]="i === 1 ? 56 : 44" class="lucide-icon" [style.color]="chest.color"></svg>
-        </div>
-
-        <!-- Info -->
-        <div class="chest-body">
-          <h3 class="chest-name">{{ chest.title }}</h3>
-          <div class="chest-amount-row">
-            <span class="chest-amount">{{ chest.amount }}</span>
-            <span class="chest-amount-label">Tinta</span>
+  <!-- ═══════════ SECCIÓN SUPERIOR HERO (Full-bleed a sangre con fondo de Taberna) ═══════════ -->
+  <section class="tavern-hero-section">
+    <div class="tavern-hero-container">
+      <header class="tavern-hero reveal">
+        <!-- CARTEL FANTÁSTICO ILUSTRADO (Viga, faroles, estandartes y letrero) -->
+        <div class="tavern-header-sign">
+          <img
+            src="assets/img/tavern/tavern-header.webp"
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            fetchpriority="high"
+            width="1820"
+            height="509"
+            class="tavern-header-sign-img"
+          />
+          <div class="tavern-header-sign-text" aria-label="La Taberna de Tinta">
+            <span class="sign-title">LA TABERNA DE TINTA</span>
           </div>
-          <p class="chest-tagline" [ngSwitch]="i">
-            <span *ngSwitchCase="0">Ideal para comenzar una nueva aventura.</span>
-            <span *ngSwitchCase="1">La elección favorita de los lectores.</span>
-            <span *ngSwitchCase="2">La mejor relación entre valor y contenido.</span>
+        </div>
+
+        <h1 class="hero-title">El Rincón Mágico de las Historias</h1>
+        <p class="hero-subtitle">
+          Consigue tinta mágica para charlar con personajes literarios y explorar finales secretos.
+        </p>
+
+        <div class="hero-stage">
+          <!-- Mago Protagonista -->
+          <div class="wizard-spotlight">
+            <div class="wizard-character">
+              <span class="wizard-avatar-large" aria-hidden="true">🧙‍♂️</span>
+              <div class="wizard-magic-aura" aria-hidden="true"></div>
+              <span class="sparkle s1" aria-hidden="true">✨</span>
+              <span class="sparkle s2" aria-hidden="true">✦</span>
+            </div>
+            <div class="wizard-bubble-card">
+              <div class="bubble-tag">GUÍA DE LA TABERNA</div>
+              <p class="bubble-greeting">¡Hola, valiente aventurero!</p>
+              <p class="bubble-dialogue">
+                "Cada gota de tinta da vida a una palabra nueva. ¿Qué historia descubriremos hoy?"
+              </p>
+            </div>
+          </div>
+
+          <!-- Tarjeta de Saldo con Frasco de Tinta Ilustrado -->
+          <div class="ink-vault-card" role="region" aria-label="Reserva de tinta del aventurero">
+            <!-- Efecto de celebración +10 Tinta -->
+            <div class="reward-celebration-bubble" *ngIf="rewardEarned" aria-live="assertive">
+              <span>+10 TINTA</span> ✨
+            </div>
+
+            <div class="vault-flask-wrapper">
+              <!-- Frasco Mágico SVG -->
+              <svg class="magic-flask-svg" viewBox="0 0 80 90" width="76" height="86" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <!-- Tapón de Corcho -->
+                <rect x="31" y="2" width="18" height="12" rx="3" fill="#B37840" stroke="#7A4E24" stroke-width="2" />
+                <!-- Cuello del Frasco -->
+                <rect x="29" y="12" width="22" height="14" rx="2" fill="#E8F4F0" stroke="#2F8F6E" stroke-width="2.5" opacity="0.9" />
+                <!-- Cuerpo Redondeado del Frasco -->
+                <path d="M 29 25 C 20 30, 8 45, 8 64 C 8 78, 22 86, 40 86 C 58 86, 72 78, 72 64 C 72 45, 60 30, 51 25 Z" fill="#FFFFFF" stroke="#2F8F6E" stroke-width="2.5" />
+                <!-- Líquido de Tinta Brillante -->
+                <path d="M 12 62 Q 26 58, 40 61 T 68 62 C 68 76, 56 83, 40 83 C 24 83, 12 76, 12 62 Z" fill="url(#inkLiquidGrad)" />
+                <!-- Burbujas mágicas de tinta -->
+                <circle cx="34" cy="68" r="3" fill="#FFFFFF" opacity="0.6" class="bubble-anim b1" />
+                <circle cx="48" cy="72" r="2.2" fill="#FFFFFF" opacity="0.5" class="bubble-anim b2" />
+                <circle cx="28" cy="74" r="1.8" fill="#FFFFFF" opacity="0.4" class="bubble-anim b3" />
+                <!-- Reflejo de Luz en el Cristal -->
+                <path d="M 16 54 C 14 62, 17 72, 22 76" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
+                <!-- Degradado de la Tinta -->
+                <defs>
+                  <linearGradient id="inkLiquidGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FFB37C" />
+                    <stop offset="60%" stop-color="#FF9F5B" />
+                    <stop offset="100%" stop-color="#E87C35" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="flask-glow-circle" aria-hidden="true"></div>
+            </div>
+
+            <div class="vault-info">
+              <span class="vault-kicker">TU RESERVA ACTUAL</span>
+              <div class="vault-counter-row">
+                <span class="vault-amount" aria-live="polite">{{ displayBalance }}</span>
+                <span class="vault-unit">TINTA</span>
+              </div>
+              <p class="vault-status" *ngIf="isLoggedIn()">
+                <span class="status-dot"></span> Frasco listo para conversar
+              </p>
+              <p class="vault-status login-hint" *ngIf="!isLoggedIn()">
+                <a routerLink="/login" class="login-highlight">Inicia sesión</a> para guardar tu tinta
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+    </div>
+  </section>
+
+  <!-- DIVISOR INICIAL SOBRE EL CREMA (Fuera de la madera) -->
+  <div class="tavern-top-divider">
+    <div class="magical-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-gem">✦ ✨ ✦</span>
+      <span class="divider-line"></span>
+    </div>
+  </div>
+
+  <!-- ═══════════ 2. ¿PARA QUÉ SIRVE LA TINTA? (PARED DE TABLONES DE MADERA A SANGRE) ═══════════ -->
+  <section class="wood-wall-section reveal" aria-labelledby="why-ink-title">
+    <!-- Moldura superior de madera oscura con línea dorada -->
+    <div class="wood-trim wood-trim-top" aria-hidden="true"></div>
+
+    <!-- Fondo de madera repetible y capas de profundidad/iluminación -->
+    <div class="wood-wall-bg" aria-hidden="true"></div>
+    <div class="wood-wall-overlay" aria-hidden="true"></div>
+
+    <!-- Contenido centrado -->
+    <div class="wood-wall-container">
+      <!-- Cartelito de pergamino para título y subtítulo -->
+      <div class="section-title-wrap parchment-sign">
+        <span class="section-kicker">🧪 RECURSO MÁGICO</span>
+        <h2 id="why-ink-title" class="section-title">¿Para qué sirve la tinta?</h2>
+        <p class="section-description">
+          Con tu tinta tienes el poder de dar vida a los libros en Literatus Novelist.
+        </p>
+      </div>
+
+      <!-- CARTEL DE MADERA: 4 TARJETAS CLAVADAS (Recurso Mágico) -->
+      <div class="menu-sign-wrapper" role="region" aria-label="Usos de la tinta mágica">
+        <div class="menu-sign" aria-hidden="true">
+          <picture>
+            <source srcset="assets/img/tavern/menu-sign-1920.webp 1920w, assets/img/tavern/menu-sign.webp 1200w" type="image/webp">
+            <img
+              class="menu-sign-bg-img"
+              src="assets/img/tavern/menu-sign.png"
+              srcset="assets/img/tavern/menu-sign.png 1920w"
+              alt=""
+              role="presentation"
+              loading="lazy"
+              decoding="async"
+            >
+          </picture>
+        </div>
+
+        <div class="sign-cards-grid">
+          <!-- Conversar -->
+          <article class="sign-card card-conversar" tabindex="0">
+            <div class="sign-card-icon-wrap" aria-hidden="true">
+              <span class="sign-card-emoji">💬</span>
+            </div>
+            <h3 class="sign-card-title">Conversar</h3>
+            <p class="sign-card-text">Habla en tiempo real con figuras literarias mediante IA.</p>
+          </article>
+
+          <!-- Continuar -->
+          <article class="sign-card card-continuar" tabindex="0">
+            <div class="sign-card-icon-wrap" aria-hidden="true">
+              <span class="sign-card-emoji">📖</span>
+            </div>
+            <h3 class="sign-card-title">Continuar</h3>
+            <p class="sign-card-text">Sigue leyendo tus capítulos favoritos donde los dejaste.</p>
+          </article>
+
+          <!-- Explorar -->
+          <article class="sign-card card-explorar" tabindex="0">
+            <div class="sign-card-icon-wrap" aria-hidden="true">
+              <span class="sign-card-emoji">🗺️</span>
+            </div>
+            <h3 class="sign-card-title">Explorar</h3>
+            <p class="sign-card-text">Elige decisiones y caminos alternativos en cada trama.</p>
+          </article>
+
+          <!-- Descubrir -->
+          <article class="sign-card card-descubrir" tabindex="0">
+            <div class="sign-card-icon-wrap" aria-hidden="true">
+              <span class="sign-card-emoji">⭐</span>
+            </div>
+            <h3 class="sign-card-title">Descubrir</h3>
+            <p class="sign-card-text">Desbloquea finales secretos y recompensas especiales.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Moldura inferior de madera oscura con línea dorada y sombra proyectada -->
+    <div class="wood-trim wood-trim-bottom" aria-hidden="true"></div>
+  </section>
+
+  <main class="tavern-container">
+
+    <!-- DIVISOR TEMÁTICO DECORATIVO -->
+    <div class="magical-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-gem">✦ 📜 ✦</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- ═══════════ 3. GANA TINTA GRATIS (MISIÓN + PERGAMINO CONECTADOS) ═══════════ -->
+    <section class="free-ink-section reveal" aria-labelledby="free-ink-title">
+      <div class="free-ink-content-wrapper">
+        <div class="section-title-wrap">
+          <span class="section-kicker">✨ SIN COSTO</span>
+          <h2 id="free-ink-title" class="section-title">Gana tinta gratis</h2>
+          <p class="section-description">
+            Completa actividades de lectura o abre recompensas diarias para recargar tu frasco.
           </p>
         </div>
 
-        <!-- Botón compra -->
-        <button
-          class="btn-buy"
-          [class.btn-buy--featured]="i === 1"
-          (click)="buyChest(chest)"
-          [attr.id]="'buy-chest-' + i">
-          <span class="btn-glow"></span>
-          Obtener por {{ chest.price }}
-        </button>
+        <div class="free-ink-cards-container free-ink-grid">
+          <!-- Tarjeta 1 (Misión Diaria) -->
+          <article class="free-ink-card free-card mission-card">
+            <div class="free-card-top">
+              <div class="free-icon-wrap mint-icon-wrap" aria-hidden="true">
+                <span class="free-icon">🎯</span>
+              </div>
+              <span class="free-card-badge badge-mint">MISIÓN DIARIA</span>
+            </div>
+            <div class="free-card-body">
+              <h3 class="free-title">Misión de hoy</h3>
+              <p class="free-text">Lee un capítulo de cualquier libro y descubre una nueva aventura.</p>
+              
+              <!-- Barra de progreso (0/1 capítulo) -->
+              <div class="free-mission-progress">
+                <div class="progress-labels">
+                  <span class="progress-name">Progreso</span>
+                  <span class="progress-count">0/1 capítulo</span>
+                </div>
+                <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="1">
+                  <div class="progress-fill" style="width: 15%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="free-card-action">
+              <a class="btn-tactile btn-explore" routerLink="/catalog">
+                <span>Ir a explorar</span>
+                <span class="arrow-icon" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
 
+          <!-- Tarjeta 2 (Recompensa Diaria) -->
+          <article class="free-ink-card free-card reward-card" [class.is-loading]="adLoading">
+            <div class="free-card-top">
+              <div class="free-icon-wrap peach-icon-wrap" aria-hidden="true">
+                <span class="free-icon">📜</span>
+              </div>
+              <span class="free-card-badge badge-peach">+10 TINTA</span>
+            </div>
+            <div class="free-card-body">
+              <h3 class="free-title">Pergamino de Recompensa</h3>
+              <p class="free-text">Abre el pergamino mágico para recibir 10 gotas de tinta al instante.</p>
+            </div>
+            <div class="free-card-action">
+              <button
+                class="btn-tactile btn-reward"
+                (click)="watchAd()"
+                [disabled]="adLoading"
+                id="watch-ad-btn"
+                [attr.aria-busy]="adLoading"
+              >
+                <span *ngIf="!adLoading">✨ Reclamar +10 Tinta</span>
+                <span *ngIf="adLoading">Abriendo pergamino... ({{ adTimer }}s)</span>
+              </button>
+              <div class="reward-progress-track" *ngIf="adLoading" role="progressbar" [attr.aria-valuenow]="(5 - adTimer) * 20" aria-valuemin="0" aria-valuemax="100">
+                <div class="reward-progress-fill" [style.width.%]="(5 - adTimer) * 20"></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Tarjeta 3 (Racha) -->
+          <article class="free-ink-card free-card streak-card">
+            <div class="free-card-top">
+              <div class="free-icon-wrap amber-icon-wrap" aria-hidden="true">
+                <span class="free-icon">🔥</span>
+              </div>
+              <span class="free-card-badge badge-amber">RACHA ACTIVA</span>
+            </div>
+            <div class="free-card-body">
+              <h3 class="free-title">Racha del Aventurero</h3>
+              
+              <!-- Círculos de días de la semana (L, M, X, J, V) -->
+              <div class="streak-days-row" aria-label="Días de racha semanal">
+                <div class="day-circle completed" title="Lunes completado">
+                  <span class="day-letter">L</span>
+                  <span class="day-check" aria-hidden="true">✓</span>
+                </div>
+                <div class="day-circle completed" title="Martes completado">
+                  <span class="day-letter">M</span>
+                  <span class="day-check" aria-hidden="true">✓</span>
+                </div>
+                <div class="day-circle current" title="Miércoles (hoy)">
+                  <span class="day-letter">X</span>
+                </div>
+                <div class="day-circle pending" title="Jueves pendiente">
+                  <span class="day-letter">J</span>
+                </div>
+                <div class="day-circle pending" title="Viernes pendiente">
+                  <span class="day-letter">V</span>
+                </div>
+              </div>
+
+              <div class="streak-reward-pill">
+                <span class="streak-highlight">+50 Tinta extra</span> al completar 5 días
+              </div>
+            </div>
+            <div class="free-card-action">
+              <a class="btn-tactile btn-streak" routerLink="/catalog">
+                <span>Mantener Racha 🔥</span>
+              </a>
+            </div>
+          </article>
+
+          <!-- Tarjeta 4 (Trivia) -->
+          <article class="free-ink-card free-card trivia-card">
+            <div class="free-card-top">
+              <div class="free-icon-wrap indigo-icon-wrap" aria-hidden="true">
+                <span class="free-icon">🦉</span>
+              </div>
+              <span class="free-card-badge badge-indigo">+15 TINTA</span>
+            </div>
+            <div class="free-card-body">
+              <h3 class="free-title">Desafío del Sabio</h3>
+              <p class="free-text">Responde la pregunta del día y demuestra tu sabiduría literaria.</p>
+            </div>
+            <div class="free-card-action">
+              <a class="btn-tactile btn-trivia" routerLink="/literatus-games">
+                <span>Responder Trivia (+15 Tinta)</span>
+              </a>
+            </div>
+          </article>
+        </div>
       </div>
+    </section>
+
+    <!-- DIVISOR TEMÁTICO DECORATIVO -->
+    <div class="magical-divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-gem">✦ 🪙 ✦</span>
+      <span class="divider-line"></span>
     </div>
-  </section>
 
-  <!-- ═══════════ PERCEPCIÓN DE VALOR ═══════════ -->
-  <section class="value-section reveal">
-    <h2 class="section-title">Con tu tinta podrás:</h2>
-    <ul class="value-list">
-      <li class="value-item vi-1">
-        <svg lucideMessageCircle [size]="20" class="lucide-icon value-icon"></svg>
-        <span>Conversar con personajes que recuerdan tu historia.</span>
-      </li>
-      <li class="value-item vi-2">
-        <svg lucideBookOpen [size]="20" class="lucide-icon value-icon"></svg>
-        <span>Continuar historias donde el tiempo se detuvo.</span>
-      </li>
-      <li class="value-item vi-3">
-        <svg lucideSearch [size]="20" class="lucide-icon value-icon"></svg>
-        <span>Explorar nuevas decisiones y rutas narrativas.</span>
-      </li>
-      <li class="value-item vi-4">
-        <svg lucideStar [size]="20" class="lucide-icon value-icon"></svg>
-        <span>Descubrir finales alternativos que cambian todo.</span>
-      </li>
-    </ul>
-  </section>
+    <!-- ═══════════ 4. ELIGE TU PAQUETE DE TINTA (PROGRESIÓN VISUAL DE VALOR) ═══════════ -->
+    <section class="packages-section reveal" aria-labelledby="packages-title">
+      <div class="section-title-wrap">
+        <span class="section-kicker">🪙 PAQUETES DE TINTA</span>
+        <h2 id="packages-title" class="section-title">Elige tu paquete de tinta</h2>
+        <p class="section-description">
+          Recursos de tinta para lectores intrépidos que quieren charlar sin límites.
+        </p>
+      </div>
 
-  <!-- FOOTER -->
-  <footer class="tavern-footer">
-    <button class="btn-secondary" routerLink="/catalog">← Volver al Catálogo</button>
-  </footer>
+      <div class="packages-grid">
+        <article
+          *ngFor="let chest of chests; let i = index"
+          class="package-card"
+          [class.card-tier-1]="i === 0"
+          [class.card-popular]="chest.popular"
+          [class.card-best-value]="chest.bestValue"
+          [style.--chest-color]="chest.color"
+        >
+          <!-- Badge superior uniforme -->
+          <div class="package-badge-wrapper">
+            <span *ngIf="chest.popular" class="package-badge badge-popular">
+              ⭐ MÁS POPULAR
+            </span>
+            <span *ngIf="chest.bestValue" class="package-badge badge-best-value">
+              👑 MEJOR VALOR
+            </span>
+          </div>
 
+          <!-- Ícono de paquete con progresión de tamaño -->
+          <div class="package-icon-wrap" aria-hidden="true">
+            <div class="package-icon-circle">
+              <span class="package-emoji">{{ chest.emoji || '📦' }}</span>
+            </div>
+          </div>
+
+          <!-- Título y Tinta Principal -->
+          <h3 class="package-title">{{ chest.title }}</h3>
+          
+          <div class="package-ink-box">
+            <span class="package-ink-num">{{ chest.displayAmount || chest.amount }}</span>
+            <span class="package-ink-label">TINTA</span>
+          </div>
+
+          <!-- Rendimiento claro -->
+          <div class="package-capacity-pill">
+            <span class="capacity-icon" aria-hidden="true">💬</span>
+            <span>Alcanza para unos <strong>{{ chest.messages || getEstimatedMessages(chest.amount) }}</strong> mensajes</span>
+          </div>
+
+          <!-- Frase / Tagline -->
+          <p class="package-tagline">"{{ chest.tagline }}"</p>
+
+          <!-- Botón de compra táctil alineado al fondo -->
+          <div class="package-btn-wrap">
+            <button
+              class="btn-tactile btn-buy-package"
+              [class.btn-buy-featured]="chest.popular"
+              [class.btn-buy-master]="chest.bestValue"
+              (click)="buyChest(chest)"
+              [id]="'buy-chest-' + i"
+              [attr.aria-label]="'Obtener ' + chest.title + ' por ' + chest.price"
+            >
+              <span>Obtener por {{ chest.price }}</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- ═══════════ 5. AVISO PARA NIÑOS Y FAMILIA ═══════════ -->
+      <div class="family-notice-box" role="note">
+        <span class="notice-icon" aria-hidden="true">🛡️</span>
+        <p class="notice-text">
+          <strong>Aviso para aventureros:</strong> Pide permiso a un adulto antes de realizar cualquier compra.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 6. BOTÓN VOLVER AL CATÁLOGO CENTRADO ═══════════ -->
+    <footer class="tavern-footer-nav">
+      <a class="btn-tactile btn-back-catalog" routerLink="/catalog">
+        <span aria-hidden="true">←</span>
+        <span>Volver al Catálogo</span>
+      </a>
+    </footer>
+
+  </main>
 </div>

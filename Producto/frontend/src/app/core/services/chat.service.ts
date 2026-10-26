@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, Subject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -82,11 +82,25 @@ export class ChatService {
     return this.http.get(`${this.API_URL}/sessions/?avatar_id=${avatarId}`);
   }
 
-  // Obtener todos los personajes para el Hub (con búsqueda y orden opcional)
-  getGlobalAvatars(query: string = '', sort: string = ''): Observable<any[]> {
-    let url = `${this.API_URL}/hub/avatars/?q=${query}`;
-    if (sort) url += `&sort=${sort}`;
-    return this.http.get<any[]>(url);
+  // Obtener todos los personajes para el Hub (con búsqueda, orden y paginación opcional)
+  getGlobalAvatars(query: string = '', sort: string = '', page?: number, pageSize?: number, filterType?: string): Observable<any> {
+    let params = new HttpParams();
+    if (query && query.trim()) {
+      params = params.set('q', query.trim());
+    }
+    if (sort) {
+      params = params.set('sort', sort);
+    }
+    if (page !== undefined && page !== null) {
+      params = params.set('page', page.toString());
+    }
+    if (pageSize !== undefined && pageSize !== null) {
+      params = params.set('page_size', pageSize.toString());
+    }
+    if (filterType && filterType !== 'all') {
+      params = params.set('filter_type', filterType);
+    }
+    return this.http.get<any>(`${this.API_URL}/hub/avatars/`, { params });
   }
 
   // Obtener un avatar por ID

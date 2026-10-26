@@ -1,44 +1,88 @@
-.authors-container {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f9f4eb; /* Color exacto del borde inferior de la ilustración */
+  overflow-x: clip;
 }
 
-/* Header Decorativo */
+.authors-container {
+  padding: 0 20px 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Header Decorativo / Banner Ancho Completo */
+.authors-hero-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: clamp(340px, 24vw, 400px);
+  padding-top: 32px;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.authors-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  z-index: -1;
+  background: url('/assets/biblioteca-magica-al-atardecer.png') center bottom / cover no-repeat;
+  pointer-events: none;
+}
+
 .authors-header {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 30px;
-  margin-bottom: 60px;
+  margin-bottom: 16px;
   text-align: center;
+  width: 100%;
+  max-width: 900px;
 }
 
 .header-content {
   flex-shrink: 0;
+  position: relative;
+  padding: 16px 36px 14px 36px;
+  border-radius: 28px;
+  background: radial-gradient(ellipse 90% 80% at 50% 50%, rgba(253, 250, 244, 0.6) 0%, rgba(253, 250, 244, 0.35) 55%, transparent 85%);
 }
 
 .title-font {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 10px;
-  background: linear-gradient(to right, #facc15, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3));
+  color: var(--text-main);
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.8);
 }
 
 .subtitle {
   color: var(--text-muted);
   font-size: 1.1rem;
   letter-spacing: 1px;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.8);
 }
 
 .decorative-line {
   flex-grow: 1;
   height: 2px;
-  background: linear-gradient(to right, transparent, rgba(139, 92, 246, 0.5), transparent);
+  background: linear-gradient(to right, transparent, var(--glass-border), transparent);
   position: relative;
 }
 
@@ -47,7 +91,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  color: #fbbf24;
+  color: var(--btn-primary-bg);
   font-size: 1.2rem;
 }
 .decorative-line.left::after { right: -20px; }
@@ -57,7 +101,22 @@
 .search-section {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+/* Contenedor de Buscador y Filtros */
+.search-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 800px;
+  align-items: center;
+  background: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  border-radius: 40px;
+  border: 1.5px solid var(--glass-border);
+  box-shadow: var(--shadow-card);
 }
 
 .search-box {
@@ -70,50 +129,11 @@
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color: #fbbf24;
+  color: var(--btn-primary-bg);
   font-size: 1.5rem;
   width: 1.5rem;
   height: 1.5rem;
   line-height: 1;
-}
-
-.search-input {
-  width: 100%;
-  padding: 16px 20px 16px 60px;
-  height: 58px;
-  border-radius: 30px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  color: white;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  box-sizing: border-box;
-}
-
-.search-input:focus {
-  background: rgba(15, 23, 42, 0.9);
-  border-color: #fbbf24;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
-  outline: none;
-}
-
-/* Contenedor de Buscador y Filtros */
-.search-container {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  max-width: 800px;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.6);
-  padding: 5px 10px 5px 5px;
-  border-radius: 40px;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-}
-
-.search-box {
-  position: relative;
-  flex-grow: 1;
 }
 
 .search-input {
@@ -123,7 +143,7 @@
   border-radius: 30px;
   background: transparent;
   border: none;
-  color: white;
+  color: var(--text-main);
   font-size: 1rem;
   outline: none;
 }
@@ -134,9 +154,9 @@
 }
 
 .glass-select-mini {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fbbf24;
+  background: var(--bg-main);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
   padding: 5px 25px 5px 12px;
   border-radius: 15px;
   font-size: 0.85rem;
@@ -152,38 +172,142 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #fbbf24;
+  color: var(--btn-primary-bg);
   pointer-events: none;
 }
 
-/* Línea Ondulada Decorativa */
-.wavy-separator {
-  width: 100%;
-  height: 40px;
-  margin-bottom: 50px;
+/* ──────────────────────────────────────────────────────────────────────────
+   Línea Ondulada Animada: Camino que llega a la Meta
+   ────────────────────────────────────────────────────────────────────────── */
+.animated-wave-separator {
   position: relative;
-}
-
-.wavy-separator svg {
+  z-index: 2;
   width: 100%;
-  height: 100%;
+  max-width: 1200px;
+  margin-top: clamp(-100px, -6.5vw, -60px);
+  margin-bottom: clamp(24px, 2vw, 32px);
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
 }
 
-.wave-bg {
-  fill: rgba(139, 92, 246, 0.05); /* Relleno superior súper sutil */
+.wave-svg {
+  width: 100%;
+  height: 60px;
+  overflow: visible;
 }
 
-.wave-line {
+/* Fase 1: El camino se dibuja de izquierda a derecha (0s a 3s) */
+.goal-path {
   fill: none;
-  stroke: url(#wave-gradient);
-  stroke-width: 3;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: drawWave 3s ease forwards;
+  stroke: url(#goal-path-gradient);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 
-@keyframes drawWave {
-  to { stroke-dashoffset: 0; }
+.animated-wave-separator.in-view .goal-path {
+  animation: drawGoalPath 3s ease-in-out forwards;
+}
+
+@keyframes drawGoalPath {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Fase 2: El círculo de meta aparece con rebote (3s a 3.6s) y luego brilla (Fase 3) */
+.goal-circle {
+  fill: #FFF4E8;
+  stroke: #FF9F5B;
+  stroke-width: 3px;
+  transform: scale(0);
+  opacity: 0;
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-circle {
+  animation: 
+    circlePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards,
+    circleGlow 2.2s ease-in-out 3.6s infinite alternate;
+}
+
+@keyframes circlePop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes circleGlow {
+  0% {
+    filter: drop-shadow(0 0 6px rgba(255, 140, 40, 0.45));
+  }
+  100% {
+    filter: drop-shadow(0 0 16px rgba(255, 140, 40, 0.85));
+  }
+}
+
+/* Fase 3: El halo detrás del círculo pulsa continuamente (desde 3.6s, infinito) */
+.goal-halo {
+  fill: #FF9F5B;
+  opacity: 0;
+  transform: scale(1);
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-halo {
+  animation: haloPulse 2s ease-out 3.6s infinite;
+}
+
+@keyframes haloPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Destellos mágicos que brotan al llegar a la meta (Fase 2) */
+.goal-sparkle {
+  fill: #FFB370;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-sparkle {
+  animation: sparkleBurst 0.85s ease-out 3.05s forwards;
+}
+
+@keyframes sparkleBurst {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 
 /* Grid de Autores */
@@ -195,15 +319,18 @@
 
 .author-card {
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s ease;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .author-card:hover {
-  transform: translateY(-10px);
-  border-color: rgba(139, 92, 246, 0.6);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+  transform: translateY(-6px);
+  border-color: var(--pastel-blue-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 .card-inner {
@@ -223,12 +350,11 @@
   object-fit: cover;
   object-position: top;
   transition: transform 0.5s ease;
-  filter: grayscale(40%) contrast(1.1);
+  filter: contrast(1.05);
 }
 
 .author-card:hover .author-photo {
-  transform: scale(1.08);
-  filter: grayscale(0%) contrast(1.1);
+  transform: scale(1.06);
 }
 
 /* Badge Flotante para los libros */
@@ -236,17 +362,16 @@
   position: absolute;
   bottom: 15px;
   right: 15px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid #facc15;
-  color: #facc15;
+  background: var(--pastel-peach-bg);
+  border: 1px solid var(--pastel-peach-border);
+  color: var(--btn-primary-shadow);
   padding: 6px 12px;
   border-radius: 20px;
   display: flex;
   align-items: center;
   gap: 6px;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .book-badge mat-icon {
@@ -258,46 +383,46 @@
 /* Info del Autor */
 .author-info {
   padding: 25px;
-  background: linear-gradient(to top, rgba(15,23,42,1) 0%, rgba(15,23,42,0.8) 100%);
+  background: #FFFFFF;
   position: relative;
   z-index: 2;
-  border-top: 2px solid rgba(139, 92, 246, 0.3);
+  border-top: 1px solid var(--glass-border);
 }
 
 .author-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
   margin: 0 0 5px 0;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
 }
 
 .author-nationality {
   display: inline-block;
-  color: #a78bfa;
+  color: var(--btn-primary-bg);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 15px;
 }
 
 .author-bio {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
 }
 
 .read-more {
-  color: #fbbf24;
-  font-weight: 600;
+  color: var(--btn-primary-bg);
+  font-weight: 700;
   margin-left: 5px;
   transition: color 0.2s;
 }
 
 .author-card:hover .read-more {
-  color: #fcd34d;
+  color: var(--btn-primary-hover);
   text-decoration: underline;
 }
 
@@ -310,8 +435,8 @@
 
 .shimmer-card {
   height: 450px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, rgba(30, 41, 59, 0.5) 25%, rgba(51, 65, 85, 0.8) 50%, rgba(30, 41, 59, 0.5) 75%);
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, #F4F3EE 25%, #EAE8E1 50%, #F4F3EE 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -322,23 +447,78 @@
 }
 
 @media (max-width: 768px) {
+  .authors-hero-banner {
+    min-height: clamp(280px, 70vw, 340px);
+    padding-top: 20px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  .authors-hero-banner::before {
+    background-position: left bottom; /* Asegura que el mago no se recorte */
+  }
+
+  .animated-wave-separator {
+    margin-top: clamp(-40px, -8vw, -20px);
+    margin-bottom: clamp(20px, 3vw, 26px);
+  }
+
+  .wave-svg {
+    height: 38px;
+  }
+
   .authors-header {
     flex-direction: column;
     gap: 15px;
+    margin-bottom: 16px;
   }
+
+  .header-content {
+    padding: 12px 18px;
+    border-radius: 20px;
+  }
+
   .decorative-line { display: none; }
   .title-font { font-size: 2rem; }
   
+  .search-section {
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
   .search-container {
     flex-direction: column;
     gap: 10px;
   }
-  .filter-box, .glass-btn {
+  .filter-box, .filter-box-mini, .glass-btn {
+    width: 100%;
+  }
+  .glass-select-mini {
     width: 100%;
   }
   .glass-btn {
     border-radius: 30px;
     height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-path {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+
+  .goal-circle {
+    transform: scale(1) !important;
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 10px rgba(255, 140, 40, 0.6)) !important;
+    animation: none !important;
+  }
+
+  .goal-halo,
+  .goal-sparkle {
+    display: none !important;
   }
 }
 
@@ -349,14 +529,14 @@
   justify-content: space-between;
   margin-top: 40px;
   padding: 16px 24px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .results-count {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -368,28 +548,33 @@
 
 .page-btn {
   padding: 8px 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  font-weight: 600;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--btn-primary-bg);
+  color: var(--text-on-accent);
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 3px 0 var(--btn-primary-shadow);
+  transition: all 0.15s ease;
 }
 
 .page-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.35);
-  color: #fff;
-  border-color: #a78bfa;
+  background: var(--btn-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
 }
 
 .page-btn:disabled {
-  opacity: 0.3;
+  background: #E2E8F0;
+  color: #94A3B8;
+  box-shadow: 0 3px 0 #CBD5E1;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
 .page-indicator {
-  color: #e2e8f0;
+  color: var(--text-main);
+  font-weight: 600;
   font-size: 0.9rem;
   min-width: 100px;
   text-align: center;

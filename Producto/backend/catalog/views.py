@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from library.models import UserInventory
 from .models import Book, Author, Genre, Tag, Review
@@ -91,6 +91,10 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
         genre_slug = self.request.query_params.get('genres__slug', None)
         if genre_slug:
             qs = qs.filter(genres__slug__iexact=genre_slug).distinct()
+            
+        playable = self.request.query_params.get('playable', None)
+        if playable and playable.lower() == 'true':
+            qs = qs.filter(Q(minigames__isnull=False) | Q(chapters__minigames__isnull=False)).distinct()
             
         return qs
 

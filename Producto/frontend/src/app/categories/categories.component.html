@@ -1,44 +1,185 @@
 <div class="categories-page">
-  <!-- Grid de Categorías -->
-  <main class="categories-main">
 
-    <div class="categories-grid">
-      <div class="category-card"
-           *ngFor="let cat of categories"
-           (click)="goToCategory(cat.slug)"
-           [style.--accent]="cat.color">
+  <!-- 1. HERO CENTRADO (IGUAL QUE EXPLORAR) -->
+  <header class="categories-hero">
+    <!-- Bloque de Texto Centrado con Velo Suave -->
+    <div class="hero-text-block">
+      <div class="hero-badge">
+        <span class="badge-icon" aria-hidden="true">✨</span>
+        <span>MUNDOS NARRATIVOS</span>
+      </div>
+      <h1 class="hero-title">EXPLORA POR CATEGORÍAS</h1>
+      <p class="hero-subtitle">
+        Encuentra una nueva aventura según el mundo que quieras explorar.
+      </p>
+    </div>
 
-        <!-- Imagen de fondo -->
-        <div class="card-image-wrap" [style.background]="cat.image ? 'transparent' : 'linear-gradient(135deg, #1e1e2f 0%, ' + cat.color + '33 100%)'">
-          <img *ngIf="cat.image" [src]="cat.image" [alt]="cat.name" class="card-bg-img" loading="lazy">
-          <div *ngIf="!cat.image" class="card-icon-fallback" [style.color]="cat.color">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </div>
-          <div class="card-gradient" [style.background]="'linear-gradient(to top, ' + cat.color + '88 0%, rgba(0,0,0,0.6) 50%, transparent 100%)'"></div>
-        </div>
-
-        <!-- Contenido encima de la imagen -->
-        <div class="card-content">
-          <div class="card-top">
-            <div class="card-book-count" *ngIf="cat.bookCount && cat.bookCount > 0">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-              {{ cat.bookCount }}+ libros
-            </div>
-          </div>
-
-          <div class="card-bottom">
-            <h2 class="card-title">{{ cat.name }}</h2>
-            <p class="card-description">{{ cat.description }}</p>
-            <div class="card-cta">
-              <span>Explorar →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hover Overlay -->
-        <div class="card-hover-overlay"></div>
+    <!-- Barra de Búsqueda Centrada (max-width: 850px) -->
+    <div class="search-box-wrap">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔎</span>
+        <input 
+          type="text" 
+          [value]="searchTerm"
+          (input)="onSearch($event)"
+          placeholder="Buscar una categoría..." 
+          class="search-input"
+          aria-label="Buscar una categoría"
+        />
+        @if (searchTerm) {
+          <button 
+            type="button" 
+            (click)="clearSearch()" 
+            class="clear-btn" 
+            title="Limpiar búsqueda" 
+            aria-label="Limpiar búsqueda">✕</button>
+        }
       </div>
     </div>
+  </header>
+
+  <!-- 2. TARJETA "AUTOR PARA DESCUBRIR" (FUERA DEL HERO, EN LA ZONA CREMA) -->
+  @if (featuredAuthor) {
+    <div class="discover-author-card" role="region" aria-label="Autor para descubrir">
+      <div class="author-portrait-wrap">
+        @if (featuredAuthor.photo) {
+          <img 
+            [src]="featuredAuthor.photo" 
+            [alt]="featuredAuthor.name" 
+            class="author-avatar-img"
+            (error)="featuredAuthor.photo = null" />
+        } @else {
+          <div class="author-avatar-fallback">
+            <span class="author-initial">{{ getAuthorInitial(featuredAuthor.name) }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="author-info-content">
+        <div class="author-badge-row">
+          <span class="discover-badge">⭐ Autor para descubrir</span>
+          @if (featuredAuthor.origin) {
+            <span class="meta-tag">📍 {{ featuredAuthor.origin }}</span>
+          }
+          @if (featuredAuthor.era) {
+            <span class="meta-tag">⏳ {{ featuredAuthor.era }}</span>
+          }
+        </div>
+        <div class="author-main-text">
+          <h3 class="author-name">{{ featuredAuthor.name }}</h3>
+          @if (featuredAuthor.bio) {
+            <p class="author-bio-snippet">{{ featuredAuthor.bio }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="author-action-wrap">
+        <button 
+          type="button" 
+          class="btn-author-cta" 
+          (click)="goToAuthor(featuredAuthor.slug)"
+          title="Conocer más sobre este autor">
+          <span>Ver autor</span>
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- 3. CONTENIDO PRINCIPAL: CATEGORÍAS -->
+  <main class="categories-main">
+
+    <!-- Encabezado de la Sección -->
+    <div class="section-header">
+      <div class="title-with-count">
+        <h2 class="section-title">
+          <span>CATEGORÍAS</span>
+          @if (filteredCategories.length > 0) {
+            <span class="count-badge">{{ filteredCategories.length }}</span>
+          }
+        </h2>
+      </div>
+    </div>
+
+    <!-- Estado de Carga (Skeleton Shimmer 8 Cards) -->
+    @if (isLoading) {
+      <div class="categories-grid skeleton-grid" aria-busy="true" aria-label="Cargando categorías">
+        @for (i of skeletonCards; track $index) {
+          <div class="category-card skeleton-card">
+            <div class="card-top-bar">
+              <div class="skeleton-icon-box"></div>
+              <div class="skeleton-pill"></div>
+            </div>
+            <div class="skeleton-body">
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line desc"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (errorMsg) {
+      <!-- Estado de Error Ilustrado -->
+      <div class="illustrated-state-card error-state" role="alert">
+        <div class="state-icon-bubble" aria-hidden="true">
+          <span>🧭</span>
+        </div>
+        <h3 class="state-title">No pudimos cargar las categorías</h3>
+        <p class="state-desc">{{ errorMsg }}</p>
+        <button type="button" class="btn-state-cta" (click)="retryLoad()">
+          Intentar de nuevo
+        </button>
+      </div>
+    } @else if (filteredCategories.length === 0) {
+      <!-- Estado de Búsqueda sin Resultados -->
+      <div class="illustrated-state-card empty-state" role="status">
+        <div class="state-icon-bubble" aria-hidden="true">
+          <span>🔎</span>
+        </div>
+        <h3 class="state-title">No encontramos la categoría "{{ searchTerm }}"</h3>
+        <p class="state-desc">Prueba con otra palabra clave o explora todas las categorías disponibles.</p>
+        <button type="button" class="btn-state-cta" (click)="clearSearch()">
+          Ver todas las categorías
+        </button>
+      </div>
+    } @else {
+      <!-- Grid de Categorías (Borde 2.5px verde y elevación al hover) -->
+      <div class="categories-grid">
+        @for (cat of filteredCategories; track cat.slug) {
+          <article 
+            class="category-card" 
+            (click)="goToCategory(cat.slug)"
+            (keydown.enter)="goToCategory(cat.slug)"
+            (keydown.space)="goToCategory(cat.slug); $event.preventDefault()"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'Explorar categoría ' + cat.name + ', ' + (cat.bookCount || 0) + ' libros'">
+            
+            <div class="card-top-bar">
+              <div class="cat-icon-badge" aria-hidden="true">
+                <span class="cat-emoji">{{ cat.icon || '📖' }}</span>
+              </div>
+              @if (cat.bookCount && cat.bookCount > 0) {
+                <span class="book-count-badge">
+                  {{ cat.bookCount }} libros
+                </span>
+              }
+            </div>
+
+            <div class="card-body">
+              <h3 class="cat-title">{{ cat.name }}</h3>
+              <p class="cat-desc">{{ cat.description }}</p>
+            </div>
+
+            <div class="card-footer">
+              <span class="explore-link">
+                <span>Explorar categoría</span>
+                <span class="arrow-icon" aria-hidden="true">→</span>
+              </span>
+            </div>
+          </article>
+        }
+      </div>
+    }
 
   </main>
 </div>

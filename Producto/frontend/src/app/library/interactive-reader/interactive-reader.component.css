@@ -1,0 +1,1046 @@
+:host {
+  /* ──────────────────────────────────────────────────────────────────────────
+     PALETA DE COLORES CORPORATIVOS OFICIAL
+     ────────────────────────────────────────────────────────────────────────── */
+  --bg-main: #FBF9F2;        /* Fondo principal */
+  --bg-secondary: #EAF3E8;   /* Fondo secundario */
+  --text-main: #33403A;      /* Texto principal */
+  --text-secondary: #6E7C74; /* Texto secundario */
+  --color-primary: #2F8F6E;  /* Primario */
+  --color-secondary: #4A90A4;/* Secundario */
+  --color-accent: #FF9F5B;   /* Acento / CTA */
+  --color-badge: #FFD166;    /* Logro / insignia (Oro) */
+  --color-success: #52B788;  /* Éxito */
+  --color-alert: #E0575B;    /* Alerta */
+
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+.interactive-reader-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-main);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. HUD SUPERIOR (GAME STATUS BAR)
+   ────────────────────────────────────────────────────────────────────────── */
+.hud-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 3px solid var(--color-primary);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(47, 143, 110, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Jugador & Level Badge */
+.hud-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.player-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-frame {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background: #FFFFFF;
+  border: 2.5px solid var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-emoji {
+  font-size: 1.6rem;
+}
+
+.level-badge {
+  position: absolute;
+  bottom: -6px;
+  right: -8px;
+  background-color: var(--color-badge);
+  color: #262118;
+  font-weight: 800;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.player-title {
+  font-size: 0.78rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Barra de XP de Lector */
+.xp-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 220px;
+  position: relative;
+}
+
+.xp-header-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.xp-track {
+  height: 12px;
+  background-color: rgba(47, 143, 110, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(47, 143, 110, 0.2);
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-success), var(--color-badge));
+  border-radius: 8px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.floating-xp-badge {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  background-color: var(--color-badge);
+  color: #2D2411;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(255, 209, 102, 0.5);
+  animation: floatUp 1.8s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { transform: translateY(-8px) scale(1.1); opacity: 1; }
+  80% { transform: translateY(-16px) scale(1); opacity: 1; }
+  100% { transform: translateY(-24px) scale(0.9); opacity: 0; }
+}
+
+/* Título del Capítulo */
+.hud-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.chapter-badge {
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 2px 6px rgba(47, 143, 110, 0.08);
+}
+
+.chapter-icon {
+  font-size: 1.1rem;
+}
+
+/* Quick Inventory Slots */
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.inventory-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inventory-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.inventory-slots {
+  display: flex;
+  gap: 6px;
+}
+
+.inventory-slot {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.inventory-slot.acquired {
+  border-color: var(--color-secondary);
+  background-color: #F0F7F9;
+  box-shadow: 0 2px 6px rgba(74, 144, 164, 0.15);
+}
+
+.inventory-slot.acquired:hover {
+  transform: translateY(-2px) scale(1.08);
+  border-color: var(--color-primary);
+}
+
+.inventory-slot.empty {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: #F2F0E9;
+}
+
+.slot-lock {
+  font-size: 0.8rem;
+}
+
+.streak-badge {
+  background-color: #FFF3E6;
+  border: 1.5px solid var(--color-accent);
+  color: #C85A11;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 16px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. ÁREA PRINCIPAL (GRID DE 2 COLUMNAS SOBRE FONDO #FBF9F2)
+   ────────────────────────────────────────────────────────────────────────── */
+.reader-main-canvas {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  padding: 28px 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* COLUMNA IZQUIERDA: LIENZO DEL LIBRO */
+.book-canvas-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-page-card {
+  background-color: var(--bg-main);
+  border: 2.5px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(47, 143, 110, 0.08);
+  min-height: 560px;
+  position: relative;
+}
+
+.page-ribbon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed rgba(47, 143, 110, 0.3);
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+}
+
+.ribbon-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}
+
+.reading-mode-pill {
+  background-color: var(--bg-secondary);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--color-primary);
+}
+
+/* Cuerpo de Lectura con Alta Legibilidad */
+.story-content {
+  font-size: 1.15rem;
+  line-height: 1.9;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.story-paragraph {
+  margin: 0;
+  text-align: justify;
+}
+
+/* Palabras Clave Interactivas ("Lore Words") */
+::ng-deep .lore-word {
+  color: var(--color-secondary) !important;
+  font-weight: 700;
+  border-bottom: 2px dotted var(--color-secondary);
+  cursor: pointer;
+  padding: 0 3px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+::ng-deep .lore-word:hover {
+  background-color: rgba(74, 144, 164, 0.12);
+  color: #2C6877 !important;
+  transform: translateY(-1px);
+}
+
+/* Caja de Consecuencia de Decisión */
+.decision-outcome-box {
+  margin-top: 24px;
+  background-color: var(--bg-secondary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 14px;
+  padding: 16px 20px;
+  animation: fadeIn 0.4s ease-in;
+}
+
+.outcome-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.outcome-text {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* Footer de la página del libro */
+.book-page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1.5px solid rgba(110, 124, 116, 0.2);
+}
+
+.nav-page-btn {
+  background: transparent;
+  border: 1.5px solid var(--text-secondary);
+  color: var(--text-main);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-page-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--bg-secondary);
+}
+
+.nav-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.footer-center-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.chapter-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(110, 124, 116, 0.3);
+  transition: all 0.25s ease;
+}
+
+.dot.active {
+  background-color: var(--color-primary);
+  transform: scale(1.25);
+}
+
+.page-number-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* COLUMNA DERECHA: ESCENA + TOMA DE DECISIONES RPG */
+.rpg-scene-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Ilustración / Escena Ambiental RPG */
+.scene-visual-card {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(47, 143, 110, 0.06);
+}
+
+.scene-location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-primary);
+  margin-bottom: 12px;
+}
+
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+}
+
+.scene-illustration-container {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid rgba(47, 143, 110, 0.3);
+  background: #EBF4EC;
+}
+
+.scene-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Orbes mágicos animados */
+.animated-magic-orbs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(4px);
+  opacity: 0.6;
+  animation: orbFloat 4s ease-in-out infinite alternate;
+}
+
+.orb-1 { width: 30px; height: 30px; background: var(--color-badge); top: 20%; left: 30%; animation-delay: 0s; }
+.orb-2 { width: 20px; height: 20px; background: var(--color-secondary); top: 60%; right: 25%; animation-delay: 1.5s; }
+.orb-3 { width: 25px; height: 25px; background: var(--color-success); bottom: 15%; left: 15%; animation-delay: 0.8s; }
+
+@keyframes orbFloat {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-14px) scale(1.2); }
+}
+
+.scene-caption {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 12px 0 0 0;
+  text-align: center;
+}
+
+/* Tarjeta de Decisiones RPG */
+.rpg-decisions-card {
+  background-color: var(--bg-main);
+  border: 2.5px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(47, 143, 110, 0.08);
+}
+
+.decisions-header {
+  margin-bottom: 18px;
+}
+
+.header-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.decisions-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.decisions-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Botones de Opción Destacados en Acento/CTA (#FF9F5B) con Hover Primario (#2F8F6E) */
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choice-btn {
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  border: 2px solid var(--color-accent);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 4px 0 #D97836;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.choice-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 0 #1D5E48;
+  transform: translateY(-2px);
+}
+
+.choice-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1D5E48;
+}
+
+.choice-btn.selected {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(47, 143, 110, 0.3);
+}
+
+.choice-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+}
+
+.choice-bullet {
+  color: var(--color-badge);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.choice-text {
+  line-height: 1.4;
+}
+
+.choice-reward-badge {
+  background-color: var(--color-badge);
+  color: #2D2411;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. AI SIDEKICK (ESQUINA INFERIOR DERECHA)
+   ────────────────────────────────────────────────────────────────────────── */
+.ai-sidekick-container {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.ai-sidekick-container * {
+  pointer-events: auto;
+}
+
+/* Globo de diálogo flotante (Speech Bubble) en fondo blanco/crema y texto #33403A */
+.sidekick-speech-bubble {
+  background-color: var(--bg-main);
+  border: 2px solid var(--color-secondary);
+  border-radius: 18px;
+  padding: 14px 18px;
+  max-width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  position: relative;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sidekick-speech-bubble.thinking {
+  opacity: 0.7;
+}
+
+.speech-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.sidekick-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--color-secondary);
+}
+
+.sidekick-role {
+  font-size: 0.72rem;
+  background-color: #EBF4F7;
+  color: var(--color-secondary);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.speech-body {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+.speech-text {
+  margin: 0;
+}
+
+.bubble-arrow {
+  position: absolute;
+  bottom: -10px;
+  right: 28px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid var(--color-secondary);
+}
+
+/* Botón flotante animado del Avatar del Asistente */
+.sidekick-avatar-btn {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 3px solid var(--color-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(74, 144, 164, 0.25);
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.sidekick-avatar-btn:hover {
+  transform: scale(1.1) rotate(4deg);
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 28px rgba(47, 143, 110, 0.35);
+}
+
+.avatar-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidekick-emoji {
+  font-size: 2.2rem;
+}
+
+.sidekick-glow-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--color-badge);
+  opacity: 0.6;
+  animation: pulseGlow 2.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.12); opacity: 0.2; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. MODAL DE GLOSARIO / LORE (BACKDROP BLUR + TARJETA #FBF9F2)
+   ────────────────────────────────────────────────────────────────────────── */
+.lore-modal-overlay, .inventory-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(51, 64, 58, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.lore-modal-card {
+  background-color: var(--bg-main);
+  border: 2.5px solid var(--color-secondary);
+  border-radius: 22px;
+  max-width: 480px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lore-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  border-bottom: 1.5px solid rgba(74, 144, 164, 0.2);
+  padding-bottom: 14px;
+}
+
+.lore-header-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lore-term-icon {
+  font-size: 2.4rem;
+  background-color: var(--bg-secondary);
+  padding: 8px;
+  border-radius: 16px;
+  border: 1.5px solid var(--color-secondary);
+}
+
+.lore-category-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lore-term-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 2px 0 0 0;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background-color: rgba(224, 87, 91, 0.1);
+  color: var(--color-alert);
+}
+
+.lore-modal-body {
+  margin-bottom: 24px;
+}
+
+.lore-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-main);
+  margin: 0 0 18px 0;
+}
+
+.lore-xp-reward-box {
+  background-color: var(--bg-secondary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--color-primary);
+}
+
+.lore-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.claim-lore-btn {
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #D97836;
+  transition: all 0.2s ease;
+}
+
+.claim-lore-btn:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  box-shadow: 0 4px 0 #1D5E48;
+}
+
+.claim-lore-btn:disabled {
+  background-color: var(--color-success);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. MODAL DE DETALLE DE INVENTARIO
+   ────────────────────────────────────────────────────────────────────────── */
+.inventory-modal-card {
+  background-color: var(--bg-main);
+  border: 2.5px solid var(--color-primary);
+  border-radius: 20px;
+  max-width: 400px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+.inv-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.inv-item-icon {
+  font-size: 2.2rem;
+}
+
+.inv-item-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.inv-rarity-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 8px;
+
+}
+
+.inv-rarity-badge[data-rarity="épico"] { background-color: #E6DCF8; color: #6B3BA7; }
+.inv-rarity-badge[data-rarity="legendario"] { background-color: #FFF3CD; color: #856404; }
+.inv-rarity-badge[data-rarity="raro"] { background-color: #CCE5FF; color: #004085; }
+.inv-rarity-badge[data-rarity="común"] { background-color: #E2E3E5; color: #383D41; }
+
+.inv-modal-body p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  margin: 0 0 16px 0;
+}
+
+.inv-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cta-close {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ANIMACIONES GLOBALES */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   RESPONSIVE DESIGN (TABLETS & MOBILE)
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .reader-main-canvas {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+  }
+
+  .hud-header {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+  }
+
+  .hud-center {
+    order: 3;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .xp-container {
+    width: 160px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hud-left {
+    gap: 10px;
+  }
+
+  .player-name, .player-title {
+    display: none;
+  }
+
+  .book-page-card {
+    padding: 20px 16px;
+  }
+
+  .ai-sidekick-container {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .sidekick-speech-bubble {
+    max-width: 260px;
+  }
+}
