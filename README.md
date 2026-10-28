@@ -397,8 +397,8 @@ LiteratusNovelist/
 
 Proyecto academico desarrollado por:
 
-- Josue Jheymi Ticona Ortiz
-- Benjamin Patricio Norambuena Guzman
+- **Gonzalo Venegas** (`YoRHa-Type-A-n2`)
+- **José Muñoz** (`jos2309`)
 
 Para detalles de gestion, roles y documentos asociados, revisar `Gestion/Integrantes.txt` y la carpeta `Documentacion/`.
 
