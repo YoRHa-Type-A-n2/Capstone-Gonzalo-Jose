@@ -90,4 +90,8 @@ export class MinigameService {
       })
     );
   }
+
+  getDevBuscaImagenLevels(bookId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/books/${bookId}/minigames/dev-busca-imagen/`);
+  }
 }

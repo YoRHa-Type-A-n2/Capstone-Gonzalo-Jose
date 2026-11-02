@@ -90,3 +90,19 @@ class BookMinigameByCodeView(APIView):
         games = BookMinigame.objects.filter(book_id=book_id, minigame__code=game_code)
         serializer = BookMinigameSerializer(games, many=True)
         return Response(serializer.data)
+    
+    
+class BookMinigameDevBuscaImagenView(APIView):
+    """
+    Endpoint exclusivo para desarrolladores que recupera TODOS los registros 
+    de 'busca_imagen' de un libro sin selección aleatoria, permitiendo 
+    recorrerlos 1 por 1 para configurar coordenadas.
+    """
+    def get(self, request, book_id):
+        games = BookMinigame.objects.filter(
+            book_id=book_id, 
+            minigame__code='busca_imagen'
+        ).select_related('minigame')
+        
+        serializer = BookMinigameSerializer(games, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
