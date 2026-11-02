@@ -1,43 +1,65 @@
 <div class="game-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100vh; max-height: 100vh; overflow-y: auto; padding: 4px 0 0 0; margin: 0;">
 
   <!-- BARRA TEMPORIZADORA HORIZONAL -->
-  <div style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 10px; margin: 0 auto 2px auto; width: 95%; max-width: 700px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;">
-    <div class="timer-container" style="background: rgba(255, 255, 255, 0.12); border-radius: 9999px; overflow: hidden; height: 6px; width: 100%; margin: 0;">
+  <div style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 10px; margin: 0 auto 2px auto; width: 95%; max-width: 700px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0; display: flex; align-items: center; gap: 10px;">
+    <div class="timer-container" style="background: rgba(255, 255, 255, 0.12); border-radius: 9999px; overflow: hidden; height: 6px; flex: 1; margin: 0;">
       <div class="timer-bar" [style.width.%]="devMode ? 100 : timerProgress" [class.warning]="timerProgress < 30" style="height: 100%; border-radius: 9999px; transition: width 0.05s linear;"></div>
     </div>
   </div>
 
-  <!-- PANEL MODO EDITOR SUPERIOR -->
-  <div *ngIf="devMode && gameState === 'playing'" class="dev-coords-banner" style="margin: 2px 0; flex-shrink: 0;">
-    <div class="dev-controls">
-      <button class="btn-dev-action" (click)="openIntroModal()">
-        📖 Ver Frase
-      </button>
+  <!-- PANEL MODO EDITOR SUPERIOR (DEV MODE) -->
+  <div *ngIf="devMode && gameState === 'playing'" class="dev-coords-banner" style="margin: 2px 0; flex-shrink: 0; background: #0f172a; border: 1px solid #38bdf8; padding: 8px 12px; border-radius: 10px; color: white; width: 95%; max-width: 700px; box-sizing: border-box;">
+    
+    <!-- CONTROLES NAVEGACIÓN Y TAMAÑO -->
+    <div class="dev-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+      
+      <!-- NAVEGACIÓN ENTRE NIVELES DE LA LISTA -->
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <button class="btn-step" (click)="devPrevLevel()" [disabled]="currentLevelIndex === 0" style="padding: 2px 8px; font-weight: bold;">←</button>
+        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8;">
+          Nivel {{ currentLevelIndex + 1 }} / {{ levels.length }}
+        </span>
+        <button class="btn-step" (click)="devNextLevel()" [disabled]="currentLevelIndex === levels.length - 1" style="padding: 2px 8px; font-weight: bold;">→</button>
+      </div>
 
-      <div class="visor-sizer">
-        <span class="label">Área:</span>
+      <!-- BOTÓN INSTRUCTIVO / OBJETO TARGET -->
+      <span style="font-size: 0.8rem; color: #f1f5f9; font-weight: 700;">
+        🎯 {{ currentLevel.targetObjectName }}
+      </span>
+
+      <!-- CAMBIO DE TAMAÑO -->
+      <div class="visor-sizer" style="display: flex; align-items: center; gap: 4px;">
+        <span class="label" style="font-size: 0.8rem;">Área:</span>
         <button class="btn-step" (click)="adjustDevSize(-1)">-</button>
-        <span class="size-val">{{ devWidth }}%</span>
+        <span class="size-val" style="font-size: 0.8rem; font-weight: bold; color: #facc15;">{{ devWidth }}% x {{ devHeight }}%</span>
         <button class="btn-step" (click)="adjustDevSize(1)">+</button>
       </div>
     </div>
 
-    <div class="coords-box">
-      <input 
-        type="text" 
+    <!-- DISPLAY DE COORDENADAS JSON EN TIEMPO REAL -->
+    <div class="coords-box" style="display: flex; gap: 6px; align-items: center;">
+      <textarea 
         readonly 
+        rows="5"
         [value]="lastDevCoords" 
         (click)="selectInputText($event)" 
-        title="Haz clic para seleccionar y copiar" />
+        title="Haz clic para seleccionar y copiar"
+        style="width: 100%; background: #1e293b; color: #38bdf8; font-family: monospace; font-size: 0.8rem; border: 1px solid #334155; border-radius: 6px; padding: 4px; resize: none; outline: none;"></textarea>
+      
+      <button 
+        (click)="copyCoordsToClipboard()" 
+        style="background: #0284c7; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
+        📋 Copiar JSON
+      </button>
     </div>
   </div>
 
-  <!-- ÁREA DE JUEGO (ESCENA DE LA IMAGEN - PEGADA ARRIBA) -->
+  <!-- ÁREA DE JUEGO (ESCENA DE LA IMAGEN) -->
   <main class="stage-viewport" style="margin: 0 !important; padding: 0 !important; display: flex; justify-content: center; align-items: flex-start; width: 100%;">
-    <div class="image-wrapper" style="margin: 0 !important;" (click)="onImageMissClick($event)">
+    <div class="image-wrapper" style="margin: 0 !important; position: relative;" (click)="onImageMissClick($event)">
       <img [src]="currentLevel.imageUrl" [alt]="currentLevel.storyTitle" class="scene-image" />
 
-      <!-- ZONA DE CLIC / TARGET (NORMAL) -->
+      <!-- ZONA DE CLIC / TARGET (MODO JUGADOR) -->
       <div 
         *ngIf="!devMode"
         class="target-hotspot"
@@ -48,7 +70,7 @@
         (click)="onTargetClick($event)">
       </div>
 
-      <!-- VISOR DINÁMICO DEL MODO EDITOR -->
+      <!-- VISOR DINÁMICO (MODO DESARROLLADOR) -->
       <div 
         *ngIf="devMode"
         class="target-hotspot dev-visor"
@@ -56,8 +78,10 @@
         [style.left.%]="devLeft"
         [style.width.%]="devWidth"
         [style.height.%]="devHeight"
-        (click)="onTargetClick($event)">
-        <span class="visor-crosshair">+</span>
+        [style.transform]="'translate(-50%, -50%)'"
+        (click)="onTargetClick($event)"
+        style="border: 2px dashed #facc15; background: rgba(250, 204, 21, 0.3); position: absolute; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+        <span class="visor-crosshair" style="color: #ffffff; font-weight: 900; font-size: 1.2rem; text-shadow: 0 0 4px #000;">+</span>
       </div>
     </div>
   </main>

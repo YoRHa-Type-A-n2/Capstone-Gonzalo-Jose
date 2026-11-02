@@ -50,6 +50,7 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
   bookMinigameId: string = '';
   minigameId: string = '';
 
+  // --- MODO DESARROLLADOR ---
   devMode: boolean = false;
   lastDevCoords: string = '';
   devTop: number = 50;
@@ -264,16 +265,43 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.scrollToTopIfMobile();
   }
 
+  // --- MÉTODOS DEL MODO DESARROLLADOR ---
+
   toggleDevMode(): void {
     this.devMode = !this.devMode;
     if (this.devMode) {
+      this.stopTimer();
+      this.gameState = 'playing'; // Entramos directo a la pantalla de juego
+      // CORRECCIÓN: Al activar el modo dev, forzamos la carga de TODOS los elementos de busca_imagen desde la API[cite: 26, 27, 28]
+      this.loadGameData();
+    } else {
+      // Al salir del modo dev, restauramos el juego original de la sesión si existía[cite: 28]
+      if (this.gameData) {
+        this.processGameData([this.gameData]);
+      } else {
+        this.loadGameData();
+      }
+    }
+  }
+
+  devPrevLevel(): void {
+    if (this.currentLevelIndex > 0) {
+      this.currentLevelIndex--;
+      this.syncDevWithCurrentLevel();
+    }
+  }
+
+  devNextLevel(): void {
+    if (this.currentLevelIndex < this.levels.length - 1) {
+      this.currentLevelIndex++;
       this.syncDevWithCurrentLevel();
     }
   }
 
   adjustDevSize(delta: number): void {
-    this.devWidth = Math.max(4, Math.min(40, this.devWidth + delta));
-    this.devHeight = Math.max(4, Math.min(40, this.devHeight + delta));
+    this.devWidth = Math.max(2, Math.min(60, this.devWidth + delta));
+    this.devHeight = Math.max(2, Math.min(60, this.devHeight + delta));
+    this.saveCurrentLevelTargetArea();
     this.updateDevCoordsString();
   }
 
@@ -292,7 +320,19 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
     this.devLeft = Math.round((clickX / rect.width) * 100);
     this.devTop = Math.round((clickY / rect.height) * 100);
 
+    this.saveCurrentLevelTargetArea();
     this.updateDevCoordsString();
+  }
+
+  private saveCurrentLevelTargetArea(): void {
+    if (this.levels[this.currentLevelIndex]) {
+      this.levels[this.currentLevelIndex].targetArea = {
+        top: this.devTop,
+        left: this.devLeft,
+        width: this.devWidth,
+        height: this.devHeight
+      };
+    }
   }
 
   private syncDevWithCurrentLevel(): void {
@@ -305,7 +345,15 @@ export class BuscaImagenComponent implements OnInit, OnDestroy {
   }
 
   private updateDevCoordsString(): void {
-    this.lastDevCoords = `targetArea: { top: ${this.devTop}, left: ${this.devLeft}, width: ${this.devWidth}, height: ${this.devHeight} }`;
+    this.lastDevCoords = `"targetArea": {\n  "top": ${this.devTop},\n  "left": ${this.devLeft},\n  "width": ${this.devWidth},\n  "height": ${this.devHeight}\n}`;
+  }
+
+  copyCoordsToClipboard(): void {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.lastDevCoords).then(() => {
+        console.log('✅ Coordenadas copiadas al portapapeles.');
+      });
+    }
   }
 
   selectInputText(event: Event): void {

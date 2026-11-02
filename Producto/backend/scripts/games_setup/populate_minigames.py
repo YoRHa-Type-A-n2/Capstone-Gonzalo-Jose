@@ -19,7 +19,7 @@ minigames_dataset = {
         "rafaga_vf": [
             {
                 "passage_text": "Caperucita Roja caminaba por el bosque para llevarle una cesta con comida a su abuelita enferma. En el camino, se encontró con el lobo feroz, quien le sugirió tomar el camino más largo.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "Caperucita llevaba comida a su abuelita.", "isTrue": True },
                     { "text": "Caperucita se encontró con un oso en el bosque.", "isTrue": False },
@@ -28,7 +28,7 @@ minigames_dataset = {
             },
             {
                 "passage_text": "El lobo llegó primero a la casa de la abuela, se vistió con su ropa y se metió en la cama esperando a Caperucita.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El lobo llegó a la casa antes que Caperucita.", "isTrue": True },
                     { "text": "El lobo se escondió debajo de la mesa.", "isTrue": False },
@@ -80,7 +80,7 @@ minigames_dataset = {
         ],
         "encuentra_contradiccion": [
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 1,
@@ -96,7 +96,7 @@ minigames_dataset = {
                 ]
             },
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 2,
@@ -254,10 +254,10 @@ minigames_dataset = {
                 "targetObjectName": "Cesta con manzanas",
                 "imageUrl": "assets/images/busca-imagen/caperucita-cesta.jpg",
                 "targetArea": {
-                    "top": 62,
-                    "left": 81,
-                    "width": 14,
-                    "height": 14
+                    "top": 26,
+                    "left": 60,
+                    "width": 15,
+                    "height": 15
                 }
             },
             {
@@ -267,10 +267,10 @@ minigames_dataset = {
                 "targetObjectName": "Gorro del lobo",
                 "imageUrl": "assets/images/busca-imagen/caperucita-dormitorio.jpg",
                 "targetArea": {
-                    "top": 25,
-                    "left": 40,
-                    "width": 18,
-                    "height": 18
+                    "top": 29,
+                    "left": 72,
+                    "width": 26,
+                    "height": 26
                 }
             }
         ],
@@ -301,7 +301,7 @@ minigames_dataset = {
         "rafaga_vf": [
             {
                 "passage_text": "El primer cerdito construyó su casa de paja rápidamente para irse a jugar, mientras que el hermano mayor trabajó duro en su casa de ladrillos.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El primer cerdito hizo su casa de madera.", "isTrue": False },
                     { "text": "El hermano mayor usó ladrillos.", "isTrue": True },
@@ -310,7 +310,7 @@ minigames_dataset = {
             },
             {
                 "passage_text": "El lobo sopló y sopló hasta derrumbar las casas de paja y madera, pero la casa de ladrillo resistió sin moverse.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El lobo derribó la casa de ladrillo.", "isTrue": False },
                     { "text": "La casa de madera se cayó con el soplido.", "isTrue": True },
@@ -362,7 +362,7 @@ minigames_dataset = {
         ],
         "encuentra_contradiccion": [
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 1,
@@ -378,7 +378,7 @@ minigames_dataset = {
                 ]
             },
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 2,
@@ -536,10 +536,10 @@ minigames_dataset = {
                 "targetObjectName": "Chimenea de ladrillos",
                 "imageUrl": "assets/images/busca-imagen/casa-ladrillos.jpg",
                 "targetArea": {
-                    "top": 15,
-                    "left": 70,
-                    "width": 20,
-                    "height": 20
+                    "top": 27,
+                    "left": 45,
+                    "width": 30,
+                    "height": 30
                 }
             },
             {
@@ -549,10 +549,10 @@ minigames_dataset = {
                 "targetObjectName": "Cuchara de albañil",
                 "imageUrl": "assets/images/busca-imagen/patio-construccion.jpg",
                 "targetArea": {
-                    "top": 75,
-                    "left": 12,
-                    "width": 15,
-                    "height": 15
+                    "top": 76,
+                    "left": 69,
+                    "width": 25,
+                    "height": 25
                 }
             }
         ],
@@ -583,7 +583,7 @@ minigames_dataset = {
         "rafaga_vf": [
             {
                 "passage_text": "Un joven molinero heredó solo un gato, pero el animal le prometió que si le daba un par de botas y un saco, lo haría muy rico.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El joven heredó un gran castillo.", "isTrue": False },
                     { "text": "El gato pidió unas botas y un saco.", "isTrue": True },
@@ -592,7 +592,7 @@ minigames_dataset = {
             },
             {
                 "passage_text": "El gato engañó al malvado ogro pidiéndole que se convirtiera en un pequeño ratón, momento en el cual se lo comió para quedarse con su castillo.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El ogro se convirtió en un gran león primero.", "isTrue": True },
                     { "text": "El gato se hizo amigo del ogro.", "isTrue": False },
@@ -644,7 +644,7 @@ minigames_dataset = {
         ],
         "encuentra_contradiccion": [
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 1,
@@ -660,7 +660,7 @@ minigames_dataset = {
                 ]
             },
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 2,
@@ -818,10 +818,10 @@ minigames_dataset = {
                 "targetObjectName": "Botas del gato",
                 "imageUrl": "assets/images/busca-imagen/gato-trono.jpg",
                 "targetArea": {
-                    "top": 70,
-                    "left": 45,
-                    "width": 16,
-                    "height": 16
+                    "top": 83,
+                    "left": 69,
+                    "width": 30,
+                    "height": 30
                 }
             },
             {
@@ -831,10 +831,10 @@ minigames_dataset = {
                 "targetObjectName": "Sombrero con pluma",
                 "imageUrl": "assets/images/busca-imagen/castillo-ventanal.jpg",
                 "targetArea": {
-                    "top": 30,
-                    "left": 15,
-                    "width": 12,
-                    "height": 12
+                    "top": 40,
+                    "left": 55,
+                    "width": 22,
+                    "height": 22
                 }
             }
         ],
@@ -865,7 +865,7 @@ minigames_dataset = {
         "rafaga_vf": [
             {
                 "passage_text": "Hansel lanzó migas de pan al suelo para recordar el camino de regreso a casa, pero los pájaros del bosque se las comieron todas.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "Hansel usó piedras blancas la primera vez.", "isTrue": True },
                     { "text": "Los pájaros se comieron las migas de pan.", "isTrue": True },
@@ -874,7 +874,7 @@ minigames_dataset = {
             },
             {
                 "passage_text": "En medio del bosque encontraron una casita hecha de caramelos y chocolates. La anciana que vivía allí era en realidad una bruja malvada.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "La casa estaba hecha de madera vieja.", "isTrue": False },
                     { "text": "Una amable abuelita vivía en la casa.", "isTrue": False },
@@ -926,7 +926,7 @@ minigames_dataset = {
         ],
         "encuentra_contradiccion": [
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 1,
@@ -942,7 +942,7 @@ minigames_dataset = {
                 ]
             },
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 2,
@@ -1100,10 +1100,10 @@ minigames_dataset = {
                 "targetObjectName": "Pájaro blanco",
                 "imageUrl": "assets/images/busca-imagen/bosque-migas.jpg",
                 "targetArea": {
-                    "top": 50,
-                    "left": 30,
-                    "width": 15,
-                    "height": 15
+                    "top": 61,
+                    "left": 63,
+                    "width": 25,
+                    "height": 25
                 }
             },
             {
@@ -1113,10 +1113,10 @@ minigames_dataset = {
                 "targetObjectName": "Llave de la jaula",
                 "imageUrl": "assets/images/busca-imagen/cocina-bruja.jpg",
                 "targetArea": {
-                    "top": 20,
-                    "left": 80,
-                    "width": 10,
-                    "height": 10
+                    "top": 54,
+                    "left": 66,
+                    "width": 29,
+                    "height": 29
                 }
             }
         ],
@@ -1147,7 +1147,7 @@ minigames_dataset = {
         "rafaga_vf": [
             {
                 "passage_text": "Un pequeño pajarito nació en un nido de patos. Era más grande y de color diferente a sus hermanos, por lo que todos en la granja se burlaban de él.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El patito era idéntico a sus hermanos.", "isTrue": False },
                     { "text": "Los animales de la granja eran amables con él.", "isTrue": False },
@@ -1156,7 +1156,7 @@ minigames_dataset = {
             },
             {
                 "passage_text": "Pasó el frío invierno y al llegar la primavera, el patito se miró en el reflejo del agua y descubrió que se había transformado en un hermoso cisne blanco.",
-                "time_per_statement": 3,
+                "time_per_statement": 7,
                 "statements": [
                     { "text": "El patito se convirtió en un gran ganso.", "isTrue": False },
                     { "text": "Se dio cuenta de su cambio al verse en el agua.", "isTrue": True },
@@ -1208,7 +1208,7 @@ minigames_dataset = {
         ],
         "encuentra_contradiccion": [
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 1,
@@ -1224,7 +1224,7 @@ minigames_dataset = {
                 ]
             },
             {
-                "timeLimit": 6,
+                "timeLimit": 7,
                 "challenges": [
                     {
                         "id": 2,
@@ -1382,8 +1382,8 @@ minigames_dataset = {
                 "targetObjectName": "Huevo grande",
                 "imageUrl": "assets/images/busca-imagen/corral-huevos.jpg",
                 "targetArea": {
-                    "top": 60,
-                    "left": 25,
+                    "top": 70,
+                    "left": 39,
                     "width": 18,
                     "height": 18
                 }
@@ -1395,10 +1395,10 @@ minigames_dataset = {
                 "targetObjectName": "Reflejo del cisne",
                 "imageUrl": "assets/images/busca-imagen/estanque-reflejo.jpg",
                 "targetArea": {
-                    "top": 45,
-                    "left": 50,
-                    "width": 22,
-                    "height": 22
+                    "top": 59,
+                    "left": 47,
+                    "width": 32,
+                    "height": 32
                 }
             }
         ],
@@ -1428,7 +1428,12 @@ minigames_dataset = {
 }
 
 def run():
-    print("=== POBLANDO MINIJUEGOS EN LA BASE DE DATOS ===")
+    print("=== LIMPIANDO Y POBLANDO MINIJUEGOS EN LA BASE DE DATOS ===")
+    
+    # 1. Borramos todos los registros anteriores para evitar duplicados y forzar la actualización de coordenadas/tiempos
+    deleted_count, _ = BookMinigame.objects.all().delete()
+    print(f"🗑️ Se eliminaron {deleted_count} registros antiguos de minijuegos.")
+
     created_count = 0
 
     for book_title, game_types in minigames_dataset.items():
@@ -1452,18 +1457,16 @@ def run():
             )
 
             for idx, sample_data in enumerate(samples, start=1):
-                game, created = BookMinigame.objects.get_or_create(
+                # 2. Como ya limpiamos la tabla, creamos directamente el registro actualizado
+                BookMinigame.objects.create(
                     book=book,
                     minigame=minigame,
                     config_data=sample_data,
-                    defaults={
-                        "title": f"Desafío {minigame.name} #{idx}"
-                    }
+                    title=f"Desafío {minigame.name} #{idx}"
                 )
-                if created:
-                    created_count += 1
+                created_count += 1
 
-    print(f"\n✓ Proceso finalizado. Se crearon {created_count} nuevos registros.")
+    print(f"\n✓ Proceso finalizado con éxito. Se insertaron {created_count} registros actualizados.")
 
 if __name__ == "__main__":
     run()
