@@ -18,8 +18,13 @@ class AvailableBooksWithMinigamesView(APIView):
     - synopsis
     """
     def get(self, request):
+        # Filtrar exclusivamente los libros con minijuegos registrados en BookMinigame
+        direct_book_ids = BookMinigame.objects.filter(book__isnull=False).values_list('book_id', flat=True)
+        chapter_book_ids = BookMinigame.objects.filter(chapter__isnull=False).values_list('chapter__book_id', flat=True)
+        valid_book_ids = set(direct_book_ids).union(set(chapter_book_ids))
+
         books = Book.objects.filter(
-            Q(minigames__isnull=False) | Q(chapters__minigames__isnull=False)
+            id__in=valid_book_ids
         ).prefetch_related('book_authors__author').distinct().order_by('title')
 
         data = []
@@ -27,7 +32,7 @@ class AvailableBooksWithMinigamesView(APIView):
             book_authors = list(book.book_authors.all())
             author_name = "Autor Desconocido"
             if book_authors:
-                main_author = next((ba for ba in book_authors if ba.role == 'author'), None) or book_authors[0]
+                main_author = next((ba for ba in book_authors if ba.role in ['primary', 'author']), None) or book_authors[0]
                 author_name = main_author.author.full_name
 
             cover_image_url = None

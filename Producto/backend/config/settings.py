@@ -267,4 +267,12 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='resend')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
 
+# ---------------------------------------------------------------------------
+# Brevo API v3 (Emails Transaccionales)
+# ---------------------------------------------------------------------------
+
+BREVO_API_KEY = env('BREVO_API_KEY', default='')
+BREVO_SENDER_EMAIL = env('BREVO_SENDER_EMAIL', default='no-reply@literatusnovelist.com')
+BREVO_SENDER_NAME = env('BREVO_SENDER_NAME', default='Literatus Novelist Infantil')
+
 # Auto-reload trigger

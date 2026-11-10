@@ -72,58 +72,10 @@ def send_mail_via_resend_api(subject, message, from_email, recipient_list, html_
 
 def send_verification_email(user):
     """
-    Envía el correo de verificación de cuenta al usuario asegurando un UUID en texto plano.
+    Envía el correo de verificación de cuenta al usuario usando Brevo API v3.
     """
-    uid = str(user.pk).strip()
-    token = email_verification_token.make_token(user)
-    
-    frontend_url = settings.FRONTEND_URL
-    verify_url = f"{frontend_url}/verify-email?uid={uid}&token={token}"
-    
-    # Imprimir enlace limpio en la terminal de Django para fácil copia en desarrollo
-    print("\n" + "="*90)
-    print(f"🔗 ENLACE DE VERIFICACIÓN LIMPIO PARA {user.email}:")
-    print(verify_url)
-    print("="*90 + "\n")
-    
-    subject = "Verifica tu cuenta en Literatus Novelist"
-    
-    html_message = f"""
-    <html>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f1f5f9; padding: 40px 0; color: #1e293b;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="padding: 40px; text-align: center; border-bottom: 1px solid #e2e8f0;">
-                <h1 style="margin: 0; font-size: 24px; color: #0f172a; font-family: Georgia, serif;">Literatus Novelist</h1>
-            </div>
-            <div style="padding: 40px;">
-                <h2 style="margin-top: 0; font-size: 20px;">¡Bienvenido/a, {user.username}!</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569;">
-                    Gracias por unirte a Literatus Novelist. Estás a un solo paso de poder conversar con los personajes literarios más grandes de la historia.
-                </p>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569;">
-                    Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente botón:
-                </p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{verify_url}" style="background-color: #0f172a; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Verificar mi cuenta</a>
-                </div>
-                <p style="font-size: 14px; color: #94a3b8; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                    Si no creaste esta cuenta, puedes ignorar este correo sin problemas.
-                </p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    plain_message = f"Bienvenido a Literatus Novelist.\nPara verificar tu cuenta, copia y pega el siguiente enlace en tu navegador:\n{verify_url}"
-    
-    send_mail_via_resend_api(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=html_message
-    )
+    from .brevo_service import send_registration_email
+    return send_registration_email(user)
 
 def send_password_reset_email(user):
     """

@@ -41,7 +41,7 @@ import { MinigameSessionComponent } from './components/games/minigame-session/mi
 import { WelcomeComponent } from './components/welcome/welcome.component';
 
 const routes: Routes = [
-  { path: 'literatus-games', component: WelcomeComponent },
+  { path: 'literatus-games', component: WelcomeComponent, canActivate: [authGuard] },
   { path: 'home', component: HomeComponent },
 
   { path: 'tavern', component: TavernComponent },
@@ -71,20 +71,20 @@ const routes: Routes = [
   { path: 'categories', component: CategoriesComponent },
   { path: 'categories/:slug', component: CategoryDetailComponent },
   { path: '', component: HomeComponent, pathMatch: 'full' },
-  
+
 
   //minigames
-  { path: 'games/rafaga-vf', component: RafagaVfComponent },
-  { path: 'games/emoticono-dialogo', component: EmoticonoDialogoComponent },
-  { path: 'games/imagen-pixelada', component: ImagenPixeladaComponent},
-  { path: 'games/encuentra-contradiccion', component: EncuentraContradiccionComponent},
-  { path: 'games/reconstruccion-manuscrito', component: ReconstruccionManuscritoComponent},
-  { path: 'games/completa-dialogo', component: CompletaDialogoComponent},
-  { path: 'games/testigo-ocular', component: TestigoOcularComponent},
-  { path: 'games/cazador-intrusos', component: CazadorIntrusosComponent},
-  { path: 'games/busca-imagen', component: BuscaImagenComponent},
-  { path: 'games/comics-desordenados', component: ComicsDesordenadosComponent},
-  { path: 'games/session/:bookId', component: MinigameSessionComponent },
+  { path: 'games/rafaga-vf', component: RafagaVfComponent, canActivate: [authGuard] },
+  { path: 'games/emoticono-dialogo', component: EmoticonoDialogoComponent, canActivate: [authGuard] },
+  { path: 'games/imagen-pixelada', component: ImagenPixeladaComponent, canActivate: [authGuard] },
+  { path: 'games/encuentra-contradiccion', component: EncuentraContradiccionComponent, canActivate: [authGuard] },
+  { path: 'games/reconstruccion-manuscrito', component: ReconstruccionManuscritoComponent, canActivate: [authGuard] },
+  { path: 'games/completa-dialogo', component: CompletaDialogoComponent, canActivate: [authGuard] },
+  { path: 'games/testigo-ocular', component: TestigoOcularComponent, canActivate: [authGuard] },
+  { path: 'games/cazador-intrusos', component: CazadorIntrusosComponent, canActivate: [authGuard] },
+  { path: 'games/busca-imagen', component: BuscaImagenComponent, canActivate: [authGuard] },
+  { path: 'games/comics-desordenados', component: ComicsDesordenadosComponent, canActivate: [authGuard] },
+  { path: 'games/session/:bookId', component: MinigameSessionComponent, canActivate: [authGuard] },
 
   { path: '**', redirectTo: '' },
 ];

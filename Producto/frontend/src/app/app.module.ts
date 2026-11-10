@@ -10,7 +10,7 @@ import { BookListComponent } from './catalog/book-list/book-list.component';
 import { ReaderComponent } from './library/reader/reader.component';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -71,7 +71,6 @@ import { AlternateStoryLayerComponent } from './components/alternate-story/alter
     VerifyEmailComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
-    ReaderComponent,
   ],
   imports: [
     AlternateStoryLayerComponent,
@@ -82,19 +81,17 @@ import { AlternateStoryLayerComponent } from './components/alternate-story/alter
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule,
     MatMenuModule,
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
     MatDialogModule,
     MatSnackBarModule,
-    LucideSparkles, LucideFlame, LucideStar, LucideShoppingCart, LucideBookOpen, LucidePenTool, LucideLock, LucideLandmark, LucideShieldCheck, LucideCreditCard, LucideUser, LucideUsers, LucideLogOut, LucideBarChart2, LucideHome, LucideCheck, LucideX, LucideFileText, LucidePlus, LucidePlay, LucidePause, LucideSquare, LucideInfo, LucideSearch, LucideBookmark, LucideHelpCircle, LucideMessageSquare, LucidePackage, LucideCrown, LucideCheckCircle, LucideLibrary, LucideXCircle, LucideRefreshCcw, LucideMessageCircle, LucideClock, LucideVolume2, LucideEye, LucideEyeOff, LucideDownload, LucideLogIn, LucideVolumeX, ServiceWorkerModule.register('ngsw-worker.js', {
-  enabled: !isDevMode(),
-  // Register the ServiceWorker as soon as the application is stable
-  // or after 30 seconds (whichever comes first).
-  registrationStrategy: 'registerWhenStable:30000'
-})
+    LucideSparkles, LucideFlame, LucideStar, LucideShoppingCart, LucideBookOpen, LucidePenTool, LucideLock, LucideLandmark, LucideShieldCheck, LucideCreditCard, LucideUser, LucideUsers, LucideLogOut, LucideBarChart2, LucideHome, LucideCheck, LucideX, LucideFileText, LucidePlus, LucidePlay, LucidePause, LucideSquare, LucideInfo, LucideSearch, LucideBookmark, LucideHelpCircle, LucideMessageSquare, LucidePackage, LucideCrown, LucideCheckCircle, LucideLibrary, LucideXCircle, LucideRefreshCcw, LucideMessageCircle, LucideClock, LucideVolume2, LucideEye, LucideEyeOff, LucideDownload, LucideLogIn, LucideVolumeX,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor]))

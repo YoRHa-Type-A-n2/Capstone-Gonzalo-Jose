@@ -8,6 +8,7 @@ import shutil
 from decimal import Decimal
 from bs4 import BeautifulSoup
 from django.core.files import File
+from django.conf import settings
 
 # Configurar entorno Django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -19,7 +20,7 @@ from ebooklib import epub
 
 def slugify_fallback(text):
     text = str(text).lower()
-    text = re.sub(r'[^a-z0-9]+', '-', text)
+    text = re.sub(r'[^a-z0-9]+', '-', text) 
     return text.strip('-')[:100]
 
 def clean_content(html_soup, book_slug):
@@ -105,7 +106,7 @@ def get_metadata_from_opf(epub_path):
         return None, None
 
 def main():
-    root_dir = Path("media/books")
+    root_dir = Path(settings.BASE_DIR) / "media" / "books"
     if not root_dir.exists():
         print(f"La ruta {root_dir} no existe.")
         return
