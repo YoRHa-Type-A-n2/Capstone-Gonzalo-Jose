@@ -50,17 +50,27 @@ export class AppComponent implements OnInit {
   // Animación Tinta
   shakeState = 'default';
   inkBalance$ = this.chatService.inkBalance$;
+  isBackpackVisible = false;
 
   constructor() {
     this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe((e: any) => {
-        const url = e.urlAfterRedirects as string;
-        this.isDashboard = url.startsWith('/dashboard') || url.startsWith('/reader');
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e: NavigationEnd) => {
+        const url = e.urlAfterRedirects || e.url;
+        this.updateNavigationState(url);
       });
   }
 
+  private updateNavigationState(url: string) {
+    this.isDashboard = url.startsWith('/dashboard') || url.startsWith('/reader');
+    // El botón Mochila SOLO aparece cuando el usuario está en la vista de Literatus Games o minijuegos
+    this.isBackpackVisible = url.includes('/literatus-games') || url.includes('/games');
+  }
+
   ngOnInit() {
+    // Sincronizar estado inicial de navegación
+    this.updateNavigationState(this.router.url);
+
     // Cargar la configuración global (Tema) apenas inicie
     this.settingsService.loadSettings().subscribe();
 
@@ -150,13 +160,17 @@ export class AppComponent implements OnInit {
   private dialog = inject(MatDialog);
 
   openBackpack() {
-  this.dialog.open(MochilaComponent, {
-    width: '750px',
-    maxWidth: '95vw',
-    maxHeight: '90vh',
-    panelClass: 'mochila-modal-wrapper'
-  });
-}
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.dialog.open(MochilaComponent, {
+      width: '750px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'mochila-modal-wrapper'
+    });
+  }
   triggerShake() {
     this.shakeState = 'trigger';
     setTimeout(() => {

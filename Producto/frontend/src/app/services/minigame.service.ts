@@ -11,6 +11,8 @@ export interface BookWithMinigames {
   author_name: string;
   cover_image: string;
   synopsis?: string;
+  slug?: string;
+  is_owned?: boolean;
 }
 
 @Injectable({
@@ -19,7 +21,7 @@ export interface BookWithMinigames {
 export class MinigameService {
   private apiUrl = environment.apiUrl ? `${environment.apiUrl.replace(/\/$/, '')}/games` : 'http://localhost:8000/api/v1/games';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtiene la lista de libros disponibles que contienen minijuegos asociados.
@@ -81,7 +83,7 @@ export class MinigameService {
   getMinigameByCode(bookId: string, gameCode: string): Observable<any> {
     const url = `${this.apiUrl}/books/${bookId}/minigames/${gameCode}/`;
     console.log(`🔍 [MinigameService DIAGNÓSTICO] Solicitando minijuego individual: ${url}`);
-    
+
     return this.http.get<any>(url).pipe(
       tap(res => console.log(`✅ [MinigameService DIAGNÓSTICO] Datos del juego ${gameCode}:`, res)),
       catchError(err => {

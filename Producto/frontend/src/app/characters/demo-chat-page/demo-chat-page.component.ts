@@ -4,7 +4,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { KokoroTtsService } from '../../core/services/kokoro-tts.service';
 import { SpeechRecognitionService } from '../../core/services/speech-recognition.service';
 
 export interface DemoMessage {
@@ -23,7 +22,6 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   public auth = inject(AuthService);
   private destroy$ = new Subject<void>();
-  public kokoroVoice = inject(KokoroTtsService);
   public speechService = inject(SpeechRecognitionService);
 
   isCallMode = false;
@@ -152,7 +150,7 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
       this.speechService.startListening();
     } else {
       this.speechService.stopListening();
-      this.kokoroVoice.stop();
+      window.speechSynthesis.cancel();
       setTimeout(() => this.scrollToBottom(), 100);
     }
   }
@@ -160,7 +158,7 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) {
-      this.kokoroVoice.stop();
+      window.speechSynthesis.cancel();
     }
   }
 
@@ -188,25 +186,26 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
     return base + 'calm.webp';
   }
 
-  private speakChatReply(text: string) {
-    const charName = this.avatar?.name || 'Unknown';
-    const nameLower = charName.toLowerCase();
-    
-    let voiceId = 'ef_dora';
-    if (nameLower.includes('alcalde') || nameLower.includes('rey') || nameLower.includes('padre') || nameLower.includes('señor')) {
-      voiceId = 'em_santa';
-    } else if (nameLower.includes('príncipe') || nameLower.includes('principe') || nameLower.includes('autor') || nameLower.includes('joven') || nameLower.includes('niño')) {
-      voiceId = 'em_alex';
-    }
+  private speakChatReply(text: string): void {
+    window.speechSynthesis.cancel();
 
-    this.kokoroVoice.speak(text, this.avatarId || 1, 0, voiceId);
-    
-    this.kokoroVoice.isSpeaking$.pipe(takeUntil(this.destroy$)).subscribe(speaking => {
-      this.isVideoSpeaking = speaking;
-      if (speaking) {
-        this.activeTalkingFrame = Math.floor(Math.random() * 3) + 1;
-      }
-    });
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-ES';
+
+    utterance.onstart = () => {
+      this.isVideoSpeaking = true;
+      this.activeTalkingFrame = Math.floor(Math.random() * 3) + 1;
+    };
+
+    utterance.onend = () => {
+      this.isVideoSpeaking = false;
+    };
+
+    utterance.onerror = () => {
+      this.isVideoSpeaking = false;
+    };
+
+    window.speechSynthesis.speak(utterance);
   }
 
   handleAvatarError(event: Event, avatar: any): void {
@@ -226,7 +225,7 @@ export class DemoChatPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.speechService.stopListening();
-    this.kokoroVoice.stop();
+    window.speechSynthesis.cancel();
     this.destroy$.next();
     this.destroy$.complete();
   }

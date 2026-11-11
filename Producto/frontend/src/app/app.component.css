@@ -570,6 +570,12 @@
   }
 }
 
+@media (min-width: 861px) {
+  .mobile-games-link {
+    display: none !important;
+  }
+}
+
 @media (max-width: 860px) {
   .menu-icon {
     display: flex;

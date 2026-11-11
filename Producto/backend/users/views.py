@@ -1,6 +1,7 @@
 """
 users/views.py — Vistas para Autenticación (SimpleJWT), Registro y Gestión de Perfil.
 """
+import logging
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,6 +9,9 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Profile
 from .serializers import MyTokenObtainPairSerializer, UserWriteSerializer, UserReadSerializer, ProfileSerializer
+from .brevo_service import send_registration_email
+
+logger = logging.getLogger(__name__)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -20,10 +24,25 @@ class RegisterUserView(generics.CreateAPIView):
     Endpoint POST para registrar usuarios públicos.
     No requiere autenticación. Responde con 201 Created.
     Devuelve los datos vía UserWriteSerializer (limpiando password).
+    Envía el correo de confirmación de registro a través de la API v3 de Brevo.
     """
     queryset = User.objects.all()
     serializer_class = UserWriteSerializer
     permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        # Envío del correo transaccional de confirmación mediante Brevo API v3
+        try:
+            logger.info(f"📧 [RegisterUserView] Enviando correo de confirmación de registro a: {user.email}")
+            send_registration_email(user)
+            logger.info(f"✅ [RegisterUserView] Correo de registro enviado correctamente a: {user.email}")
+        except Exception as exc:
+            # Captura de error con log descriptivo para no interrumpir el registro del usuario en DB
+            logger.error(
+                f"❌ [RegisterUserView] Error al enviar correo de confirmación vía Brevo a {user.email}: {exc}",
+                exc_info=True
+            )
 
 
 class UserMeView(generics.RetrieveUpdateAPIView):

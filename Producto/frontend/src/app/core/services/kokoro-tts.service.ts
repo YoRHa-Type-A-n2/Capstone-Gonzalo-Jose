@@ -17,7 +17,7 @@ export class KokoroTtsService {
   isProcessing$ = new BehaviorSubject<boolean>(false); // Indica si está generando (remoto o local)
   isDownloadingModel$ = new BehaviorSubject<boolean>(false); // Indica si está descargando modelo ONNX
   downloadProgress$ = new BehaviorSubject<number>(0); // 0 a 100
-  
+
   engineMode$ = new BehaviorSubject<'remote' | 'local'>('remote');
   isMuted$ = new BehaviorSubject<boolean>(false); // Global Mute
 
@@ -59,17 +59,18 @@ export class KokoroTtsService {
   // Estado de reproducción para Pause/Resume y Karaoke
   private currentBuffer: AudioBuffer | null = null;
   private currentSentence: KokoroSentence | null = null;
-  private playbackStartTime: number = 0; 
+  private playbackStartTime: number = 0;
   private playbackOffset: number = 0; // Tiempo pausado acumulado
   private karaokeInterval: any = null;
-  
+
   private currentSpeakId = 0;
   private overrideVoiceId: string | null = null;
 
   // Instancia Local de KokoroTTS (cargada dinámicamente)
   private ttsInstance: any = null;
   private audioCache = inject(AudioCacheService);
-  
+  private currentFullTextToSpeak = '';
+
   constructor() {
     const savedMode = localStorage.getItem('kokoro-engine-mode') as 'remote' | 'local';
     if (savedMode === 'local') {
@@ -112,27 +113,27 @@ export class KokoroTtsService {
     try {
       // Import dinámico para no bloat el app si usan 'remote'
       const { KokoroTTS } = await import('kokoro-js');
-      
+
       // Detectar si el navegador soporta WebGPU para aceleración gráfica
       const deviceType = (navigator as any).gpu ? 'webgpu' : 'wasm';
-      
+
       this.ttsInstance = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
         dtype: 'q8',
         device: deviceType,
         progress_callback: (info: any) => {
           if (info.status === 'progress' && info.total) {
-             const percent = Math.round((info.loaded / info.total) * 100);
-             this.downloadProgress$.next(percent);
+            const percent = Math.round((info.loaded / info.total) * 100);
+            this.downloadProgress$.next(percent);
           } else if (info.status === 'done') {
-             this.downloadProgress$.next(100);
+            this.downloadProgress$.next(100);
           }
         }
       });
-      
+
       this.engineMode$.next('local');
       localStorage.setItem('kokoro-engine-mode', 'local');
       this.selectedVoiceId = 'af_bella'; // Auto-switch a una voz local válida
-      
+
     } catch (err) {
       console.error("[KokoroTTS] Error descargando modelo local:", err);
       this.error$.next("Error al instalar motor local. Volviendo a modo remoto.");
@@ -153,7 +154,7 @@ export class KokoroTtsService {
 
     this.currentSpeakId++;
     const mySpeakId = this.currentSpeakId;
-    
+
     // Detenemos cualquier audio anterior y limpiamos la cola inmediatamente
     this.stop();
     this.overrideVoiceId = voiceId || null;
@@ -169,12 +170,14 @@ export class KokoroTtsService {
 
     if (sentences.length === 0) return;
 
+    this.currentFullTextToSpeak = sentences.map(s => s.text).join(' ').replace(/[*_\[\]]/g, '');
+
     this.isProcessing$.next(true);
 
     const firstBuffer = await this.fetchAudioBuffer(sentences[0]);
     if (this.isStopped || this.currentSpeakId !== mySpeakId) {
-       this.isProcessing$.next(false);
-       return;
+      this.isProcessing$.next(false);
+      return;
     }
 
     this.isProcessing$.next(false);
@@ -195,8 +198,13 @@ export class KokoroTtsService {
     this.audioQueue = [];
     this.fetchPromises = [];
     this.avatarId = null;
+    this.currentFullTextToSpeak = '';
 
     this.stopCurrentAudio();
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
 
     this.isSpeaking$.next(false);
     this.isProcessing$.next(false);
@@ -205,36 +213,50 @@ export class KokoroTtsService {
   }
 
   pause(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      this.isSpeaking$.next(false);
+      this.isPaused = true;
+      return;
+    }
+
     if (!this.isPlayingQueue || this.isPaused || !this.currentSource || !this.audioCtx) return;
-    
+
     this.isPaused = true;
     this.isSpeaking$.next(false);
-    
+
     this.playbackOffset += this.audioCtx.currentTime - this.playbackStartTime;
-    
-    try { this.currentSource.stop(); } catch (_) {}
+
+    try { this.currentSource.stop(); } catch (_) { }
     this.currentSource.onended = null;
     this.currentSource = null;
-    
+
     this.stopKaraokeLoop();
   }
 
   resume(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+      this.isSpeaking$.next(true);
+      this.isPaused = false;
+      return;
+    }
+
     if (!this.isPlayingQueue || !this.isPaused || !this.currentBuffer || !this.audioCtx) return;
-    
+
     this.isPaused = false;
     this.isSpeaking$.next(true);
-    
+
     if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().catch(() => {});
+      this.audioCtx.resume().catch(() => { });
     }
 
     this.playbackStartTime = this.audioCtx.currentTime;
-    
+
     this.currentSource = this.audioCtx.createBufferSource();
     this.currentSource.buffer = this.currentBuffer;
     this.currentSource.connect(this.audioCtx.destination);
-    
+
     this.currentSource.onended = () => {
       if (!this.isStopped && !this.isPaused) {
         this.playNextInQueue();
@@ -253,7 +275,7 @@ export class KokoroTtsService {
 
   private stopCurrentAudio() {
     if (this.currentSource) {
-      try { this.currentSource.stop(); } catch (_) {}
+      try { this.currentSource.stop(); } catch (_) { }
       this.currentSource.onended = null;
       this.currentSource = null;
     }
@@ -263,7 +285,7 @@ export class KokoroTtsService {
   }
 
   private async prefetchPipeline(sentences: KokoroSentence[], speakId: number): Promise<void> {
-    const BATCH_SIZE = 1; 
+    const BATCH_SIZE = 1;
     for (let i = 0; i < sentences.length; i += BATCH_SIZE) {
       if (this.isStopped || this.currentSpeakId !== speakId) return;
 
@@ -303,11 +325,11 @@ export class KokoroTtsService {
       this.isSpeaking$.next(true);
     }
     const item = this.audioQueue.shift()!;
-    
+
     this.currentBuffer = item.buffer;
     this.currentSentence = item.sentence;
     this.playbackOffset = 0;
-    
+
     this.currentSentenceIdx$.next(item.sentence.sentenceIdx);
     this.currentWordIndex$.next(item.sentence.baseWordIdx);
 
@@ -315,7 +337,7 @@ export class KokoroTtsService {
       this.audioCtx = new AudioContext();
     }
     if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().catch(() => {});
+      this.audioCtx.resume().catch(() => { });
     }
 
     this.playbackStartTime = this.audioCtx.currentTime;
@@ -337,34 +359,34 @@ export class KokoroTtsService {
 
   private startKaraokeLoop() {
     this.stopKaraokeLoop();
-    
+
     this.karaokeInterval = setInterval(() => {
       if (this.isStopped || this.isPaused || !this.currentSentence || !this.currentBuffer || !this.audioCtx) return;
-      
+
       const elapsedTime = (this.audioCtx.currentTime - this.playbackStartTime) + this.playbackOffset;
       const totalTime = this.currentBuffer.duration;
-      
+
       let progress = Math.min(1, elapsedTime / totalTime);
-      
+
       const words = this.currentSentence.text.split(/\s+/).filter(w => w.length > 0);
       const totalChars = words.reduce((sum, w) => sum + w.length, 0);
-      
+
       let accumulatedChars = 0;
       let targetWordLocalIdx = 0;
-      
+
       for (let i = 0; i < words.length; i++) {
-         const wordCharWeight = words[i].length / totalChars;
-         const wordEndProgress = accumulatedChars / totalChars + wordCharWeight;
-         
-         if (progress <= wordEndProgress || i === words.length - 1) {
-             targetWordLocalIdx = i;
-             break;
-         }
-         accumulatedChars += words[i].length;
+        const wordCharWeight = words[i].length / totalChars;
+        const wordEndProgress = accumulatedChars / totalChars + wordCharWeight;
+
+        if (progress <= wordEndProgress || i === words.length - 1) {
+          targetWordLocalIdx = i;
+          break;
+        }
+        accumulatedChars += words[i].length;
       }
 
       this.currentWordIndex$.next(this.currentSentence.baseWordIdx + targetWordLocalIdx);
-      
+
     }, 50);
   }
 
@@ -384,13 +406,14 @@ export class KokoroTtsService {
     const useLocal = this.engineMode$.value === 'local' && this.ttsInstance;
     const hfApiUrl = 'https://josuejheymi-kokoro-api.hf.space/v1/audio/speech';
 
+    const textToSpeak = sentence.text.replace(/[*_\[\]]/g, '');
+
     for (let attempt = 1; attempt <= retries; attempt++) {
       if (this.isStopped) return null;
-      
+
       try {
-        const textToSpeak = sentence.text.replace(/[*_\[\]]/g, '');
         const voiceId = (this.overrideVoiceId || this.selectedVoiceId);
-        
+
         let audioBuffer: AudioBuffer;
 
         if (!this.audioCtx || this.audioCtx.state === 'closed') {
@@ -400,60 +423,91 @@ export class KokoroTtsService {
         // 1. Revisar Caché (IndexedDB)
         const cachedArrayBuffer = await this.audioCache.getAudio(voiceId, textToSpeak);
         if (cachedArrayBuffer) {
-           audioBuffer = await this.audioCtx.decodeAudioData(cachedArrayBuffer);
-           return { buffer: audioBuffer, sentence };
+          audioBuffer = await this.audioCtx.decodeAudioData(cachedArrayBuffer);
+          return { buffer: audioBuffer, sentence };
         }
 
         // 2. Si no hay caché, generarlo (Local o Remoto)
         if (useLocal) {
-           // MODO LOCAL ONNX
-           const rawAudio = await this.ttsInstance.generate(textToSpeak, {
-             voice: voiceId,
-             speed: 1.0
-           });
-           if (this.isStopped) return null;
-           
-           audioBuffer = this.audioCtx.createBuffer(1, rawAudio.audio.length, rawAudio.sampling_rate);
-           audioBuffer.copyToChannel(rawAudio.audio, 0);
-           
-           // Nota: Caché de rawAudio a ArrayBuffer es complejo (Float32Array a WAV).
-           // Por ahora, en local es tan rápido que no es crítico cachear en DB, 
-           // pero el modo remoto sí.
+          // MODO LOCAL ONNX
+          const rawAudio = await this.ttsInstance.generate(textToSpeak, {
+            voice: voiceId,
+            speed: 1.0
+          });
+          if (this.isStopped) return null;
+
+          audioBuffer = this.audioCtx.createBuffer(1, rawAudio.audio.length, rawAudio.sampling_rate);
+          audioBuffer.copyToChannel(rawAudio.audio, 0);
+
+          // Nota: Caché de rawAudio a ArrayBuffer es complejo (Float32Array a WAV).
+          // Por ahora, en local es tan rápido que no es crítico cachear en DB, 
+          // pero el modo remoto sí.
         } else {
-           // MODO REMOTO HF API
-           const response = await fetch(hfApiUrl, {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({
-               model: "kokoro",
-               input: textToSpeak.replace(/[áÁ]/g, 'a')
-                                 .replace(/[éÉ]/g, 'e')
-                                 .replace(/[íÍ]/g, 'i')
-                                 .replace(/[óÓ]/g, 'o')
-                                 .replace(/[úÚüÜ]/g, 'u'), 
-               voice: voiceId, 
-               response_format: "mp3",
-               speed: 1.0
-             })
-           });
+          // MODO REMOTO HF API
+          const response = await fetch(hfApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: "kokoro",
+              input: textToSpeak.replace(/[áÁ]/g, 'a')
+                .replace(/[éÉ]/g, 'e')
+                .replace(/[íÍ]/g, 'i')
+                .replace(/[óÓ]/g, 'o')
+                .replace(/[úÚüÜ]/g, 'u'),
+              voice: voiceId,
+              response_format: "mp3",
+              speed: 1.0
+            })
+          });
 
-           if (!response.ok) throw new Error(`HF API error: ${response.status}`);
-           if (this.isStopped) return null;
+          if (!response.ok) throw new Error(`HF API error: ${response.status}`);
+          if (this.isStopped) return null;
 
-           const arrayBuffer = await response.arrayBuffer();
-           
-           // Guardar copia exacta en caché
-           const bufferToCache = arrayBuffer.slice(0);
-           this.audioCache.saveAudio(voiceId, textToSpeak, bufferToCache);
+          const arrayBuffer = await response.arrayBuffer();
 
-           audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
+          // Guardar copia exacta en caché
+          const bufferToCache = arrayBuffer.slice(0);
+          this.audioCache.saveAudio(voiceId, textToSpeak, bufferToCache);
+
+          audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
         }
 
         return { buffer: audioBuffer, sentence };
-        
+
       } catch (err) {
-        console.warn(`[KokoroTTS] Error en frase ${useLocal ? '(LOCAL)' : '(REMOTO)'} (Intento ${attempt}/${retries}):`, err);
-        
+        if (!useLocal) {
+          // Fallback a voz nativa cuando la API remota de Hugging Face falla (ej. 503 o indisponibilidad)
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            try {
+              window.speechSynthesis.cancel();
+              const utteranceText = this.currentFullTextToSpeak || textToSpeak;
+              this.currentFullTextToSpeak = '';
+              const utterance = new SpeechSynthesisUtterance(utteranceText);
+              utterance.lang = 'es-ES';
+
+              utterance.onstart = () => {
+                this.isSpeaking$.next(true);
+              };
+
+              utterance.onend = () => {
+                this.isSpeaking$.next(false);
+              };
+
+              utterance.onerror = () => {
+                this.isSpeaking$.next(false);
+              };
+
+              this.isProcessing$.next(false);
+              this.isSpeaking$.next(true);
+              window.speechSynthesis.speak(utterance);
+            } catch (_) { }
+          }
+          this.isStopped = true;
+          return null;
+        }
+
+        console.warn(`[KokoroTTS] Error en frase (LOCAL) (Intento ${attempt}/${retries}):`, err);
+
         // Fallback automático si estamos en local y falla
         if (useLocal && attempt === retries) {
           console.warn("[KokoroTTS] Falló local. Cambiando temporalmente a Remoto.");
@@ -472,31 +526,31 @@ export class KokoroTtsService {
   private buildSentences(text: string): KokoroSentence[] {
     const rawWords = text.split(/\s+/).filter(w => w.length > 0);
     const sentences: KokoroSentence[] = [];
-    
+
     let currentWords: string[] = [];
     let baseIdx = 0;
     let sentenceIdxCounter = 0;
-    
+
     for (let i = 0; i < rawWords.length; i++) {
       currentWords.push(rawWords[i]);
-      
+
       const currentText = currentWords.join(' ');
       const isPunctuation = /[.!?¿¡"]$/.test(rawWords[i]);
       const isTooLong = currentText.length > 150 && /[,;]$/.test(rawWords[i]);
-      const isExtremelyLong = currentText.length > 250; 
-      
+      const isExtremelyLong = currentText.length > 250;
+
       if (isPunctuation || isTooLong || isExtremelyLong || i === rawWords.length - 1) {
         if (currentWords.length < 4 && i !== rawWords.length - 1 && !isExtremelyLong) {
           continue;
         }
-        
+
         sentences.push({
           text: currentText,
           baseWordIdx: baseIdx,
           wordCount: currentWords.length,
           sentenceIdx: sentenceIdxCounter++
         });
-        
+
         baseIdx += currentWords.length;
         currentWords = [];
       }
