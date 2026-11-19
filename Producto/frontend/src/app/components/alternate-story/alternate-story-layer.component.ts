@@ -17,6 +17,8 @@ import { Subscription } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
 import { environment } from '../../../environments/environment';
 
+import { resolveItemIcon, handleItemImageError, DEFAULT_ITEM_ICON } from '../../core/utils/item-icon.util';
+
 import { AlternateStoryService } from './alternate-story.service';
 import {
   AlternateEvent,
@@ -32,6 +34,7 @@ import {
   normalize,
   playSwap,
   restoreOriginal,
+  TailCut,
 } from './alternate-story.dom';
 
 /**
@@ -86,6 +89,7 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
   private intersectionObserver?: IntersectionObserver;
   private wrapper: HTMLElement | null = null;
   private hidden: HTMLElement[] = [];
+  private tailCut: TailCut | null = null;
   private appliedTrigger: HTMLElement | null = null;
 
   ngOnChanges(changes: SimpleChanges) {
@@ -165,7 +169,7 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const group = this.groups.find(g => g.element === entry.target);
-          if (group && this.state === 'armed' && !this.popupOpen) {
+          if (group && !group.dismissed && this.state === 'armed' && !this.popupOpen) {
             this.zone.run(() => this.openPopup(group));
             break;
           }
@@ -193,6 +197,7 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
       // El reader volvió a pintar (cambio de capítulo, etc.) y el bloque ya no existe.
       if (group.element && !group.element.isConnected) {
         this.intersectionObserver?.unobserve(group.element);
+        this.removeTriggerBtn(group.element); // <-- AÑADIR ESTA LÍNEA
         if (this.appliedTrigger === group.element) {
           this.zone.run(() => this.resetApplied());
         }
@@ -236,6 +241,10 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
   }
 
   cancel() {
+    if (this.activeGroup && this.state !== 'done') {
+      this.activeGroup.dismissed = true;
+      this.attachTriggerBtn(this.activeGroup);
+    }
     this.selectedItem = null;
     this.errorMsg = '';
     this.closePopup();
@@ -302,10 +311,12 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
     this.zone.runOutsideAngular(async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 260)); // el popup termina de desvanecerse
-        const result = await playSwap({ canvas, trigger, newBlocks, reduceMotion, useBlur });
+        const result = await playSwap({ canvas, trigger, newBlocks, reduceMotion, useBlur, triggerKey: group.key });
         this.zone.run(() => {
+          this.removeAllTriggerBtns(); // <-- AÑADIR ESTA LÍNEA
           this.wrapper = result.wrapper;
           this.hidden = result.hidden;
+          this.tailCut = result.tailCut;
           this.appliedTrigger = trigger;
           this.appliedGroup = group;
           this.state = 'done';
@@ -327,7 +338,7 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
   /** Vuelve al final original desde el popup. */
   revertToOriginal() {
     if (this.state !== 'done') return;
-    restoreOriginal(this.wrapper, this.hidden, this.canvas);
+    restoreOriginal(this.wrapper, this.hidden, this.canvas, this.tailCut);
     this.resetApplied();
     this.activeTitle = '';
     this.closePopup();
@@ -335,13 +346,14 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
   }
 
   private silentRestore() {
-    restoreOriginal(this.wrapper, this.hidden, null);
+    restoreOriginal(this.wrapper, this.hidden, null, this.tailCut);
     this.resetApplied();
   }
 
   private resetApplied() {
     this.wrapper = null;
     this.hidden = [];
+    this.tailCut = null;
     this.appliedTrigger = null;
     this.appliedGroup = null;
     if (this.state === 'done') this.state = 'armed';
@@ -362,46 +374,61 @@ export class AlternateStoryLayerComponent implements OnChanges, OnDestroy {
     this.canvas = null;
     this.wrapper = null;
     this.hidden = [];
+    this.tailCut = null;
     this.appliedTrigger = null;
     this.appliedGroup = null;
     this.activeGroup = null;
     this.selectedItem = null;
     this.popupOpen = false;
     this.state = 'idle';
+    document.querySelectorAll('.as-reopen-btn').forEach(b => b.remove());
   }
 
-  readonly defaultItemIcon = 'assets/images/default-item.png';
-
+  readonly defaultItemIcon = DEFAULT_ITEM_ICON;
   getItemIcon(iconPath: string | null | undefined): string {
-    if (!iconPath) {
-      return this.defaultItemIcon;
-    }
-    const trimmed = iconPath.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
-      return trimmed;
-    }
-
-    const backendBase = (environment.apiUrl || 'http://localhost:8000/api/v1')
-      .replace(/\/api\/v1\/?$/, '')
-      .replace(/\/api\/?$/, '');
-
-    if (trimmed.startsWith('/media/') || trimmed.startsWith('/static/')) {
-      return `${backendBase}${trimmed}`;
-    }
-    if (trimmed.startsWith('media/') || trimmed.startsWith('static/')) {
-      return `${backendBase}/${trimmed}`;
-    }
-    if (trimmed.startsWith('assets/')) {
-      return trimmed;
-    }
-    return `${backendBase}/media/${trimmed}`;
+    return resolveItemIcon(iconPath, environment.apiUrl);
   }
 
   onImageError(event: Event): void {
-    const imgElement = event.target as HTMLImageElement;
-    if (imgElement) {
-      imgElement.onerror = null;
-      imgElement.src = this.defaultItemIcon;
+    handleItemImageError(event);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Botón flotante lateral al cancelar el popup
+  // ---------------------------------------------------------------------------
+
+  private attachTriggerBtn(group: TriggerGroup) {
+    const el = group.element;
+    if (!el || !el.isConnected) return;
+    if (el.querySelector('.as-reopen-btn')) return;
+
+    if (getComputedStyle(el).position === 'static') {
+      el.style.position = 'relative';
+    }
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'as-reopen-btn';
+    btn.title = 'Usar objeto de la mochila';
+    btn.setAttribute('aria-label', 'Usar objeto de la mochila');
+    // Sin texto ni íconos: puramente el círculo verde brillante animado
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.zone.run(() => this.openPopup(group));
+    });
+
+    el.appendChild(btn);
+  }
+
+  private removeTriggerBtn(el: HTMLElement | null) {
+    if (!el) return;
+    el.querySelector('.as-reopen-btn')?.remove();
+  }
+
+  private removeAllTriggerBtns() {
+    if (this.canvas) {
+      this.canvas.querySelectorAll('.as-reopen-btn').forEach(b => b.remove());
     }
   }
 }

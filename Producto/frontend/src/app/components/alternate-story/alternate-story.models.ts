@@ -58,6 +58,8 @@ export interface TriggerGroup {
   items: AlternateItem[];
   /** Bloque del DOM donde está la frase. null mientras no se haya renderizado. */
   element: HTMLElement | null;
+  /** True si el usuario ya vio el popup automático y lo canceló. */
+  dismissed?: boolean;
 }
 
 export type AlternateState = 'idle' | 'armed' | 'swapping' | 'done';

@@ -87,8 +87,8 @@
 
       <!-- SI ESTÁ LOGUEADO -->
       <ng-container *ngIf="isLoggedIn">
-        <!-- Botón Naranja: Tinta (40px) -->
-        <button class="btn-ink-action" (click)="openTavern()" [@shake]="shakeState" title="La Taberna - Recarga Tinta">
+        <!-- Botón Naranja: Tinta (40px) - se oculta en Literatus Games, donde aparece la Mochila -->
+        <button *ngIf="!isBackpackVisible" class="btn-ink-action" (click)="openTavern()" [@shake]="shakeState" title="La Taberna - Recarga Tinta">
           <span class="ink-icon material-symbols-rounded">ink_pen</span>
           <span class="ink-balance">{{ inkBalance$ | async }}</span>
           <span class="ink-label">Tinta</span>

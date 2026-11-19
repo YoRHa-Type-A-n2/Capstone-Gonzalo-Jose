@@ -78,7 +78,7 @@ class BackpackDetailView(BaseBackpackView):
             user_items, many=True, context={'request': request}
         ).data
 
-        attempts = MinigameAttempt.objects.filter(backpack=backpack)
+        attempts = MinigameAttempt.objects.filter(backpack=backpack).select_related('minigame', 'book')
         stats = attempts.aggregate(
             total_played=Count('id'),
             won_count=Count('id', filter=Q(result=MinigameAttempt.ResultChoices.WON)),
@@ -97,20 +97,24 @@ class BackpackDetailView(BaseBackpackView):
             .order_by('minigame__name')
         )
 
-        # 🌟 NUEVO: Obtener el catálogo global de todos los objetos activos del sistema
         all_catalog_items = Item.objects.filter(is_active=True).select_related('book', 'alternate_story')
         all_items_data = ItemSerializer(
             all_catalog_items, many=True, context={'request': request}
         ).data
+
+        # 🌟 HISTORIAL DETALLADO PARA LOS GRÁFICOS Y FILTROS EN EL FRONTEND
+        detailed_attempts = attempts.order_by('created_at', 'id')
+        detailed_history_data = MinigameAttemptSerializer(detailed_attempts, many=True).data
 
         return Response({
             'backpack': BackpackSummarySerializer(backpack).data,
             'points_balance': backpack.points_balance,
             'total_points_earned': backpack.total_points_earned,
             'items': items_data,
-            'all_items': all_items_data,  # 👈 Se incluye esta clave para Angular
+            'all_items': all_items_data,
             'stats': stats,
             'history_by_minigame': list(by_minigame),
+            'detailed_history': detailed_history_data,  # 👈 Clave clave para los filtros y gráficos
         })
 
 
@@ -314,56 +318,104 @@ class UseItemView(BaseBackpackView):
 class CheckBookUnlockedItemView(BaseBackpackView):
     """
     GET /api/mochila/books/{book_id}/unlocked-item/
-    Verifica si el usuario posee al menos 1 victoria en minijuegos para este libro
-    y retorna la información del ítem de tipo READING desbloqueado.
+
+    Comprueba si el usuario ganó al menos un minijuego
+    y si ya posee el objeto reading correspondiente
+    a ese libro.
+
+    Si no lo posee, lo agrega al inventario y devuelve
+    sus datos para mostrar el popup.
     """
 
     def get(self, request, book_id):
         get_object_or_404(Book, pk=book_id)
-        backpack = self.get_backpack(request.user)
 
-        has_won = MinigameAttempt.objects.filter(
-            backpack=backpack,
-            book_id=book_id,
-            result=MinigameAttempt.ResultChoices.WON
-        ).exists()
+        with transaction.atomic():
 
-        if not has_won:
-            return Response({
-                'has_won': False,
-                'unlocked': False,
-                'item': None
-            })
+            # Obtener y bloquear la mochila del usuario
+            backpack = self.get_locked_backpack(request.user)
 
-        # Buscar el ítem de categoría READING asociado al libro
-        reading_item = Item.objects.filter(
-            book_id=book_id,
-            unlock_method=Item.UnlockMethod.READING,
-            is_active=True
-        ).select_related('book', 'alternate_story').first()
+            # Comprobar si tiene alguna victoria en este libro
+            has_won = MinigameAttempt.objects.filter(
+                backpack=backpack,
+                book_id=book_id,
+                result=MinigameAttempt.ResultChoices.WON,
+            ).exists()
 
-        if not reading_item:
+            if not has_won:
+                return Response({
+                    'has_won': False,
+                    'has_reading_item': False,
+                    'unlocked': False,
+                    'item': None,
+                })
+
+            # Buscar el objeto reading correspondiente al libro
+            reading_item = (
+                Item.objects.filter(
+                    book_id=book_id,
+                    unlock_method=Item.UnlockMethod.READING,
+                    is_active=True,
+                )
+                .select_related('book', 'alternate_story')
+                .order_by('created_at', 'id')
+                .first()
+            )
+
+            if not reading_item:
+                return Response({
+                    'has_won': True,
+                    'has_reading_item': False,
+                    'unlocked': False,
+                    'item': None,
+                })
+
+            # Comprobar si ya posee algún objeto reading
+            # correspondiente a este libro
+            already_has_item = BackpackItem.objects.filter(
+                backpack=backpack,
+                item__book_id=book_id,
+                item__unlock_method=Item.UnlockMethod.READING,
+            ).exists()
+
+            if already_has_item:
+                return Response({
+                    'has_won': True,
+                    'has_reading_item': True,
+                    'unlocked': False,
+                    'item': None,
+                })
+
+            # Entregar el objeto por primera vez
+            backpack_item, created = BackpackItem.objects.get_or_create(
+                backpack=backpack,
+                item=reading_item,
+                defaults={
+                    'acquisition_method':
+                        BackpackItem.AcquisitionMethod.READING,
+                },
+            )
+
+            if not created:
+                return Response({
+                    'has_won': True,
+                    'has_reading_item': True,
+                    'unlocked': False,
+                    'item': None,
+                })
+
+            # Preparar los datos para Angular
+            item_data = ItemSerializer(
+                reading_item,
+                context={'request': request},
+            ).data
+
             return Response({
                 'has_won': True,
-                'unlocked': False,
-                'item': None
+                'has_reading_item': True,
+                'unlocked': True,
+                'item': item_data,
             })
-
-        # Asegurar asignación en mochila si hubo victoria pero faltaba el registro
-        bp_item, created = BackpackItem.objects.get_or_create(
-            backpack=backpack,
-            item=reading_item,
-            defaults={'acquisition_method': BackpackItem.AcquisitionMethod.READING}
-        )
-
-        item_data = ItemSerializer(reading_item, context={'request': request}).data
-
-        return Response({
-            'has_won': True,
-            'unlocked': True,
-            'is_new': created,
-            'item': item_data
-        })
 
 
 # -----------------------------------------------------------------------------
@@ -534,37 +586,6 @@ class RecordMinigameResultView(BaseBackpackView):
                     balance_after=backpack.points_balance,
                 )
 
-            # Se entrega el único objeto reading al existir al menos una victoria
-            # histórica del usuario para este libro.
-            has_won_for_book = MinigameAttempt.objects.filter(
-                backpack=backpack,
-                book=book,
-                result=MinigameAttempt.ResultChoices.WON,
-            ).exists()
-
-            if has_won_for_book:
-                reading_item = Item.objects.filter(
-                    book=book,
-                    unlock_method=Item.UnlockMethod.READING,
-                    is_active=True,
-                ).order_by('created_at', 'id').first()
-
-                if reading_item:
-                    _, created = BackpackItem.objects.get_or_create(
-                        backpack=backpack,
-                        item=reading_item,
-                        defaults={
-                            'acquisition_method': BackpackItem.AcquisitionMethod.READING,
-                        },
-                    )
-                    if created:
-                        reading_item = Item.objects.select_related(
-                            'book', 'alternate_story'
-                        ).get(pk=reading_item.pk)
-                        item_unlocked = ItemSerializer(
-                            reading_item, context={'request': request}
-                        ).data
-
         return Response({
             'attempt_id': str(attempt.pk),
             'book_id': str(book.pk),
@@ -587,6 +608,7 @@ class RecordMinigameResultView(BaseBackpackView):
 class ShopCatalogListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ItemSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return (
