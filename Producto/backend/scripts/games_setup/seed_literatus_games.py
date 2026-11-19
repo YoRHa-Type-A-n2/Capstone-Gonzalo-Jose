@@ -5,6 +5,7 @@ import django
 import zipfile
 import re
 import shutil
+from urllib.parse import unquote
 from decimal import Decimal
 from bs4 import BeautifulSoup
 from django.core.files import File
@@ -23,76 +24,119 @@ def slugify_fallback(text):
     text = re.sub(r'[^a-z0-9]+', '-', text) 
     return text.strip('-')[:100]
 
-def clean_content(html_soup, book_slug):
+def clean_and_strip_images(html_soup):
+    """
+    Elimina todas las imágenes (etiquetas <img>) y elementos vacíos 
+    para dejar exclusivamente el texto limpio y continuo del cuento.
+    """
     for img in html_soup.find_all('img'):
-        src = img.get('src', '')
-        if 'elejandria' in src.lower() or 'logo' in src.lower():
-            img.decompose()
-            continue
-        filename = os.path.basename(src)
-        img['src'] = f"/media/books/{book_slug}/images/{filename}"
-        img['style'] = "max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px;"
+        img.decompose()
+        
+    for svg in html_soup.find_all('svg'):
+        svg.decompose()
+        
     return str(html_soup)
 
-def extract_images(epub_path, dest_folder):
-    img_folder = Path(dest_folder) / "images"
-    img_folder.mkdir(parents=True, exist_ok=True)
-    try:
-        with zipfile.ZipFile(epub_path, 'r') as z:
-            for f in z.infolist():
-                if f.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                    dest = img_folder / os.path.basename(f.filename)
-                    with z.open(f) as s, open(dest, "wb") as t:
-                        shutil.copyfileobj(s, t)
-    except Exception:
-        pass
-
-def manual_extract_chapters(epub_path, slug):
-    chapters = []
+def manual_extract_single_chapter(epub_path, slug):
+    """
+    Recorre el spine, descarta únicamente portadas y metadatos reales,
+    elimina imágenes y concatena todo el relato en un único HTML continuo.
+    """
+    combined_soup_body = BeautifulSoup("", "html.parser")
     synopsis = ""
+    extracted_title = None
+
     try:
         with zipfile.ZipFile(epub_path, 'r') as z:
             container = z.read('META-INF/container.xml').decode('utf-8')
-            opf_path = re.search(r'full-path="([^"]+)"', container).group(1)
+            opf_path_match = re.search(r'full-path="([^"]+)"', container)
+            if not opf_path_match:
+                print(f"    ⚠️ No se encontró el archivo OPF en container.xml para {slug}")
+                return None, synopsis, None
+                
+            opf_path = opf_path_match.group(1)
             opf_content = z.read(opf_path).decode('utf-8', errors='ignore')
             base_dir = os.path.dirname(opf_path)
-            manifest = {re.search(r'id="([^"]+)"', line).group(1): re.search(r'href="([^"]+)"', line).group(1) 
-                        for line in opf_content.split('<item ') if 'id="' in line and 'href="' in line}
+            
+            manifest = {}
+            for item_match in re.finditer(r'<item\s+([^>]+)>', opf_content, re.IGNORECASE):
+                attrs = item_match.group(1)
+                id_match = re.search(r'id="([^"]+)"', attrs)
+                href_match = re.search(r'href="([^"]+)"', attrs)
+                if id_match and href_match:
+                    manifest[id_match.group(1)] = unquote(href_match.group(1))
+
             spine_ids = [re.search(r'idref="([^"]+)"', line).group(1) 
                          for line in opf_content.split('<itemref ') if 'idref="' in line]
-            order = 1
+            
+            print(f"    [Spine analizado: {len(spine_ids)} ítems]")
+            
             for item_id in spine_ids:
                 if item_id in manifest:
-                    file_path = os.path.join(base_dir, manifest[item_id]).replace("\\", "/")
+                    rel_path = manifest[item_id]
+                    file_path = os.path.join(base_dir, rel_path).replace("\\", "/")
+                    file_name_lower = file_path.lower()
+                    
+                    # 🚫 FILTRAR SOLO PORTADAS TÉCNICAS E ÍNDICES/HITOS EXPLÍCITOS
+                    if any(x in file_name_lower for x in ['cover', 'titlepage', 'hitos', 'toc', 'nav', 'indice', 'portada']):
+                        # Excepción: si el archivo de título contiene parte del cuento o intro larga, evaluarlo
+                        if not any(story_w in file_name_lower for story_w in ['barba', 'caperucita', 'blancanieves', 'ardilla', 'perico', 'gigante', 'patito', 'ruisenor', 'soldadito', 'emperador', 'gato', 'hansel', 'durmiente', 'cenicienta', 'guisante', 'sirenita', 'cisnes', 'mowgli', 'cerditos', 'zapatos', 'pulgarcito', 'rapunzel', 'perez', 'ricitos', 'rumpelstiltskin']):
+                            print(f"    - Omitido por sección no narrativa: {file_path}")
+                            continue
+                        
                     try:
                         raw_html = z.read(file_path).decode('utf-8', errors='ignore')
                         soup = BeautifulSoup(raw_html, 'html.parser')
                         text_content = soup.get_text().strip()
-                        if len(text_content) > 50:
-                            title_tag = soup.find(['h1', 'h2', 'h3'])
-                            title = title_tag.text.strip()[:100] if title_tag else f"Capítulo {order}"
+                        
+                        # 🚫 Omitir avisos comerciales muy cortos o páginas de créditos aisladas (menos de 40 caracteres)
+                        if len(text_content) < 40 and ('elejandria' in text_content.lower() or 'descarga' in text_content.lower()):
+                            print(f"    - Omitido aviso comercial corto en: {file_path}")
+                            continue
                             
-                            # Capturar el primer texto denso como sinopsis provisional si está vacía
-                            if not synopsis and len(text_content) > 200:
-                                synopsis = text_content[:400] + "..."
+                        # Omitir páginas vacías
+                        if len(text_content) < 15:
+                            print(f"    - Omitido por contenido vacío ({len(text_content)} chars): {file_path}")
+                            continue
 
-                            chapters.append({
-                                'title': title,
-                                'content': clean_content(soup, slug),
-                                'order': order
-                            })
-                            order += 1
-                    except Exception:
+                        # Limpiar imágenes y estructurar contenido de texto puro
+                        cleaned_html = clean_and_strip_images(soup)
+                        body_content = BeautifulSoup(cleaned_html, 'html.parser')
+                        
+                        # Capturar título limpio si existe
+                        if not extracted_title:
+                            t_tag = body_content.find(['h1', 'h2', 'h3'])
+                            if t_tag and t_tag.text.strip():
+                                candidate_title = t_tag.text.strip()
+                                if len(candidate_title) < 80 and not any(w in candidate_title.lower() for w in ['elejandria', 'capítulo', 'www']):
+                                    extracted_title = candidate_title
+
+                        # CONCATENAR TODO EN EL BLOQUE ÚNICO CONTINUO
+                        for element in body_content.contents:
+                            combined_soup_body.append(element)
+                            
+                        if not synopsis and len(text_content) > 200:
+                            synopsis = text_content[:400] + "..."
+                            
+                        print(f"    + Texto útil incorporado: {file_path} ({len(text_content)} chars)")
+                        
+                    except Exception as ex:
+                        print(f"    ⚠️ Error leyendo archivo interno {file_path}: {ex}")
                         continue
+                        
     except Exception as e:
         print(f"Error en extracción manual para {slug}: {e}")
-    return chapters, synopsis
+        
+    return str(combined_soup_body), synopsis, extracted_title
 
 def get_metadata_from_opf(epub_path):
     try:
         with zipfile.ZipFile(epub_path, 'r') as z:
             container = z.read('META-INF/container.xml').decode('utf-8')
-            opf_path = re.search(r'full-path="([^"]+)"', container).group(1)
+            opf_path_match = re.search(r'full-path="([^"]+)"', container)
+            if not opf_path_match:
+                return None, None
+            opf_path = opf_path_match.group(1)
             opf_content = z.read(opf_path).decode('utf-8', errors='ignore')
             
             title_match = re.search(r'<dc:title[^>]*>(.*?)</dc:title>', opf_content, re.DOTALL | re.IGNORECASE)
@@ -106,12 +150,12 @@ def get_metadata_from_opf(epub_path):
         return None, None
 
 def main():
-    root_dir = Path(settings.BASE_DIR) / "media" / "books"
+    root_dir = Path(settings.BASE_DIR) / "media" / "books" / "literatus-games"
     if not root_dir.exists():
         print(f"La ruta {root_dir} no existe.")
         return
 
-    print("--- 📚 INYECCIÓN COMPLETA (CON PORTADAS Y SINOPSIS) ---")
+    print("--- 📚 INYECCIÓN EN PÁGINA ÚNICA (TEXTO PURO SIN IMÁGENES NI BASURA) ---")
     subfolders = [f for f in root_dir.iterdir() if f.is_dir()]
     
     for folder in subfolders:
@@ -121,19 +165,22 @@ def main():
             continue
         
         epub_path = epub_files[0]
-        print(f"Procesando libro: {slug}")
+        print(f"\nProcesando libro: {slug}")
         
-        extract_images(epub_path, folder)
         book_title, author_name = get_metadata_from_opf(epub_path)
-        chapters_data, extracted_synopsis = manual_extract_chapters(epub_path, slug)
+        
+        # Extraer TODO el libro consolidado en un solo HTML sin imágenes
+        full_content_html, extracted_synopsis, extracted_title = manual_extract_single_chapter(epub_path, slug)
         
         if not author_name:
             author_name = "Autor Desconocido"
         if not book_title:
             book_title = slug.replace("-", " ").title()
             
-        if not chapters_data:
-            print(f"  ⚠️ No se encontraron capítulos para {slug}")
+        final_title = extracted_title if extracted_title else book_title
+            
+        if not full_content_html or len(full_content_html.strip()) < 50:
+            print(f"  ⚠️ No se encontró contenido narrativo válido para {slug}")
             continue
             
         author_obj, _ = Author.objects.get_or_create(
@@ -151,7 +198,6 @@ def main():
             }
         )
 
-        # Buscar y asignar el archivo cover.jpg si existe en la carpeta del libro
         cover_path = folder / "cover.jpg"
         if cover_path.exists() and not book_obj.cover_image:
             with open(cover_path, 'rb') as cf:
@@ -165,17 +211,17 @@ def main():
             defaults={'file': f"books/{slug}/{epub_path.name}", 'price': Decimal('0.00')}
         )
         
+        # 🛠️ CREAR UN ÚNICO CAPÍTULO CONTINUO SIN IMÁGENES
         book_obj.chapters.all().delete()
-        for chap in chapters_data:
-            Chapter.objects.create(
-                book=book_obj, 
-                title=chap['title'], 
-                content_html=chap['content'], 
-                order=chap['order']
-            )
-        print(f"  ✅ {book_title} importado con éxito ({len(chapters_data)} capítulos).")
+        Chapter.objects.create(
+            book=book_obj, 
+            title=final_title[:200], 
+            content_html=full_content_html, 
+            order=1
+        )
+        print(f"  ✅ '{book_title}' importado con éxito: Todo el texto continuo en 1 solo capítulo.")
 
-    print("\n✅ Proceso de inyección de portadas y contenido finalizado.")
+    print("\n✅ Proceso completado exitosamente.")
 
 if __name__ == "__main__":
     main()

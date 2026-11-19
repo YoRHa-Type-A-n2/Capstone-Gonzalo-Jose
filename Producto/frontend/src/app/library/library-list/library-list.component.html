@@ -56,4 +56,18 @@
       </div>
     </div>
   </div>
+  <!-- 👈 NUEVOS CONTROLES DE PAGINACIÓN -->
+  <div class="pagination-controls" *ngIf="!isLoading && totalItems > pageSize" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem;">
+    <button class="glass-btn" (click)="prevPage()" [disabled]="!hasPrev" [style.opacity]="hasPrev ? '1' : '0.5'">
+      Anterior
+    </button>
+    
+    <span class="page-info" style="color: white; font-weight: 500;">
+      Página {{ currentPage }} de {{ totalPages }} (Total: {{ totalItems }} libros)
+    </span>
+    
+    <button class="glass-btn" (click)="nextPage()" [disabled]="!hasNext" [style.opacity]="hasNext ? '1' : '0.5'">
+      Siguiente
+    </button>
+  </div>
 </div>

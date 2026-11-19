@@ -1,69 +1,63 @@
 <div class="welcome-container">
-  <div class="welcome-top-nav">
-    <a routerLink="/" class="btn-back-home" title="Volver al inicio">
-      ← Volver al Inicio
-    </a>
-  </div>
 
   <header class="header">
     <div class="header-badge">Literatus Games 🎮</div>
     <h1>Libros Infantiles Jugables</h1>
-    <p>¡Desafíos interactivos y aventuras literarias para entrenar tu mente y comprensión lectora!</p>
+    <p>¡Explora las historias clásicas y descubre los minijuegos asociados a cada obra!</p>
     <div class="welcome-kid-pill">
       <span class="pill-sparkle">⭐</span>
-      <span>¡Selecciona una obra para comenzar la sesión completa de 5 minijuegos!</span>
+      <span>¡Selecciona una obra para ver sus detalles y comenzar!</span>
     </div>
   </header>
 
-  <!-- SECCIÓN: LIBROS INFANTILES JUGABLES (CARGADOS EXCLUSIVAMENTE CON BookMinigame) -->
+  <!-- SECCIÓN: LIBROS INFANTILES JUGABLES -->
   <section class="books-section">
     <div class="section-title-wrap">
       <h2 class="section-title">
         <span class="title-icon">📚</span>
-        <span>Historias Clásicas con Minijuegos</span>
+        <span>Historias con Minijuegos Disponibles</span>
       </h2>
-      <p class="section-desc">Obras que tienen minijuegos asociados registrados para jugar y ganar recompensas:</p>
+      <p class="section-desc">Obras que cuentan con desafíos interactivos y aventuras literarias:</p>
     </div>
 
     <!-- Loading state -->
     <div *ngIf="isLoadingBooks" class="books-loading">
       <div class="loading-icon">📜</div>
-      <p>Buscando libros con minijuegos en la biblioteca...</p>
+      <p>Buscando libros con minijuegos...</p>
     </div>
 
-    <!-- Grilla de libros jugables -->
-    <div *ngIf="!isLoadingBooks && booksWithMinigames.length > 0" class="books-showcase-grid">
+    <!-- Grilla de libros jugables homologada con library-list -->
+    <div *ngIf="!isLoadingBooks && booksWithMinigames.length > 0" class="grid-container">
       <div
         *ngFor="let book of booksWithMinigames"
-        class="book-showcase-card"
+        class="glass-panel book-card"
         (click)="playBookAdventure(book)"
         tabindex="0"
         (keydown.enter)="playBookAdventure(book)"
       >
-        <div class="book-cover-wrapper">
-          <img
-            [src]="book.cover_image"
-            [alt]="'Portada de ' + book.title"
-            class="book-cover-img"
-            (error)="onCoverError($event)"
-          />
+        <div class="card-image" [style.backgroundImage]="'url(' + (book.cover_image || 'assets/default_cover.jpg') + ')'">
+          <div class="progress-badge">🎮 Minijuegos</div>
         </div>
 
-        <div class="book-meta">
+        <div class="card-content">
           <h3 class="book-title">{{ book.title }}</h3>
-          <p class="book-author">
-            <span class="author-icon">✒️</span>
-            <span class="author-name">{{ book.author_name }}</span>
+          <p class="edition-info">
+            <span>✒️</span> {{ book.author_name || 'Autor Desconocido' }}
           </p>
-        </div>
 
-        <button type="button" class="btn-play-book" (click)="$event.stopPropagation(); playBookAdventure(book)">
-          ¡Jugar Aventura! 🚀
-        </button>
+          <div class="card-actions">
+            <div class="glass-btn read-btn">
+              <span>Ver Libro y Jugar</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Estado vacío si aún no hay libros -->
+    <!-- Estado vacío -->
     <div *ngIf="!isLoadingBooks && booksWithMinigames.length === 0" class="books-empty">
       <p>No hay libros infantiles jugables disponibles en este momento.</p>
     </div>

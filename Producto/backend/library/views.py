@@ -10,17 +10,23 @@ from core.pagination import StandardResultsSetPagination
 
 from .models import UserInventory, ReadingProgress, UserBookmark
 from .serializers import UserInventorySerializer, ReadingProgressSerializer, UserBookmarkSerializer
+from rest_framework.pagination import PageNumberPagination
+
+class LibraryPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class UserInventoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Gestiona la biblioteca personal del usuario autenticado.
     - select_related: edition → book (FK directa, 1 JOIN).
     - prefetch_related: cover_image, genres, tags y progreso de lectura (evita N+1).
-    - Paginado a 12 por página con búsqueda por título de libro.
+    - Paginado a 50 por página con búsqueda por título de libro.
     """
     serializer_class = UserInventorySerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
+    pagination_class = LibraryPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['edition__book__title', 'edition__book__synopsis']
     ordering_fields = ['acquired_at', 'edition__book__title']
@@ -159,3 +165,4 @@ class UserBookmarkViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("No puedes añadir marcadores a una librería que no te pertenece.")
         serializer.save()
+

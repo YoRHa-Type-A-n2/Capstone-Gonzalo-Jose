@@ -14,6 +14,14 @@ export class LibraryListComponent implements OnInit {
   isLoading = true;
   errorMsg = '';
 
+  // 👈 Nuevas variables para controlar la paginación
+  currentPage = 1;
+  totalPages = 1;
+  hasNext = false;
+  hasPrev = false;
+  totalItems = 0;
+  pageSize = 50;
+
   private _libritoContainer?: ElementRef;
   @ViewChild('libritoContainer') set libritoContainer(el: ElementRef) {
     if (el && !this._libritoContainer) {
@@ -29,15 +37,26 @@ export class LibraryListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fetchInventory();
+    this.fetchInventory(1); // 👈 Cargar la página 1 al iniciar
   }
 
-  fetchInventory(): void {
+  // 👈 Modificar para aceptar el número de página como parámetro
+  fetchInventory(page: number = 1): void {
     this.isLoading = true;
-    this.api.get<any[]>('library/inventory/').subscribe({
+    this.api.get<any>(`library/inventory/?page=${page}`).subscribe({
       next: (res: any) => {
-        // Asegurarnos de que asigne el arreglo correcto ya sea de paginación o directo
-        this.inventoryItems = Array.isArray(res) ? res : (res.results || []);
+        // Manejar respuesta paginada de Django REST Framework
+        if (res.results) {
+          this.inventoryItems = res.results;
+          this.totalItems = res.count;
+          this.hasNext = !!res.next;
+          this.hasPrev = !!res.previous;
+          this.currentPage = page;
+          this.totalPages = Math.ceil(this.totalItems / this.pageSize) || 1;
+        } else {
+          // Fallback por si la paginación estuviera desactivada temporalmente
+          this.inventoryItems = Array.isArray(res) ? res : [];
+        }
         this.isLoading = false;
       },
       error: (err) => {
@@ -46,5 +65,18 @@ export class LibraryListComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // 👈 Métodos para los botones de control
+  nextPage(): void {
+    if (this.hasNext) {
+      this.fetchInventory(this.currentPage + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.hasPrev) {
+      this.fetchInventory(this.currentPage - 1);
+    }
   }
 }

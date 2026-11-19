@@ -58,20 +58,23 @@
     </ng-container>
   </div>
 
-  <!-- POPUP DE OBJETO DESBLOQUEADO (AL VOLVER A BIBLIOTECA) -->
+  <!-- POPUP DE OBJETO DESBLOQUEADO (AL TERMINAR LA SESIÓN) -->
   <div *ngIf="showUnlockedItemModal" class="unlocked-modal-overlay">
     <div class="unlocked-modal-card">
-      <div class="modal-badge">✨ ¡NUEVO OBJETO OBTENIDO! ✨</div>
+      <div class="modal-badge">✨ ¡LOGRO DESBLOQUEADO! ✨</div>
       
+      <h3>Desbloqueo de objeto</h3>
+      <p class="item-desc">
+        Acabas de desbloquear un objeto que podrás utilizar la próxima vez que leas este cuento
+      </p>
+
       <div class="item-icon-wrapper">
-        <img [src]="unlockedItem?.icon || 'assets/images/default-item.png'" [alt]="unlockedItem?.name">
+        <img [src]="getItemIcon(unlockedItem?.icon)" (error)="onImageError($event)" [alt]="unlockedItem?.name">
       </div>
 
-      <h3>{{ unlockedItem?.name }}</h3>
-      <p class="item-desc">{{ unlockedItem?.description }}</p>
-
       <div class="modal-info-box">
-        <p>💡 Usa estos objetos la próxima vez que leas el libro para ver qué caminos distintos te depara el futuro.</p>
+        <p><strong>{{ unlockedItem?.name }}</strong></p>
+        <p>{{ unlockedItem?.description }}</p>
       </div>
 
       <button class="btn-accept" (click)="closeUnlockedModal()">¡Entendido!</button>

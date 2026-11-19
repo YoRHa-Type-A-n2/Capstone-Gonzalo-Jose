@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,6 +16,8 @@ import { TestigoOcularComponent } from '../testigo-ocular/testigo-ocular.compone
 import { CazadorIntrusosComponent } from '../cazador-intrusos/cazador-intrusos.component';
 import { BuscaImagenComponent } from '../busca-imagen/busca-imagen.component';
 import { ComicsDesordenadosComponent } from '../comics-desordenados/comics-desordenados.component';
+
+import { resolveItemIcon, handleItemImageError, DEFAULT_ITEM_ICON } from '../../../core/utils/item-icon.util';
 
 interface GameScoreSummary {
   name: string;
@@ -41,7 +43,7 @@ interface GameScoreSummary {
   templateUrl: './minigame-session.component.html',
   styleUrls: ['./minigame-session.component.scss']
 })
-export class MinigameSessionComponent implements OnInit {
+export class MinigameSessionComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private minigameService = inject(MinigameService);
@@ -55,15 +57,14 @@ export class MinigameSessionComponent implements OnInit {
   sessionFinished: boolean = false;
   score: number = 0;
 
-  // Control del Popup de Instrucciones Iniciales
+  gamesWon: number = 0;
   showInstructionsModal: boolean = false;
-
-  // Desglose de puntajes
   gameScoreDetails: GameScoreSummary[] = [];
 
-  // Popup de Objeto Desbloqueado al volver a biblioteca
+  // Popup de Objeto Desbloqueado al terminar la sesión
   showUnlockedItemModal: boolean = false;
   unlockedItem: any = null;
+  private readingItemChecked: boolean = false;
 
   ngOnInit() {
     const routeId = this.route.snapshot.paramMap.get('bookId');
@@ -89,13 +90,20 @@ export class MinigameSessionComponent implements OnInit {
     return rawUrl.replace(/([^:]\/)\/+/g, '$1');
   }
 
+  getCleanIconUrl(iconPath: string): string {
+    if (!iconPath) return 'assets/images/default-item.png';
+    if (iconPath.startsWith('http')) return iconPath;
+    const backendUrl = this.apiUrl.split('/api/v1/')[0];
+    return `${backendUrl}/media/${iconPath}`;
+  }
+
   loadSpecificGameSession(gameCode: string) {
     this.isLoading = true;
     this.minigameService.getMinigameByCode(this.bookId, gameCode).subscribe({
       next: (games: any[]) => {
         this.playlist = games;
         this.isLoading = false;
-        this.showInstructionsModal = true; // Forzar apertura del modal instructivo
+        this.showInstructionsModal = true;
       },
       error: (err) => {
         console.error('❌ [MinigameSession] Error al cargar el minijuego específico:', err);
@@ -140,17 +148,20 @@ export class MinigameSessionComponent implements OnInit {
         uniqueList = uniqueList.sort(() => Math.random() - 0.5);
         this.playlist = uniqueList.slice(0, 5);
         this.isLoading = false;
-        this.showInstructionsModal = true; // Forzar apertura del modal instructivo
+        this.showInstructionsModal = true;
       },
       error: (err) => {
         console.error('❌ [MinigameSession] Error en la petición HTTP de la sesión:', err);
         this.isLoading = false;
       }
     });
+    // Iniciar música de los desafíos
+    this.playChallengeAudio();
   }
 
   startSessionFromInstructions() {
     this.showInstructionsModal = false;
+    
   }
 
   getCurrentGameCode(): string {
@@ -160,23 +171,23 @@ export class MinigameSessionComponent implements OnInit {
   }
 
   onGameCompleted(result: any) {
-    console.log(`[MinigameSession] Evento 'completed' recibido. Resultado:`, result);
-    
     const currentGameCode = this.getCurrentGameCode();
     const currentName = this.getGameDisplayNameByCode(currentGameCode);
 
     let pointsToAdd = 0;
     if (typeof result === 'number') {
       pointsToAdd = result;
-    } 
-    else if (result === true) {
+    } else if (result === true) {
       pointsToAdd = 10;
-    } 
-    else {
+    } else {
       pointsToAdd = 0;
     }
 
     this.score += pointsToAdd;
+
+    if (pointsToAdd > 0) {
+      this.gamesWon++;
+    }
 
     this.gameScoreDetails.push({
       name: currentName,
@@ -187,35 +198,87 @@ export class MinigameSessionComponent implements OnInit {
       this.currentIndex++;
     } else {
       this.sessionFinished = true;
+      // Detener la música al finalizar todos los desafíos
+      this.stopChallengeAudio();
+      this.checkAndClaimReadingItem();
     }
   }
 
-  returnToLibrary() {
-    if (!this.bookId) {
-      this.router.navigate(['/library']);
-      return;
-    }
+  readonly defaultItemIcon = DEFAULT_ITEM_ICON;
+
+  getItemIcon(iconPath: string | null | undefined): string {
+    return resolveItemIcon(iconPath, environment.apiUrl);
+  }
+
+  onImageError(event: Event): void {
+    handleItemImageError(event);
+  }
+
+  /**
+   * Al finalizar los desafíos, consultamos directamente al endpoint si hay un objeto
+   * de lectura desbloqueable para este libro que el usuario haya ganado en esta sesión.
+   */
+  private checkAndClaimReadingItem() {
+    if (this.gamesWon < 1 || this.readingItemChecked || !this.bookId) return;
+    this.readingItemChecked = true;
 
     const url = this.buildUrl(`mochila/books/${this.bookId}/unlocked-item/`);
     this.http.get<any>(url).subscribe({
       next: (res) => {
-        // Solo muestra el popup si el objeto fue recién obtenido en esta sesión (is_new)
-        if (res && res.unlocked && res.is_new && res.item) {
+        // Si el backend confirma que se ha ganado y existe el ítem
+        if (res?.unlocked === true && res?.item) {
           this.unlockedItem = res.item;
           this.showUnlockedItemModal = true;
         } else {
-          this.router.navigate(['/library']);
+          this.unlockedItem = null;
+          this.showUnlockedItemModal = false;
         }
       },
       error: (err) => {
         console.warn('⚠️ No se pudo verificar el objeto desbloqueado:', err);
-        this.router.navigate(['/library']);
       }
     });
   }
 
+  returnToLibrary() {
+    this.stopChallengeAudio();
+    this.router.navigate(['/library']);
+  }
+
   closeUnlockedModal() {
     this.showUnlockedItemModal = false;
-    this.router.navigate(['/library']);
+  }
+  // Audio de fondo para los desafíos
+  private challengeAudio: HTMLAudioElement | null = null;
+
+  private readonly challengeAudioPath = 'assets/audio/desafio.mp3';
+
+  private playChallengeAudio(): void {
+    if (!this.challengeAudio) {
+      this.challengeAudio = new Audio(this.challengeAudioPath);
+
+      // Configuración del audio
+      this.challengeAudio.loop = true;
+      this.challengeAudio.volume = 0.35;
+      this.challengeAudio.preload = 'auto';
+    }
+
+    this.challengeAudio.currentTime = 4;
+
+    this.challengeAudio.play().catch(error => {
+      console.warn('No se pudo reproducir el audio de los desafíos:', error);
+    });
+  }
+
+  private stopChallengeAudio(): void {
+    if (this.challengeAudio) {
+      this.challengeAudio.pause();
+      this.challengeAudio.currentTime = 0;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopChallengeAudio();
+    this.challengeAudio = null;
   }
 }
