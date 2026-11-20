@@ -1,0 +1,280 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.welcome-container {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  box-sizing: border-box;
+
+  .welcome-top-nav {
+    margin-bottom: 20px;
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      color: $primary;
+      border: 2px solid $primary;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(47, 143, 110, 0.12);
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      &:hover {
+        background: $primary;
+        color: #ffffff;
+        transform: translateX(-3px) scale(1.03);
+        box-shadow: 0 6px 14px rgba(47, 143, 110, 0.25);
+      }
+    }
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    .header-badge {
+      display: inline-block;
+      background: #ffffff;
+      color: $primary;
+      border: 1px solid rgba(47, 143, 110, 0.3);
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .welcome-kid-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF3E6;
+      border: 1.5px solid $accent-cta;
+      color: #924513;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-top: 0.6rem;
+      box-shadow: 0 2px 8px rgba(255, 159, 91, 0.2);
+      animation: guide-bob 3s ease-in-out infinite;
+
+      .pill-sparkle {
+        color: $accent-cta;
+        font-size: 1rem;
+        animation: star-twinkle 2s infinite ease-in-out;
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 800;
+      color: $text-main;
+      margin: 0 0 10px 0;
+    }
+
+    p {
+      color: $text-sec;
+      font-size: 1.1rem;
+      margin: 0 auto;
+    }
+  }
+
+  .section-title-wrap {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    text-align: left;
+
+    .section-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: $text-main;
+      margin: 0 0 6px 0;
+
+      .title-icon {
+        font-size: 1.4rem;
+      }
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: $text-sec;
+      margin: 0;
+    }
+  }
+
+  .books-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 1rem;
+
+    .loading-icon {
+      font-size: 3rem;
+      animation: guide-bob 2s ease-in-out infinite;
+    }
+
+    p {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: $text-main;
+      margin: 0;
+    }
+  }
+
+  /* Grilla idéntica a library-list */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+
+  .book-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1.5px solid rgba(47, 143, 110, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    height: 100%;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-6px);
+      border-color: $primary;
+      box-shadow: 0 10px 30px rgba(47, 143, 110, 0.15);
+
+      .read-btn {
+        background: #237c60 !important;
+        color: white !important;
+        box-shadow: 0 6px 0 #164e3c !important;
+      }
+    }
+  }
+
+  .card-image {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    background-color: #EAF3E8;
+    border-bottom: 1px solid rgba(47, 143, 110, 0.15);
+    position: relative;
+  }
+
+  .progress-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #FFF3E6;
+    border: 1px solid #FF9F5B;
+    color: #924513;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .book-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $text-main;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .edition-info {
+    color: $text-sec;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-actions {
+    margin-top: auto;
+  }
+
+  .read-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    text-decoration: none;
+    background: $primary;
+    color: #ffffff;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 0 #1E6B52;
+    transition: all 0.15s ease;
+    border: none;
+  }
+
+  .books-empty {
+    text-align: center;
+    padding: 40px 20px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1.5px dashed rgba(47, 143, 110, 0.3);
+    color: $text-sec;
+    font-weight: 600;
+    margin-bottom: 40px;
+  }
+}
+
+@keyframes guide-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(18deg) scale(1.2); }
+}

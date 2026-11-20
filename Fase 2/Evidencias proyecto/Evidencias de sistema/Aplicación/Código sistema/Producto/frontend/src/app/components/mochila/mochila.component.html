@@ -1,0 +1,212 @@
+<div class="mochila-container">
+  <!-- Cabecera del Popup -->
+  <div class="mochila-header">
+    <div class="header-left">
+      <h2>{{ currentView === 'inventory' ? '🎒 Mi Mochila' : '🛒 Tienda de Objetos' }}</h2>
+    </div>
+    
+    <!-- Puntos actuales al centro y total histórico al costado derecho (solo en inventario) -->
+    <div class="header-points-inline" *ngIf="backpackData">
+      <div class="inline-p-card">
+        <span>Puntos Actuales</span>
+        <strong class="highlight-yellow">{{ backpackData.points_balance }} pts</strong>
+      </div>
+      <div class="inline-p-card">
+        <span>Total Histórico Ganado</span>
+        <strong>{{ backpackData.total_points_earned }} pts</strong>
+      </div>
+    </div>
+
+    <button class="close-btn" (click)="close()">✕</button>
+  </div>
+
+  <div class="mochila-content" *ngIf="!isLoading; else loadingTemplate">
+    
+    <!-- 📦 VISTA INVENTARIO Y ESTADÍSTICAS -->
+    <div *ngIf="currentView === 'inventory' && backpackData">
+
+      <!-- Historial Global de Minijuegos (Ganados / Perdidos) -->
+      <div class="section-block">
+        <h3>Resumen de Partidas</h3>
+        <div class="stats-summary">
+          <p>Total jugadas: <strong>{{ backpackData.stats.total_played }}</strong></p>
+          <p class="won">Ganadas: <strong>{{ backpackData.stats.won_count }}</strong></p>
+          <p class="lost">Perdidas: <strong>{{ backpackData.stats.lost_count }}</strong></p>
+        </div>
+      </div>
+
+      <!-- Desglose por Minijuego con Filtros y Gráficos -->
+      <div class="section-block">
+        <h3>Desglose por Minijuego</h3>
+
+        <!-- Dos Dropdown Bars para Filtrar -->
+        <div class="filters-bar">
+          <div class="filter-group">
+            <label for="textFilter">Filtrar por Texto / Libro:</label>
+            <select id="textFilter" [(ngModel)]="selectedTextFilter" (ngModelChange)="onFilterChange()">
+              <option value="">-- Todos los textos --</option>
+              <option *ngFor="let textOpt of availableTexts" [value]="textOpt">{{ textOpt }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="minigameFilter">Filtrar por Minijuego:</label>
+            <select id="minigameFilter" [(ngModel)]="selectedMinigameFilter" (ngModelChange)="onFilterChange()">
+              <option value="">-- Todos los minijuegos --</option>
+              <option *ngFor="let mgOpt of availableMinigames" [value]="mgOpt">{{ mgOpt }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CASO 1: SIN FILTROS -> Top 3 libros con más desafíos completados (Barras verde/roja dobles) -->
+        <div class="chart-container" *ngIf="!selectedTextFilter && !selectedMinigameFilter">
+          <h4 class="chart-title">🏆 Top 3 Libros con más Desafíos Completados</h4>
+          <div class="chart-legend" *ngIf="topBooksData.length > 0">
+            <span class="legend-item"><i class="dot dot-green"></i>Ganados</span>
+            <span class="legend-item"><i class="dot dot-red"></i>Perdidos</span>
+          </div>
+          <div class="bars-chart" *ngIf="topBooksData.length > 0; else noData">
+            <div class="bar-group" *ngFor="let book of topBooksData">
+              <span class="bar-label" [title]="book.title">{{ book.title }}</span>
+              <div class="bars-wrapper">
+                <div class="bar bar-green" [style.height.%]="getBarHeight(book.won, maxTopBarValue)" [title]="'Ganados: ' + book.won">
+                  <span class="bar-val">{{ book.won }}</span>
+                </div>
+                <div class="bar bar-red" [style.height.%]="getBarHeight(book.lost, maxTopBarValue)" [title]="'Perdidos: ' + book.lost">
+                  <span class="bar-val">{{ book.lost }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASO 2: FILTRO POR TEXTO SELECCIONADO (Sin filtro de minijuego) -> Historial de cada minijuego (Barras verde/roja) -->
+        <div class="chart-container" *ngIf="selectedTextFilter && !selectedMinigameFilter">
+          <h4 class="chart-title">📊 Historial por Minijuego para: {{ selectedTextFilter }}</h4>
+          <div class="chart-legend" *ngIf="textFilteredMinigames.length > 0">
+            <span class="legend-item"><i class="dot dot-green"></i>Ganados</span>
+            <span class="legend-item"><i class="dot dot-red"></i>Perdidos</span>
+          </div>
+          <div class="bars-chart" *ngIf="textFilteredMinigames.length > 0; else noData">
+            <div class="bar-group" *ngFor="let mg of textFilteredMinigames">
+              <span class="bar-label" [title]="mg.minigame_name">{{ mg.minigame_name }}</span>
+              <div class="bars-wrapper">
+                <div class="bar bar-green" [style.height.%]="getBarHeight(mg.won, maxTextFilteredValue)" [title]="'Ganados: ' + mg.won">
+                  <span class="bar-val">{{ mg.won }}</span>
+                </div>
+                <div class="bar bar-red" [style.height.%]="getBarHeight(mg.lost, maxTextFilteredValue)" [title]="'Perdidos: ' + mg.lost">
+                  <span class="bar-val">{{ mg.lost }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASO 3: FILTRO POR MINIJUEGO SELECCIONADO (Sin filtro de texto) -> Gráficos circulares (4 por línea) con winrate al centro -->
+        <div class="chart-container" *ngIf="!selectedTextFilter && selectedMinigameFilter">
+          <h4 class="chart-title">🎯 Rendimiento por Libro en: {{ selectedMinigameFilter }}</h4>
+          <div class="pie-grid" *ngIf="minigameFilteredBooks.length > 0; else noData">
+            <div class="pie-card" *ngFor="let item of minigameFilteredBooks">
+              <div class="pie-chart" [style.background]="getPieGradient(item.won, item.lost)">
+                <div class="pie-center">
+                  <strong>{{ item.winrate }}%</strong>
+                  <small>Winrate</small>
+                </div>
+              </div>
+              <span class="pie-book-name" [title]="item.book_title">{{ item.book_title }}</span>
+              <div class="pie-stats-sub">
+                <span class="won">✅ {{ item.won }}</span>
+                <span class="lost">❌ {{ item.lost }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASO 4: AMBOS FILTROS SELECCIONADOS -> Gráfico de barras progresivas cronológicas del historial -->
+        <div class="chart-container" *ngIf="selectedTextFilter && selectedMinigameFilter">
+          <h4 class="chart-title">📈 Historial Progresivo de Victorias y Derrotas ({{ selectedTextFilter }} - {{ selectedMinigameFilter }})</h4>
+          <div class="chart-legend" *ngIf="progressiveHistory.length > 0">
+            <span class="legend-item"><i class="dot dot-green"></i>Victorias acumuladas</span>
+            <span class="legend-item"><i class="dot dot-red"></i>Derrotas acumuladas</span>
+          </div>
+          <div class="progressive-bars-chart" *ngIf="progressiveHistory.length > 0; else noData">
+            <div class="prog-bar-col" *ngFor="let entry of progressiveHistory; let i = index">
+              <div class="bars-wrapper vertical-prog">
+                <!-- Barra acumulativa verde de ganadas -->
+                <div class="bar bar-green" [style.height.%]="getProgBarHeight(entry.accumulated_wins, maxProgValue)" [title]="'Victorias acumuladas: ' + entry.accumulated_wins">
+                  <span class="bar-val">{{ entry.accumulated_wins }}</span>
+                </div>
+                <!-- Barra acumulativa roja de perdidas -->
+                <div class="bar bar-red" [style.height.%]="getProgBarHeight(entry.accumulated_losses, maxProgValue)" [title]="'Derrotas acumuladas: ' + entry.accumulated_losses">
+                  <span class="bar-val">{{ entry.accumulated_losses }}</span>
+                </div>
+              </div>
+              <span class="prog-label">#{{ i + 1 }}</span>
+              <span class="prog-status" [class.won-text]="entry.is_win" [class.lost-text]="!entry.is_win">
+                {{ entry.is_win ? 'G' : 'P' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noData>
+          <p class="empty-text">No hay datos suficientes para mostrar los gráficos con los filtros seleccionados.</p>
+        </ng-template>
+      </div>
+
+      <!-- Botón de Acceso a la Tienda -->
+      <div class="shop-redirect-bar">
+        <button class="btn-shop-link" (click)="openShop()">🛒 Ir a la Tienda de Objetos</button>
+      </div>
+      
+
+      <!-- Colección de Objetos -->
+      <div class="section-block">
+        <h3>Colección de Objetos ({{ backpackData.items?.length || 0 }} obtenidos)</h3>
+        <div class="items-grid" *ngIf="allAvailableItems && allAvailableItems.length > 0; else noItems">
+          <div class="item-card" *ngFor="let item of allAvailableItems" [class.locked-item]="!isItemOwned(item.id)">
+            <img [src]="getItemIcon(item.icon)" (error)="onImageError($event)" [alt]="item.name" [class.grayscale]="!isItemOwned(item.id)">
+            <div class="item-info">
+              <h4>{{ item.name }}</h4>
+              <p>{{ item.description }}</p>
+              <small *ngIf="isItemOwned(item.id)" class="status-owned">✨ ¡Obtenido!</small>
+              <small *ngIf="!isItemOwned(item.id)" class="status-locked">🔒 Bloqueado</small>
+            </div>
+          </div>
+        </div>
+        <ng-template #noItems><p class="empty-text">No hay objetos disponibles en el sistema.</p></ng-template>
+      </div>
+
+    </div>
+
+    <!-- 🛒 VISTA TIENDA INTERNA -->
+    <div *ngIf="currentView === 'shop'">
+      <button class="btn-back" (click)="currentView = 'inventory'">← Volver a la Mochila</button>
+      <p class="shop-subtitle">Adquiere objetos únicos permanentes utilizando tus puntos de minijuegos.</p>
+
+      <div class="shop-grid" *ngIf="shopItems.length > 0; else noShopItems">
+        <div class="shop-card" *ngFor="let sItem of shopItems">
+          <img [src]="getItemIcon(sItem.icon)" (error)="onImageError($event)" [alt]="sItem.name">
+          <div class="shop-card-info">
+            <h4>{{ sItem.name }}</h4>
+            <p>{{ sItem.description }}</p>
+            <span class="price">💰 {{ sItem.points_cost }} pts</span>
+            <button class="btn-buy"
+                (click)="buyItem(sItem.id)"
+                [disabled]="isShopItemOwned(sItem) || isPurchasing(sItem.id) || backpackData?.points_balance < sItem.points_cost">
+              {{ isShopItemOwned(sItem) ? 'En tu mochila' : 'Comprar Objeto' }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noShopItems><p class="empty-text">No hay objetos disponibles en la tienda por ahora.</p></ng-template>
+    </div>
+
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading-state">
+      <p>Cargando mochila...</p>
+    </div>
+  </ng-template>
+</div>

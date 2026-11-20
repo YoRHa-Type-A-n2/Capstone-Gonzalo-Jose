@@ -1,0 +1,348 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 90vh;
+  margin: 0.5rem auto;
+  padding: 1.2rem;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 2px solid $bg-sec;
+  box-shadow: 0 10px 35px rgba(51, 64, 58, 0.05);
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
+  .btn-exit {
+    background: transparent;
+    border: none;
+    color: $text-sec;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+    &:hover { color: $text-main; }
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 800;
+    color: $text-main;
+    margin-bottom: 0.4rem;
+
+    .score-badge {
+      background: $badge-reward;
+      color: $text-main;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      margin-left: 0.4rem;
+    }
+
+    .timer-badge {
+      background: $bg-sec;
+      color: $primary;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      margin-left: 0.4rem;
+      &.danger {
+        background: rgba($alert, 0.15);
+        color: $alert;
+      }
+    }
+  }
+
+  .timer-bar-container {
+    width: 100%;
+    height: 8px;
+    background: $bg-sec;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+
+    .timer-bar-fill {
+      height: 100%;
+      background: $primary;
+      transition: width 0.1s linear, background-color 0.3s ease;
+      &.danger { background: $alert; }
+    }
+  }
+
+  .game-board {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    transition: filter 0.3s ease;
+
+    &.blurred {
+      filter: blur(6px) opacity(0.4);
+      pointer-events: none;
+    }
+  }
+
+  /* CONSIGNA PRINCIPAL Y ÁREA DE DETECCIÓN OBJETIVO */
+  .prompt-section {
+    flex: 7;
+    min-height: 280px;
+    background: $bg-main;
+    border: 3px solid $text-main;
+    border-radius: 20px;
+    box-shadow: 4px 6px 0px $text-main;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+
+    .book-tag {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: $text-sec;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .quote-container {
+      width: 100%;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $text-main;
+      line-height: 1.8;
+      margin: 0;
+      display: inline;
+
+      .inline-target-slot {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 52px;
+        margin: 0 0.4rem;
+        vertical-align: middle;
+        border: 3px dashed $primary;
+        background: #ffffff;
+        border-radius: 12px;
+        box-sizing: border-box;
+
+        .placeholder-dots {
+          color: $text-sec;
+          font-weight: 800;
+          letter-spacing: 2px;
+        }
+
+        .placed-word {
+          color: $primary;
+          font-size: 1.3rem;
+          font-weight: 800;
+        }
+
+        &.has-word {
+          border-style: solid;
+          border-color: $primary;
+          background: rgba($primary, 0.1);
+        }
+      }
+    }
+  }
+
+  .divider-space {
+    height: 1.8rem;
+  }
+
+  /* OPCIONES ARRASTRABLES */
+  .options-section {
+    flex: 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+
+    .option-widget {
+      flex: 1;
+      max-width: 126px;
+      height: 46px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 3px solid $text-main;
+      border-radius: 12px;
+      box-shadow: 3px 4px 0px $text-main;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      z-index: 10;
+
+      .option-text {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: $text-main;
+        text-align: center;
+      }
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  /* OVERLAY DE POPUPS */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(51, 64, 58, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 100;
+    box-sizing: border-box;
+
+    .modal-dialog {
+      background: #ffffff;
+      padding: 1.8rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+      .feedback-icon { font-size: 2.2rem; margin-bottom: 0.2rem; }
+      .status-msg { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; color: $text-main; }
+      .explanation { font-size: 0.95rem; color: $text-main; margin-bottom: 1.4rem; line-height: 1.4; }
+
+      &.success { border-top: 6px solid $success; .status-msg { color: $success; } }
+      &.error { border-top: 6px solid $alert; .status-msg { color: $alert; } }
+      &.timeout { border-top: 6px solid $alert; .status-msg { color: $alert; } }
+      &.finished { border-top: 6px solid $badge-reward; }
+
+      &.intro-dialog {
+        border-top: 6px solid $secondary;
+        
+        .instruction {
+          font-size: 1rem;
+          font-weight: 700;
+          color: $text-main;
+          margin-bottom: 0.8rem;
+          line-height: 1.4;
+        }
+
+        .timer-warning {
+          font-size: 0.85rem;
+          color: $alert;
+          margin-bottom: 1.4rem;
+        }
+      }
+
+      .results-history {
+        background: $bg-main;
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 1.2rem;
+
+        .history-label {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: $text-sec;
+          margin-bottom: 0.5rem;
+        }
+
+        .history-badges {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+
+          .history-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            background: #ffffff;
+
+            &.correct { border: 1px solid $success; }
+            &.wrong { border: 1px solid $alert; }
+          }
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .btn-action {
+        border: none;
+        padding: 0.75rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        cursor: pointer;
+        width: 100%;
+
+        &.btn-start { background: $primary; color: #ffffff; }
+        &.btn-next { background: $accent-cta; color: #ffffff; }
+        &.btn-retry { background: $bg-sec; color: $text-main; }
+        &.btn-exit-final { background: $text-main; color: #ffffff; }
+      }
+    }
+  }
+
+  /* ADAPTACIÓN MÓVIL: SOLO COMPRIME EL ESPACIO VERTICAL DEL RECUADRO */
+  @media (max-width: 768px) {
+    padding: 0.8rem;
+    min-height: auto;
+
+    /* RECUADRO DE TEXTO REDUCIDO EN ALTURA Y PADDINGS */
+    .prompt-section {
+      flex: none;                   /* Impide que flexbox extienda el recuadro verticalmente */
+      min-height: auto;             /* Elimina los 280px fijos de PC */
+      padding: 2.2rem 1rem 1.2rem 1rem; /* Reduce el relleno superior e inferior para eliminar espacio en blanco */
+    }
+
+    .divider-space {
+      height: 1rem;                /* Menos separación con las opciones */
+    }
+  }
+}
+
+.cdk-drag-dragging {
+  z-index: 1000 !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
+}

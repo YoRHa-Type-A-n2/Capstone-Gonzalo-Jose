@@ -1,0 +1,319 @@
+<div class="interactive-reader-container">
+  
+  <!-- ──────────────────────────────────────────────────────────────────────────
+       1. HUD SUPERIOR (GAME STATUS BAR)
+       ────────────────────────────────────────────────────────────────────────── -->
+  <header class="hud-header">
+    <div class="hud-left">
+      <!-- Player Avatar & Level Badge -->
+      <div class="player-profile">
+        <div class="avatar-frame">
+          <span class="avatar-emoji">🧙‍♂️</span>
+          <div class="level-badge" title="Nivel del Lector">
+            Lv.{{ playerLevel }}
+          </div>
+        </div>
+        <div class="player-info">
+          <h2 class="player-name">{{ playerName }}</h2>
+          <span class="player-title">{{ playerTitle }}</span>
+        </div>
+      </div>
+
+      <!-- Experience Status Bar (XP) -->
+      <div class="xp-container">
+        <div class="xp-header-labels">
+          <span class="xp-label">Experiencia de Lector (XP)</span>
+          <span class="xp-value">{{ currentXp | number }} / {{ maxXp | number }} XP</span>
+        </div>
+        <div class="xp-track">
+          <div class="xp-fill" [style.width.%]="xpPercentage"></div>
+        </div>
+        
+        <!-- Animated Floating XP Notification -->
+        <div class="floating-xp-badge" *ngIf="showFloatingXp">
+          +{{ floatingXpAmount }} XP!
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter Title in Primary Color -->
+    <div class="hud-center">
+      <div class="chapter-badge">
+        <span class="chapter-icon">📖</span>
+        <span class="chapter-text">{{ currentChapterTitle }}</span>
+      </div>
+    </div>
+
+    <!-- Quick Inventory Slots -->
+    <div class="hud-right">
+      <div class="inventory-section">
+        <span class="inventory-label">Inventario Rápido:</span>
+        <div class="inventory-slots">
+          <div 
+            *ngFor="let item of inventoryItems" 
+            class="inventory-slot" 
+            [class.acquired]="item.acquired"
+            [class.empty]="!item.acquired"
+            [title]="item.acquired ? item.name + ' (' + item.rarity + ')' : 'Slot Bloqueado'"
+            (click)="openInventoryDetail(item)">
+            <span class="slot-icon" *ngIf="item.acquired">{{ item.icon }}</span>
+            <span class="slot-lock" *ngIf="!item.acquired">🔒</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="streak-badge" title="Días seguidos leyendo">
+        🔥 {{ readingStreakDays }}d
+      </div>
+    </div>
+  </header>
+
+  <!-- ──────────────────────────────────────────────────────────────────────────
+       2. ÁREA PRINCIPAL (GRID DE 2 COLUMNAS SOBRE FONDO #FBF9F2)
+       ────────────────────────────────────────────────────────────────────────── -->
+  <main class="reader-main-canvas">
+    
+    <!-- COLUMNA IZQUIERDA: LIENZO DEL LIBRO -->
+    <section class="book-canvas-col">
+      <div class="book-page-card">
+        
+        <!-- Header de la página del libro -->
+        <div class="page-ribbon">
+          <div class="ribbon-title">
+            <span class="ribbon-icon">📜</span>
+            <span>{{ getCurrentNode().sceneTitle }}</span>
+          </div>
+          <div class="reading-mode-pill">
+            <span>Lectura Gamificada</span>
+          </div>
+        </div>
+
+        <!-- Cuerpo del Texto de la Historia con Palabras Clave Interactivas -->
+        <article class="story-content" (click)="onStoryTextClick($event)">
+          <p 
+            *ngFor="let paragraph of getCurrentNode().paragraphs" 
+            class="story-paragraph" 
+            [innerHTML]="getRenderedParagraph(paragraph)">
+          </p>
+        </article>
+
+        <!-- Consecuencia de la decisión tomada -->
+        <div class="decision-outcome-box" *ngIf="decisionOutcome">
+          <div class="outcome-header">
+            <span class="outcome-icon">✨</span>
+            <strong>Consecuencia de tu elección:</strong>
+          </div>
+          <p class="outcome-text">{{ decisionOutcome }}</p>
+        </div>
+
+        <!-- Footer de la página con numeración y puntos de progreso -->
+        <footer class="book-page-footer">
+          <button class="nav-page-btn" (click)="prevNode()" [disabled]="currentNodeIndex === 0">
+            ← Anterior
+          </button>
+
+          <div class="footer-center-info">
+            <div class="chapter-dots">
+              <span 
+                *ngFor="let node of storyNodes; let i = index" 
+                class="dot" 
+                [class.active]="i === currentNodeIndex"
+                [title]="'Ir a la página ' + (i + 1)">
+              </span>
+            </div>
+            <span class="page-number-text">
+              Página {{ getCurrentNode().pageNumber }} de {{ getCurrentNode().totalPages }}
+            </span>
+          </div>
+
+          <button class="nav-page-btn" (click)="nextNode()" [disabled]="currentNodeIndex === storyNodes.length - 1">
+            Siguiente →
+          </button>
+        </footer>
+
+      </div>
+    </section>
+
+    <!-- COLUMNA DERECHA: ESCENA + TOMA DE DECISIONES RPG -->
+    <section class="rpg-scene-col">
+      
+      <!-- Ilustración / Escena Ambiental RPG -->
+      <div class="scene-visual-card" [attr.data-scene]="getCurrentNode().sceneType">
+        <div class="scene-overlay-gradient"></div>
+
+        <div class="scene-location-badge">
+          <span class="badge-dot"></span>
+          <span>{{ getCurrentNode().sceneLocation }}</span>
+        </div>
+
+        <!-- Ilustración SVG interactiva según el entorno -->
+        <div class="scene-illustration-container">
+          <div class="animated-magic-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+          </div>
+          
+          <div class="rpg-art-view">
+            <svg class="scene-svg" viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Fondo del Bosque y Montañas -->
+              <rect width="400" height="220" rx="16" fill="url(#skyGrad)"/>
+              <path d="M0 160 Q100 120 200 150 T400 140 V220 H0 Z" fill="#2F8F6E" opacity="0.6"/>
+              <path d="M0 180 Q140 140 280 170 T400 160 V220 H0 Z" fill="#1C5C46"/>
+              
+              <!-- Árbol Milenario Centrado -->
+              <path d="M170 220 C170 160 160 110 185 70 C190 60 210 60 215 70 C240 110 230 160 230 220 Z" fill="#5C3A21"/>
+              <!-- Hojas del Árbol con destello -->
+              <circle cx="200" cy="70" r="45" fill="#52B788" opacity="0.9"/>
+              <circle cx="170" cy="80" r="35" fill="#2F8F6E"/>
+              <circle cx="230" cy="80" r="35" fill="#2F8F6E"/>
+              <circle cx="200" cy="50" r="30" fill="#7CD6A7"/>
+              
+              <!-- Glifo Rúnico Resplandeciente -->
+              <circle cx="200" cy="130" r="14" fill="#4A90A4" opacity="0.8"/>
+              <circle cx="200" cy="130" r="8" fill="#FFD166"/>
+              <path d="M196 130 L204 130 M200 126 L200 134" stroke="#33403A" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Grifo volando sutilmente -->
+              <path d="M300 60 Q315 45 330 60 Q320 70 300 60 Z" fill="#FFD166"/>
+
+              <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#EAF3E8"/>
+                  <stop offset="60%" stop-color="#CBE3C9"/>
+                  <stop offset="100%" stop-color="#2F8F6E"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
+        <p class="scene-caption">{{ getCurrentNode().sceneDescription }}</p>
+      </div>
+
+      <!-- Tarjeta de Decisiones RPG -->
+      <div class="rpg-decisions-card">
+        <div class="decisions-header">
+          <div class="header-tag">
+            <span class="sword-icon">⚔️</span>
+            <span>Toma de Decisiones RPG</span>
+          </div>
+          <h3 class="decisions-title">¿Qué camino elegirá nuestro héroe?</h3>
+          <p class="decisions-subtitle">Tu elección moldeará el destino de la historia y sumará experiencia de lector.</p>
+        </div>
+
+        <div class="choices-list">
+          <button 
+            *ngFor="let choice of getCurrentNode().choices" 
+            class="choice-btn"
+            [class.selected]="selectedChoice?.id === choice.id"
+            (click)="selectChoice(choice)">
+            
+            <div class="choice-content">
+              <span class="choice-bullet">✦</span>
+              <span class="choice-text">{{ choice.text }}</span>
+            </div>
+
+            <div class="choice-reward-badge" title="Recompensa de experiencia">
+              +{{ choice.xpGain }} XP
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ──────────────────────────────────────────────────────────────────────────
+       3. AI SIDEKICK (ESQUINA INFERIOR DERECHA)
+       ────────────────────────────────────────────────────────────────────────── -->
+  <aside class="ai-sidekick-container">
+    
+    <!-- Speech Bubble con fondo crema y texto #33403A -->
+    <div class="sidekick-speech-bubble" [class.thinking]="sidekickIsThinking">
+      <div class="speech-header">
+        <span class="sidekick-name">{{ sidekickName }}</span>
+        <span class="sidekick-role">{{ sidekickRole }}</span>
+      </div>
+      <div class="speech-body">
+        <p class="speech-text">{{ sidekickMessage }}</p>
+      </div>
+      <div class="bubble-arrow"></div>
+    </div>
+
+    <!-- Botón flotante animado del Avatar del Asistente -->
+    <button 
+      class="sidekick-avatar-btn" 
+      (click)="triggerSidekickHint()" 
+      title="Pedir consejo o dato curioso a Lumi">
+      <div class="sidekick-glow-ring"></div>
+      <div class="avatar-inner">
+        <span class="sidekick-emoji">🦉</span>
+      </div>
+      <div class="pulse-indicator"></div>
+    </button>
+  </aside>
+
+  <!-- ──────────────────────────────────────────────────────────────────────────
+       4. MODAL DE GLOSARIO / LORE (POP-UP CON BACKDROP BLUR)
+       ────────────────────────────────────────────────────────────────────────── -->
+  <div class="lore-modal-overlay" *ngIf="isLoreModalOpen" (click)="closeLoreModal()">
+    <div class="lore-modal-card" (click)="$event.stopPropagation()">
+      
+      <header class="lore-modal-header">
+        <div class="lore-header-title">
+          <span class="lore-term-icon">{{ activeLoreTerm?.icon }}</span>
+          <div>
+            <span class="lore-category-tag">{{ activeLoreTerm?.category }}</span>
+            <h3 class="lore-term-title">{{ activeLoreTerm?.title }}</h3>
+          </div>
+        </div>
+        <button class="close-modal-btn" (click)="closeLoreModal()" title="Cerrar modal">✕</button>
+      </header>
+
+      <div class="lore-modal-body">
+        <p class="lore-description">{{ activeLoreTerm?.description }}</p>
+        
+        <div class="lore-xp-reward-box">
+          <span class="star-icon">⭐</span>
+          <span>Descubrir esta palabra clave otorga: <strong>+{{ activeLoreTerm?.xpReward }} XP de Lore</strong></span>
+        </div>
+      </div>
+
+      <footer class="lore-modal-footer">
+        <button 
+          class="claim-lore-btn" 
+          (click)="claimLoreXp(activeLoreTerm!)"
+          [disabled]="activeLoreTerm?.unlocked">
+          {{ activeLoreTerm?.unlocked ? '✓ Añadido a Bitácora' : 'Añadir a Bitácora (+25 XP)' }}
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────────────────────
+       5. MODAL DE DETALLE DE INVENTARIO
+       ────────────────────────────────────────────────────────────────────────── -->
+  <div class="inventory-modal-overlay" *ngIf="selectedInventoryItem" (click)="closeInventoryDetail()">
+    <div class="inventory-modal-card" (click)="$event.stopPropagation()">
+      <header class="inv-modal-header">
+        <span class="inv-item-icon">{{ selectedInventoryItem.icon }}</span>
+        <div>
+          <h3 class="inv-item-name">{{ selectedInventoryItem.name }}</h3>
+          <span class="inv-rarity-badge" [attr.data-rarity]="selectedInventoryItem.rarity">
+            {{ selectedInventoryItem.rarity | uppercase }}
+          </span>
+        </div>
+        <button class="close-modal-btn" (click)="closeInventoryDetail()">✕</button>
+      </header>
+      <div class="inv-modal-body">
+        <p>{{ selectedInventoryItem.description }}</p>
+      </div>
+      <footer class="inv-modal-footer">
+        <button class="btn-cta-close" (click)="closeInventoryDetail()">Cerrar</button>
+      </footer>
+    </div>
+  </div>
+
+</div>

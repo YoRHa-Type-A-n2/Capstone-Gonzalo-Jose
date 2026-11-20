@@ -1,0 +1,83 @@
+<div class="session-container center-aligned-container">
+  <!-- Estado de carga -->
+  <div *ngIf="isLoading" class="loading-state centered-content">
+    <h2>Preparando tu desafío interactivo...</h2>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- POPUP INSTRUCTIVO INICIAL (DESAFÍOS LITERATUS) -->
+  <div *ngIf="!isLoading && showInstructionsModal" class="unlocked-modal-overlay">
+    <div class="unlocked-modal-card">
+      <div class="modal-badge">🎮 DESAFÍOS LITERATUS</div>
+
+      <h3>Desafíos Literatus</h3>
+      <p class="item-desc">
+        Ahora te enfrentarás a 5 desafíos al azar basados en el libro que acabas de leer.
+      </p>
+
+      <div class="modal-info-box">
+        <p>¡Buena suerte!</p>
+      </div>
+
+      <button class="btn-accept" (click)="startSessionFromInstructions()">Iniciar desafío</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Resultados Finales Centrada -->
+  <div *ngIf="!isLoading && !showInstructionsModal && sessionFinished" class="results-screen glass-panel centered-content">
+    <h2>¡Desafío Completado!</h2>
+    <p>Has completado los minijuegos de este libro.</p>
+    
+    <!-- Lista detallada -->
+    <div class="score-breakdown-list">
+      <div *ngFor="let detail of gameScoreDetails" class="score-row-item">
+        <span class="game-name">{{ detail.name }}:</span>
+        <span class="game-points"><strong>{{ detail.points }} pts</strong></span>
+      </div>
+    </div>
+
+    <div class="final-score">Puntuación Total: <strong>{{ score }} pts</strong></div>
+    <button class="next-chapter-btn" (click)="returnToLibrary()">Volver a mi Biblioteca</button>
+  </div>
+
+  <!-- Contenedor del Minigame Actual -->
+  <div *ngIf="!isLoading && !showInstructionsModal && !sessionFinished && playlist.length > 0" class="game-wrapper centered-content">
+    
+    <!-- Renderizado dinámico optimizado con ngSwitch -->
+    <ng-container [ngSwitch]="getCurrentGameCode()">
+      <app-completa-dialogo *ngSwitchCase="'completa_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-completa-dialogo>
+      <app-imagen-pixelada *ngSwitchCase="'imagen_pixelada'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-imagen-pixelada>
+      <app-rafaga-vf *ngSwitchCase="'rafaga_vf'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-rafaga-vf>
+      <app-emoticono-dialogo *ngSwitchCase="'emoticono_dialogo'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-emoticono-dialogo>
+      <app-encuentra-contradiccion *ngSwitchCase="'encuentra_contradiccion'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-encuentra-contradiccion>
+      <app-reconstruccion-manuscrito *ngSwitchCase="'reconstruccion_manuscrito'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-reconstruccion-manuscrito>
+      <app-testigo-ocular *ngSwitchCase="'testigo_ocular'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-testigo-ocular>
+      <app-cazador-intrusos *ngSwitchCase="'cazador_intrusos'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-cazador-intrusos>
+      <app-busca-imagen *ngSwitchCase="'busca_imagen'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-busca-imagen>
+      <app-comics-desordenados *ngSwitchCase="'comics_desordenados'" [bookId]="bookId" [gameData]="playlist[currentIndex]" (completed)="onGameCompleted($any($event))"></app-comics-desordenados>
+    </ng-container>
+  </div>
+
+  <!-- POPUP DE OBJETO DESBLOQUEADO (AL TERMINAR LA SESIÓN) -->
+  <div *ngIf="showUnlockedItemModal" class="unlocked-modal-overlay">
+    <div class="unlocked-modal-card">
+      <div class="modal-badge">✨ ¡LOGRO DESBLOQUEADO! ✨</div>
+      
+      <h3>Desbloqueo de objeto</h3>
+      <p class="item-desc">
+        Acabas de desbloquear un objeto que podrás utilizar la próxima vez que leas este cuento
+      </p>
+
+      <div class="item-icon-wrapper">
+        <img [src]="getItemIcon(unlockedItem?.icon)" (error)="onImageError($event)" [alt]="unlockedItem?.name">
+      </div>
+
+      <div class="modal-info-box">
+        <p><strong>{{ unlockedItem?.name }}</strong></p>
+        <p>{{ unlockedItem?.description }}</p>
+      </div>
+
+      <button class="btn-accept" (click)="closeUnlockedModal()">¡Entendido!</button>
+    </div>
+  </div>
+</div>

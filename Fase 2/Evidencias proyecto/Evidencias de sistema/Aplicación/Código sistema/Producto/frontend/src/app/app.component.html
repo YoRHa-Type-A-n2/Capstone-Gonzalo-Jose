@@ -1,0 +1,150 @@
+<!-- Navbar superior: oculta en dashboard para experiencia inmersiva -->
+<nav class="glass-navbar" *ngIf="!isDashboard">
+  <div class="nav-container">
+
+    <!-- 1. GRUPO IZQUIERDO: LOGO -->
+    <div class="nav-group-left">
+      <a routerLink="/" class="logo" title="Literatus Novelist">
+        <img src="assets/logo.png" alt="Literatus Novelist" class="logo-img" />
+      </a>
+    </div>
+
+    <!-- HAMBURGER ICON (MOBILE) -->
+    <div class="menu-icon" (click)="toggleMenu()" aria-label="Abrir menú de navegación">
+      <span class="bar" [class.open]="menuOpen"></span>
+      <span class="bar" [class.open]="menuOpen"></span>
+      <span class="bar" [class.open]="menuOpen"></span>
+    </div>
+
+    <!-- 2. GRUPO CENTRAL: MENÚ PRINCIPAL -->
+    <ul class="nav-group-center" [class.active]="menuOpen">
+      <li class="nav-item">
+        <a routerLink="/catalog" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">🗺️</span>
+          <span class="nav-label">Explorar</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/categories" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">📚</span>
+          <span class="nav-label">Categorías</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/authors" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">✍️</span>
+          <span class="nav-label">Autores</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/characters" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">🎭</span>
+          <span class="nav-label">Personajes</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/tavern" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">🍷</span>
+          <span class="nav-label">La Taberna</span>
+        </a>
+      </li>
+      <li class="nav-item mobile-games-link">
+        <a routerLink="/literatus-games" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">🎮</span>
+          <span class="nav-label">Literatus Games</span>
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="isLoggedIn">
+        <a routerLink="/library" routerLinkActive="active-link" (click)="menuOpen = false">
+          <span class="nav-icon">📖</span>
+          <span class="nav-label">Mi Biblioteca</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- 3. GRUPO DERECHO: ACCIONES DE USUARIO -->
+    <div class="nav-group-right" [class.active]="menuOpen">
+      
+      <!-- Botón Verde: Literatus Games (40px) -->
+      <a routerLink="/literatus-games" class="btn-games-action" (click)="menuOpen = false" title="Literatus Games">
+        <span class="joystick-icon">
+          <svg class="joystick-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="joy-base" d="M4 15C4 13.5 6 13 12 13C18 13 20 13.5 20 15V17.5C20 19 18 19.5 12 19.5C6 19.5 4 19 4 17.5V15Z" fill="rgba(255,255,255,0.3)" stroke="currentColor" stroke-width="1.6"/>
+            <g class="joy-stick-group">
+              <line x1="12" y1="13" x2="12" y2="6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="12" cy="5" r="3" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/>
+            </g>
+          </svg>
+        </span>
+        <span class="btn-text">Literatus Games</span>
+      </a>
+
+      <!-- Botón Mochila (Tienda e Inventario) - Visible ÚNICAMENTE en Literatus Games -->
+      <button *ngIf="isBackpackVisible" class="nav-btn mochila-btn" (click)="openBackpack()" title="Mochila e Inventario">
+        <span class="material-symbols-rounded mochila-icon">backpack</span>
+        <span>Mochila</span>
+      </button>
+
+      <!-- SI ESTÁ LOGUEADO -->
+      <ng-container *ngIf="isLoggedIn">
+        <!-- Botón Naranja: Tinta (40px) - se oculta en Literatus Games, donde aparece la Mochila -->
+        <button *ngIf="!isBackpackVisible" class="btn-ink-action" (click)="openTavern()" [@shake]="shakeState" title="La Taberna - Recarga Tinta">
+          <span class="ink-icon material-symbols-rounded">ink_pen</span>
+          <span class="ink-balance">{{ inkBalance$ | async }}</span>
+          <span class="ink-label">Tinta</span>
+        </button>
+
+        <!-- Círculo de Perfil (40px x 40px) -->
+        <div class="profile-avatar-wrap">
+          <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="avatar-profile-btn" aria-label="Menú de perfil de usuario">
+            <img *ngIf="userAvatarUrl" [src]="userAvatarUrl" alt="Avatar" class="avatar-img"
+              onerror="this.src='assets/images/default-avatar.png'">
+            <div *ngIf="!userAvatarUrl" class="avatar-initials" [style.background-color]="userAvatarColor">{{ userInitials }}</div>
+          </button>
+          <mat-menu #profileMenu="matMenu" class="dark-premium-menu">
+            <div class="menu-header">
+              <span class="user-name">{{ userName }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <button mat-menu-item routerLink="/profile">
+              <span class="mat-symbol">manage_accounts</span>
+              <span>Editar Perfil</span>
+            </button>
+            <ng-container *ngIf="isAdmin">
+              <mat-divider></mat-divider>
+              <button mat-menu-item routerLink="/dashboard/overview">
+                <span class="mat-symbol">dashboard</span>
+                <span>Panel de Control</span>
+              </button>
+            </ng-container>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="logout()" class="logout-btn">
+              <span class="mat-symbol">logout</span>
+              <span>Cerrar Sesión</span>
+            </button>
+          </mat-menu>
+        </div>
+      </ng-container>
+
+      <!-- SI NO ESTÁ LOGUEADO -->
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="btn-auth-login" (click)="menuOpen = false">Login</a>
+        <a routerLink="/register" class="btn-auth-register" (click)="menuOpen = false">Registrarse</a>
+      </ng-container>
+    </div>
+
+  </div>
+</nav>
+
+<!-- DEBUGGING: Global Error Banner -->
+<div *ngIf="globalError" style="background: red; color: white; padding: 20px; font-weight: bold; z-index: 9999; position: relative;">
+  <h1>🚨 CRASH DETECTED 🚨</h1>
+  <p>{{ globalError }}</p>
+</div>
+
+<!-- Contenedor Principal Ruteado con Animaciones -->
+<main class="container" [class.dashboard-mode]="isDashboard" [@routeAnimations]="prepareRoute(outlet)">
+  <router-outlet #outlet="outlet"></router-outlet>
+</main>
+
+<app-footer *ngIf="!isDashboard"></app-footer>
