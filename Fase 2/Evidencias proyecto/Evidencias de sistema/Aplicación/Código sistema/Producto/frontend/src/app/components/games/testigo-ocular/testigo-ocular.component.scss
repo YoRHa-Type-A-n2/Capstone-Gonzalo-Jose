@@ -1,0 +1,374 @@
+$bg-main: #F4EEE0;
+$bg-sec: #EAF3E8;
+$text-main: #33403A;
+$text-sec: #6E7C74;
+$primary: #2F8F6E;
+$secondary: #4A90A4;
+$accent-cta: #FF9F5B;
+$badge-reward: #FFD166;
+$success: #52B788;
+$alert: #E0575B;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 90vh;
+  margin: 0.5rem auto;
+  padding: 1.2rem;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 2px solid $bg-sec;
+  box-shadow: 0 10px 35px rgba(51, 64, 58, 0.05);
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
+  .btn-exit {
+    background: transparent;
+    border: none;
+    color: $text-sec;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
+    &:hover { color: $text-main; }
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 800;
+    color: $text-main;
+    margin-bottom: 0.4rem;
+
+    .score-badge {
+      background: $badge-reward;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      margin-left: 0.4rem;
+    }
+
+    .timer-badge {
+      background: $bg-sec;
+      color: $primary;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      margin-left: 0.4rem;
+      &.danger {
+        background: rgba($alert, 0.15);
+        color: $alert;
+      }
+    }
+
+    .attempts-badge {
+      font-size: 1.2rem;
+      margin-left: 0.4rem;
+    }
+  }
+
+  /* BARRA DE TIEMPO ANIMADA */
+  .timer-bar-container {
+    width: 100%;
+    height: 8px;
+    background: $bg-sec;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+
+    .timer-bar-fill {
+      height: 100%;
+      background: $primary;
+      transition: width 0.1s linear, background-color 0.3s ease;
+      &.danger { background: $alert; }
+    }
+  }
+
+  .game-board {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ETAPA DE PREGUNTAS */
+  .question-stage {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .question-header {
+      text-align: center;
+      margin-bottom: 2rem;
+
+      .question-counter {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: $secondary;
+        text-transform: uppercase;
+      }
+
+      .prompt-text {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: $text-main;
+        margin-top: 0.5rem;
+      }
+    }
+
+    /* GRID DE 4 OPCIONES */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+      width: 100%;
+      max-width: 700px;
+
+      .option-card {
+        background: #ffffff;
+        border: 3px solid $text-main;
+        border-radius: 14px;
+        padding: 1.2rem 1rem;
+        min-height: 65px;
+        box-shadow: 3px 4px 0px $text-main;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s, background-color 0.2s;
+
+        .option-label {
+          font-size: 1.05rem;
+          font-weight: 800;
+          color: $text-main;
+          text-align: center;
+        }
+
+        &:hover:not(:disabled) {
+          background: $bg-sec;
+          transform: translateY(-2px);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(2px);
+          box-shadow: 1px 2px 0px $text-main;
+        }
+      }
+    }
+  }
+
+  /* OVERLAY DE MODALES */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(51, 64, 58, 0.65);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 100;
+    box-sizing: border-box;
+
+    .modal-dialog {
+      background: #ffffff;
+      padding: 1.8rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 550px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+      .feedback-icon { font-size: 2.2rem; margin-bottom: 0.2rem; }
+      .status-msg { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; color: $text-main; }
+      .explanation { font-size: 1rem; color: $text-main; margin-bottom: 1.4rem; line-height: 1.4; }
+
+      &.success { border-top: 6px solid $success; .status-msg { color: $success; } }
+      &.error { border-top: 6px solid $alert; .status-msg { color: $alert; } }
+
+      &.intro-dialog {
+        border-top: 6px solid $secondary;
+
+        .title-msg {
+          font-size: 1.3rem;
+          font-weight: 800;
+          color: $text-main;
+          margin-bottom: 0.4rem;
+        }
+
+        .instruction {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: $text-sec;
+          margin-bottom: 1rem;
+          line-height: 1.4;
+        }
+
+        .image-preview-container {
+          width: 100%;
+          margin-bottom: 1.2rem;
+          display: flex;
+          justify-content: center;
+
+          .large-preview-image {
+            width: 100%;
+            max-height: 380px;
+            object-fit: contain;
+            border-radius: 14px;
+            border: 3px solid $text-main;
+            box-shadow: 4px 6px 0px $text-main;
+          }
+        }
+      }
+
+      .results-history {
+        background: $bg-main;
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 1.2rem;
+        text-align: left;
+
+        .level-summary {
+          margin-bottom: 0.2rem;
+          h4 { margin: 0 0 0.4rem 0; font-size: 0.95rem; color: $text-main; }
+          .q-badges {
+            display: flex; gap: 0.5rem;
+            .q-badge {
+              font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px; background: #fff;
+              &.correct { border: 1px solid $success; }
+              &.wrong { border: 1px solid $alert; }
+            }
+          }
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .btn-action {
+        border: none;
+        padding: 0.85rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        cursor: pointer;
+        width: 100%;
+
+        &.btn-start { background: $primary; color: #ffffff; }
+        &.btn-next { background: $accent-cta; color: #ffffff; }
+        &.btn-exit-final { background: $text-main; color: #ffffff; }
+      }
+    }
+  }
+
+  /* OPTIMIZACIÓN Y ALINEACIÓN SUPERIOR EN MÓVILES */
+  @media (max-width: 768px) {
+    min-height: 80vh;
+    padding: 0.6rem 0.8rem;
+    margin: 0 auto;
+
+    .btn-exit {
+      margin-bottom: 0.2rem;
+    }
+
+    .hud {
+      margin-bottom: 0.2rem;
+    }
+
+    .timer-bar-container {
+      margin-bottom: 0.5rem;
+    }
+
+    .game-board {
+      justify-content: flex-start;
+      padding-top: 0.2rem;
+    }
+
+    .question-stage {
+      .question-header {
+        margin-bottom: 0.8rem;
+
+        .question-counter {
+          font-size: 0.75rem;
+        }
+
+        .prompt-text {
+          font-size: 1.1rem;
+          margin-top: 0.2rem;
+          line-height: 1.3;
+        }
+      }
+
+      .options-grid {
+        gap: 0.6rem;
+
+        .option-card {
+          min-height: 48px;
+          padding: 0.5rem;
+          .option-label { font-size: 0.85rem; }
+        }
+      }
+    }
+
+    /* POP-UP ALINEADO ARRIBA EN MÓVIL */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0;
+      align-items: flex-start; // Alinea el pop-up hacia arriba
+      z-index: 1000;
+
+      .modal-dialog {
+        padding: 1rem 0.8rem;
+        max-height: 90vh;
+        width: 100%;
+        margin-top: 0.4rem; // Pequeño espacio de margen superior
+
+        &.intro-dialog {
+          .title-msg {
+            font-size: 1.05rem;
+            margin-bottom: 0.2rem;
+          }
+
+          .instruction {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+          }
+
+          .image-preview-container {
+            margin-bottom: 0.6rem;
+
+            .large-preview-image {
+              max-height: 26vh; // Mantiene la imagen compacta para que quepa todo visible
+              width: auto;
+              max-width: 100%;
+            }
+          }
+
+          .btn-action {
+            padding: 0.7rem 1rem;
+            font-size: 0.88rem;
+          }
+        }
+      }
+    }
+  }
+}

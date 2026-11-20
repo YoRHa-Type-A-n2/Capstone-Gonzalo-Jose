@@ -1,0 +1,581 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f9f4eb; /* Color exacto del borde inferior de la ilustración */
+  overflow-x: clip;
+}
+
+.authors-container {
+  padding: 0 20px 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Header Decorativo / Banner Ancho Completo */
+.authors-hero-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: clamp(340px, 24vw, 400px);
+  padding-top: 32px;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.authors-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  z-index: -1;
+  background: url('/assets/biblioteca-magica-al-atardecer.png') center bottom / cover no-repeat;
+  pointer-events: none;
+}
+
+.authors-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 16px;
+  text-align: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.header-content {
+  flex-shrink: 0;
+  position: relative;
+  padding: 16px 36px 14px 36px;
+  border-radius: 28px;
+  background: radial-gradient(ellipse 90% 80% at 50% 50%, rgba(253, 250, 244, 0.6) 0%, rgba(253, 250, 244, 0.35) 55%, transparent 85%);
+}
+
+.title-font {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text-main);
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.8);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.8);
+}
+
+.decorative-line {
+  flex-grow: 1;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--glass-border), transparent);
+  position: relative;
+}
+
+.decorative-line::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--btn-primary-bg);
+  font-size: 1.2rem;
+}
+.decorative-line.left::after { right: -20px; }
+.decorative-line.right::after { left: -20px; }
+
+/* Buscador Central */
+.search-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+/* Contenedor de Buscador y Filtros */
+.search-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 800px;
+  align-items: center;
+  background: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  border-radius: 40px;
+  border: 1.5px solid var(--glass-border);
+  box-shadow: var(--shadow-card);
+}
+
+.search-box {
+  position: relative;
+  flex-grow: 1;
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--btn-primary-bg);
+  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px 12px 50px;
+  height: 48px;
+  border-radius: 30px;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+}
+
+.filter-box-mini {
+  position: relative;
+  min-width: 100px;
+}
+
+.glass-select-mini {
+  background: var(--bg-main);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 5px 25px 5px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.filter-box-mini::after {
+  content: '▾';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--btn-primary-bg);
+  pointer-events: none;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Línea Ondulada Animada: Camino que llega a la Meta
+   ────────────────────────────────────────────────────────────────────────── */
+.animated-wave-separator {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: clamp(-100px, -6.5vw, -60px);
+  margin-bottom: clamp(24px, 2vw, 32px);
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.wave-svg {
+  width: 100%;
+  height: 60px;
+  overflow: visible;
+}
+
+/* Fase 1: El camino se dibuja de izquierda a derecha (0s a 3s) */
+.goal-path {
+  fill: none;
+  stroke: url(#goal-path-gradient);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.animated-wave-separator.in-view .goal-path {
+  animation: drawGoalPath 3s ease-in-out forwards;
+}
+
+@keyframes drawGoalPath {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Fase 2: El círculo de meta aparece con rebote (3s a 3.6s) y luego brilla (Fase 3) */
+.goal-circle {
+  fill: #FFF4E8;
+  stroke: #FF9F5B;
+  stroke-width: 3px;
+  transform: scale(0);
+  opacity: 0;
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-circle {
+  animation: 
+    circlePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards,
+    circleGlow 2.2s ease-in-out 3.6s infinite alternate;
+}
+
+@keyframes circlePop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes circleGlow {
+  0% {
+    filter: drop-shadow(0 0 6px rgba(255, 140, 40, 0.45));
+  }
+  100% {
+    filter: drop-shadow(0 0 16px rgba(255, 140, 40, 0.85));
+  }
+}
+
+/* Fase 3: El halo detrás del círculo pulsa continuamente (desde 3.6s, infinito) */
+.goal-halo {
+  fill: #FF9F5B;
+  opacity: 0;
+  transform: scale(1);
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-halo {
+  animation: haloPulse 2s ease-out 3.6s infinite;
+}
+
+@keyframes haloPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Destellos mágicos que brotan al llegar a la meta (Fase 2) */
+.goal-sparkle {
+  fill: #FFB370;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: 0 0;
+}
+
+.animated-wave-separator.in-view .goal-sparkle {
+  animation: sparkleBurst 0.85s ease-out 3.05s forwards;
+}
+
+@keyframes sparkleBurst {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Grid de Autores */
+.authors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.author-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.author-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--pastel-blue-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.card-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-image-wrapper {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.author-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.5s ease;
+  filter: contrast(1.05);
+}
+
+.author-card:hover .author-photo {
+  transform: scale(1.06);
+}
+
+/* Badge Flotante para los libros */
+.book-badge {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: var(--pastel-peach-bg);
+  border: 1px solid var(--pastel-peach-border);
+  color: var(--btn-primary-shadow);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.book-badge mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Info del Autor */
+.author-info {
+  padding: 25px;
+  background: #FFFFFF;
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--glass-border);
+}
+
+.author-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 5px 0;
+  font-family: var(--font-display);
+}
+
+.author-nationality {
+  display: inline-block;
+  color: var(--btn-primary-bg);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+.author-bio {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.read-more {
+  color: var(--btn-primary-bg);
+  font-weight: 700;
+  margin-left: 5px;
+  transition: color 0.2s;
+}
+
+.author-card:hover .read-more {
+  color: var(--btn-primary-hover);
+  text-decoration: underline;
+}
+
+/* Loaders */
+.loader-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.shimmer-card {
+  height: 450px;
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, #F4F3EE 25%, #EAE8E1 50%, #F4F3EE 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@media (max-width: 768px) {
+  .authors-hero-banner {
+    min-height: clamp(280px, 70vw, 340px);
+    padding-top: 20px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  .authors-hero-banner::before {
+    background-position: left bottom; /* Asegura que el mago no se recorte */
+  }
+
+  .animated-wave-separator {
+    margin-top: clamp(-40px, -8vw, -20px);
+    margin-bottom: clamp(20px, 3vw, 26px);
+  }
+
+  .wave-svg {
+    height: 38px;
+  }
+
+  .authors-header {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 16px;
+  }
+
+  .header-content {
+    padding: 12px 18px;
+    border-radius: 20px;
+  }
+
+  .decorative-line { display: none; }
+  .title-font { font-size: 2rem; }
+  
+  .search-section {
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  .search-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .filter-box, .filter-box-mini, .glass-btn {
+    width: 100%;
+  }
+  .glass-select-mini {
+    width: 100%;
+  }
+  .glass-btn {
+    border-radius: 30px;
+    height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-path {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+
+  .goal-circle {
+    transform: scale(1) !important;
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 10px rgba(255, 140, 40, 0.6)) !important;
+    animation: none !important;
+  }
+
+  .goal-halo,
+  .goal-sparkle {
+    display: none !important;
+  }
+}
+
+/* ── Paginación ──────────────────────────────────────────────────── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding: 16px 24px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.results-count {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--btn-primary-bg);
+  color: var(--text-on-accent);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--btn-primary-shadow);
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--btn-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--btn-primary-shadow);
+}
+
+.page-btn:disabled {
+  background: #E2E8F0;
+  color: #94A3B8;
+  box-shadow: 0 3px 0 #CBD5E1;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 100px;
+  text-align: center;
+}

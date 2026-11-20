@@ -1,0 +1,880 @@
+// ==========================================
+// PALETA DE COLORES (7-14 años)
+// ==========================================
+$bg-primary: #FBF9F2;       // Fondo principal (crema claro)
+$bg-secondary: #EAF3E8;     // Fondo secundario (verde menta suave)
+$text-primary: #33403A;     // Texto principal (verde oscuro)
+$text-secondary: #6E7C74;   // Texto secundario (gris verdoso)
+$color-primary: #2F8F6E;    // Verde principal
+$color-secondary: #4A90A4;  // Azul turquesa
+$color-accent: #FF9F5B;     // Naranja cálido (CTA)
+$color-badge: #FFD166;      // Amarillo insignia / Puntos
+$color-success: #52B788;    // Verde éxito
+$color-alert: #E0575B;      // Rojo alerta
+
+// --- Gráficos de barras (estilo Excel) ---
+$plot-h: 100px;        // Alto del área de barras (las alturas de las barras son % de este alto, así que se puede cambiar libremente)
+$prog-plot-h: 100px;   // Alto del área de barras del historial progresivo
+$grid-line: rgba($color-secondary, 0.22);   // Líneas guía horizontales
+$axis-line: rgba($text-secondary, 0.55);    // Línea base
+
+// Líneas guía + línea base dibujadas con degradados (sin necesidad de HTML extra).
+// Se pintan sobre el área de contenido, que es donde van las barras.
+@mixin excel-plot($plot-height) {
+  background-image:
+    linear-gradient(to bottom, transparent calc(100% - 2px), $axis-line calc(100% - 2px)),
+    repeating-linear-gradient(to bottom, $grid-line 0, $grid-line 1px, transparent 1px, transparent ($plot-height * 0.25));
+  background-size: 100% $plot-height, 100% ($plot-height + 1px);
+  background-position: 0 0, 0 0;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+}
+
+// Valor sobre la barra, como en Excel.
+@mixin bar-value($font-size) {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0 0 2px;
+  writing-mode: horizontal-tb;
+  font-size: $font-size;
+  font-weight: 800;
+  line-height: 1;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+// Nombre en diagonal bajo el gráfico: la punta derecha del texto queda justo bajo su grupo de barras.
+@mixin diagonal-label($width, $height) {
+  align-self: center;
+  flex: 0 0 auto;
+  width: $width;
+  max-width: none;
+  height: $height;
+  margin: 8px 0 0;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform-origin: 100% 0;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow-y: auto;
+  overflow-x: hidden; /* Sin barra de scroll horizontal */
+  padding: 1.5rem 2rem 2.5rem 2rem; /* Padding inferior amplio para que nada se corte */
+  box-sizing: border-box;
+  border-radius: 24px;
+  background-color: #fdfbf7;
+}
+
+/* Estilizado de scrollbar elegante */
+:host::-webkit-scrollbar {
+  width: 8px;
+}
+:host::-webkit-scrollbar-track {
+  background: transparent;
+}
+:host::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+:host::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.mochila-container {
+  padding: 0;
+  color: $text-primary;
+  background-color: transparent;
+  border-radius: 0;
+  font-family: 'Fredoka', 'Quicksand', 'Nunito', 'Segoe UI', sans-serif;
+  box-shadow: none;
+  width: 100%;
+  max-width: 1100px; // Ventana más ancha: los gráficos caben sin scroll horizontal
+  min-width: 0;
+  margin: 0 auto;
+
+  &, * {
+    box-sizing: border-box;
+  }
+
+  // ----------------------------------------
+  // CABECERA DEL POPUP (Puntos alineados en línea con la X)
+  // ----------------------------------------
+  .mochila-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px dashed $color-secondary;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .header-left {
+      h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: $color-primary;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    /* Puntos actuales al centro y total histórico al costado derecho */
+    .header-points-inline {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      .inline-p-card {
+        background: #ffffff;
+        border: 2px solid $bg-secondary;
+        padding: 6px 12px;
+        border-radius: 14px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(47, 143, 110, 0.06);
+
+        span {
+          display: block;
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: $text-secondary;
+        }
+
+        strong {
+          font-size: 0.95rem;
+          font-weight: 800;
+          color: $color-primary;
+
+          &.highlight-yellow {
+            color: darken($color-badge, 25%);
+          }
+        }
+
+        &:first-child {
+          border-color: $color-badge;
+          background: lighten($color-badge, 32%);
+        }
+      }
+    }
+
+    .close-btn {
+      background: $bg-secondary;
+      border: 2px solid $color-secondary;
+      color: $color-secondary;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background: $color-alert;
+        border-color: $color-alert;
+        color: #ffffff;
+        transform: scale(1.1) rotate(90deg);
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // TARJETAS DE PUNTOS CLÁSICAS (Respaldo si se usan fuera)
+  // ----------------------------------------
+  .points-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .p-card {
+      background: #ffffff;
+      border: 2px solid $bg-secondary;
+      padding: 16px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(47, 143, 110, 0.08);
+
+      span {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: $text-secondary;
+        margin-bottom: 4px;
+      }
+
+      strong {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: $color-primary;
+      }
+
+      &:first-child {
+        border-color: $color-badge;
+        background: lighten($color-badge, 32%);
+        strong {
+          color: darken($color-badge, 25%);
+        }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // BOTÓN TIENDA (CTA)
+  // ----------------------------------------
+  .shop-redirect-bar {
+    margin-bottom: 24px;
+
+    .btn-shop-link {
+      width: 100%;
+      background: $color-accent;
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 159, 91, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      &:hover {
+        background: lighten($color-accent, 5%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 159, 91, 0.45);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // SECCIONES GENERALES Y FILTROS
+  // ----------------------------------------
+  .section-block {
+    margin-bottom: 24px;
+    background: $bg-secondary;
+    padding: 16px 20px;
+    border-radius: 20px;
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+      color: $color-primary;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    // Dropdown bars para filtros
+    .filters-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 220px;
+
+        label {
+          font-size: 0.85rem;
+          font-weight: 700;
+          margin-bottom: 6px;
+          color: $text-primary;
+        }
+
+        select {
+          padding: 10px 14px;
+          background: #ffffff;
+          color: $text-primary;
+          border: 2px solid lighten($color-secondary, 15%);
+          border-radius: 12px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          outline: none;
+          transition: border-color 0.2s;
+
+          &:focus {
+            border-color: $color-primary;
+          }
+        }
+      }
+    }
+  }
+
+  // Contenedor de Gráficos dentro del desglose
+  .chart-container {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 16px;
+    margin-top: 12px;
+    box-shadow: 0 4px 12px rgba(47, 143, 110, 0.05);
+
+    .chart-title {
+      margin: 0 0 14px 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: $color-primary;
+      text-align: center;
+    }
+
+    // Leyenda de colores (verde / rojo), como la de un gráfico de Excel
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      margin: -6px 0 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: $text-secondary;
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        &.dot-green { background: $color-success; }
+        &.dot-red { background: $color-alert; }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // GRÁFICO DE BARRAS DOBLES (Verde y Roja) - estilo Excel
+  // Líneas guía, barras agrupadas por libro, valor sobre cada barra
+  // y el nombre del libro en diagonal bajo el gráfico.
+  // ----------------------------------------
+  .bars-chart {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    padding: 18px 10px 0 72px; // 72px a la izquierda: espacio para la punta de los nombres en diagonal
+    min-width: 0;
+    @include excel-plot($plot-h);
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      flex: 1 1 0;
+      min-width: 34px;
+      max-width: 180px; // con pocos libros las barras no se separan demasiado
+
+      // 1) Barras
+      .bars-wrapper {
+        order: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 2px;
+        width: 100%;
+        height: $plot-h;
+
+        .bar {
+          position: relative;
+          display: block;
+          width: 30%;
+          min-width: 12px;
+          max-width: 34px;
+          border-radius: 4px 4px 0 0;
+          transition: height 0.4s ease;
+
+          // El valor va sobre la barra, como en Excel
+          .bar-val { @include bar-value(0.62rem); }
+        }
+
+        .bar-green { background: linear-gradient(180deg, lighten($color-success, 8%), $color-success); }
+        .bar-red { background: linear-gradient(180deg, lighten($color-alert, 8%), $color-alert); }
+      }
+
+      // 2) Nombre del libro, en diagonal en la parte inferior
+      .bar-label {
+        order: 2;
+        @include diagonal-label(160px, 112px); // ancho = largo máximo del nombre; alto = espacio que ocupa debajo
+        font-size: 0.7rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: $text-primary;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // GRÁFICOS CIRCULARES (4 por línea, tarjetas del mismo ancho)
+  // Si el título del libro es largo, la tarjeta crece hacia abajo y
+  // las demás tarjetas de la misma fila se estiran a la misma altura.
+  // ----------------------------------------
+  .pie-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)); // minmax(0, 1fr): todas con el mismo ancho, sin importar el contenido
+    align-items: stretch;                              // todas las tarjetas de una fila igualan la altura de la más alta
+    gap: 12px;
+
+    @media(max-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pie-card {
+      min-width: 0;
+      background: $bg-secondary;
+      padding: 12px 8px 10px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border: 2px solid lighten($color-secondary, 20%);
+
+      .pie-chart {
+        flex-shrink: 0;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+
+        .pie-center {
+          width: 50px;
+          height: 50px;
+          background: #ffffff;
+          border-radius: 50%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+
+          strong { font-size: 0.75rem; font-weight: 800; color: $color-primary; }
+          small { font-size: 0.5rem; color: $text-secondary; font-weight: 600; }
+        }
+      }
+
+      // El título ya no se corta con "…": se envuelve en varias líneas y ocupa el espacio sobrante,
+      // así las estadísticas quedan siempre alineadas en la base de todas las tarjetas.
+      .pie-book-name {
+        flex: 1 1 auto;
+        width: 100%;
+        margin-bottom: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1.25;
+        color: $text-primary;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .pie-stats-sub {
+        flex-shrink: 0;
+        margin-top: auto;
+        display: flex;
+        gap: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        .won { color: darken($color-success, 10%); }
+        .lost { color: darken($color-alert, 10%); }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // HISTORIAL PROGRESIVO DE BARRAS (Ambos filtros) - mismo estilo Excel, barras dobles
+  // ----------------------------------------
+  .progressive-bars-chart {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    padding: 18px 10px 0;
+    min-width: 0;
+    @include excel-plot($prog-plot-h);
+
+    .prog-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 56px;
+
+      .bars-wrapper.vertical-prog {
+        order: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 2px;
+        width: 100%;
+        height: $prog-plot-h;
+
+        .bar {
+          position: relative;
+          display: block;
+          width: 32%;
+          min-width: 5px;
+          max-width: 16px;
+          border-radius: 3px 3px 0 0;
+          transition: height 0.4s ease;
+
+          .bar-val { @include bar-value(0.56rem); }
+        }
+        .bar-green { background: linear-gradient(180deg, lighten($color-success, 8%), $color-success); }
+        .bar-red { background: linear-gradient(180deg, lighten($color-alert, 8%), $color-alert); }
+      }
+
+      // Aquí las etiquetas son cortas (#1, #2...): van en horizontal bajo el eje
+      .prog-label {
+        order: 2;
+        margin-top: 5px;
+        font-size: 0.66rem;
+        font-weight: 700;
+        line-height: 1;
+        color: $text-secondary;
+      }
+
+      .prog-status {
+        order: 3;
+        margin-top: 3px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        line-height: 1;
+        &.won-text { color: $color-success; }
+        &.lost-text { color: $color-alert; }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // RESUMEN DE ESTADÍSTICAS GLOBALES
+  // ----------------------------------------
+  .stats-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    justify-content: space-around;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+
+    p {
+      margin: 0;
+      font-weight: 600;
+      color: $text-secondary;
+
+      strong {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: $text-primary;
+      }
+
+      &.won strong {
+        color: $color-success;
+      }
+
+      &.lost strong {
+        color: $color-alert;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // TABLA DE HISTORIAL CLÁSICA
+  // ----------------------------------------
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 14px;
+    background: #ffffff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th, td {
+      padding: 10px 14px;
+      text-align: center;
+      border-bottom: 1px solid $bg-secondary;
+    }
+
+    th {
+      background: $color-secondary;
+      color: #ffffff;
+      font-weight: 700;
+      &:first-child { border-top-left-radius: 12px; }
+      &:last-child { border-top-right-radius: 12px; }
+    }
+
+    td {
+      color: $text-primary;
+      font-weight: 600;
+
+      &:first-child {
+        text-align: left;
+        color: $color-primary;
+        font-weight: 700;
+      }
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  // ----------------------------------------
+  // GRILLA DE OBJETOS E INVENTARIO
+  // ----------------------------------------
+  .items-grid, .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .item-card {
+    background: #ffffff;
+    border: 2px solid lighten($color-secondary, 25%);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(47, 143, 110, 0.15);
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      background: $bg-secondary;
+      padding: 6px;
+      border-radius: 14px;
+      transition: filter 0.3s ease;
+
+      &.grayscale {
+        filter: grayscale(100%) brightness(90%);
+        opacity: 0.45;
+      }
+    }
+
+    h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: $text-primary;
+    }
+
+    p {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+      line-height: 1.3;
+      
+      line-clamp: 2;
+      -webkit-line-clamp: 2;
+      
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &.locked-item {
+      background: rgba($bg-secondary, 0.4);
+      border-color: #e2e8f0;
+      border-style: dashed;
+      opacity: 0.9;
+
+      h4 {
+        color: $text-secondary;
+      }
+
+      .status-locked {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: lighten($color-alert, 35%);
+        color: $color-alert;
+        padding: 4px 10px;
+        border-radius: 10px;
+        display: inline-block;
+      }
+    }
+
+    .status-owned {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: lighten($color-success, 35%);
+      color: darken($color-success, 10%);
+      padding: 4px 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+  }
+
+  // ----------------------------------------
+  // TARJETAS DE LA TIENDA
+  // ----------------------------------------
+  .shop-card {
+    background: #ffffff;
+    border: 2px solid $color-badge;
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(47, 143, 110, 0.15);
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      background: $bg-secondary;
+      padding: 6px;
+      border-radius: 14px;
+    }
+
+    h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: $text-primary;
+    }
+
+    p {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+      line-height: 1.3;
+    }
+
+    .price {
+      color: darken($color-badge, 25%);
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      background: lighten($color-badge, 25%);
+      padding: 4px 12px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .btn-buy {
+      width: 100%;
+      background: $color-success;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: darken($color-success, 8%);
+        transform: scale(1.03);
+      }
+
+      &:disabled {
+        background: #cbd5e1;
+        color: $text-secondary;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // BOTÓN DE VOLVER Y ESTADOS
+  // ----------------------------------------
+  .btn-back {
+    background: #ffffff;
+    border: 2px solid $color-secondary;
+    color: $color-secondary;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $color-secondary;
+      color: #ffffff;
+    }
+  }
+
+  .shop-subtitle {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    font-style: italic;
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 40px;
+    color: $color-primary;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+}

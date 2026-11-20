@@ -1,0 +1,3 @@
+Junto a este archivo se encuentra "literatus_imagenes_por_crear.md" y "organizar_imagenes.py"
+uno son instrucciones para crear el lote de imágenes faltantes, el otro script organiza todas las imágenes en su
+correspondiente carpeta

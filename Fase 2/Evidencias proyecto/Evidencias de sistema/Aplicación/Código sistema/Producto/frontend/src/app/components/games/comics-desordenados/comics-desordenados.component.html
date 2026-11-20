@@ -1,0 +1,101 @@
+<div class="game-container">
+  <div *ngIf="!gameOver" class="play-card">
+    
+    <!-- LÍNEA SUPERIOR: INSTRUCCIÓN AL DOBLE DE TAMAÑO + VIDAS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem;">
+      <p class="instruction" style="font-size: 1.8rem; line-height: 1.2; margin: 0; flex: 1; color: #33403A;">
+        Mueve las viñetas del cómic libremente por la pantalla y ubícalas cronológicamente.
+      </p>
+      <div class="stat-badge" style="background: #e2e8f0; color: #1e293b; padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        ❤️ Vidas: {{ attemptsRemaining }}
+      </div>
+    </div>
+
+    <!-- TABLERO PRINCIPAL -->
+    <div class="game-board" [class.blurred]="isVerified && isCorrect">
+      
+      <!-- FILA SUPERIOR: Viñetas flotantes -->
+      <div class="fragments-pool-row">
+        <div 
+          *ngFor="let panel of pool"
+          cdkDrag
+          [cdkDragDisabled]="isVerified && isCorrect"
+          (cdkDragEnded)="onDragEnded($event, panel)"
+          class="comic-card">
+          <img [src]="panel.image" [alt]="'Viñeta ' + panel.id" class="comic-img" />
+        </div>
+      </div>
+
+      <!-- FILA INFERIOR: Áreas de detección (Altura reducida un 20%) -->
+      <div class="slots-row">
+        <div 
+          *ngFor="let slot of slots; let i = index"
+          #slotZone
+          class="target-slot"
+          [class.detected]="slot.length === 1 && !isVerified"
+          [class.multiple-error]="slot.length > 1"
+          [class.correct]="isVerified && slot.length === 1 && slot[0].id === i + 1"
+          [class.wrong]="isVerified && (slot.length > 1 || (slot.length === 1 && slot[0].id !== i + 1))">
+          
+          <div class="slot-placeholder">
+            <span *ngIf="slot.length === 0">Arrastra aquí viñeta {{ i + 1 }}</span>
+            <span *ngIf="slot.length === 1" class="detected-label">✓ Viñeta {{ i + 1 }} asignada</span>
+            <span *ngIf="slot.length > 1" class="error-label">❌ Más de 1 viñeta asignada</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CONTROLES (ALINEADO A LA DERECHA) -->
+    <div class="controls-bar" style="display: flex; justify-content: flex-end;">
+      <button 
+        *ngIf="!isVerified || !isCorrect"
+        class="btn-verify" 
+        [disabled]="!isAllSlotsFilled"
+        (click)="verifyOrder()">
+        Verificar Orden
+      </button>
+    </div>
+
+    <!-- MODAL DE REALIMENTACIÓN -->
+    <div *ngIf="isVerified" class="modal-overlay">
+      <div class="modal-dialog feedback-dialog" [class.success]="isCorrect" [class.error]="!isCorrect">
+        <div class="feedback-badge-icon">
+          {{ isCorrect ? '🎉' : '❌' }}
+        </div>
+        <h3 class="status-msg">
+          {{ isCorrect ? '¡Excelente secuencia!' : '¡El orden no es correcto!' }}
+        </h3>
+        <p class="explanation">
+          {{ isCorrect ? 'Has ordenado las viñetas del cómic a la perfección.' : (attemptsRemaining > 0 ? 'Revisa la secuencia lógica de la historia e inténtalo de nuevo.' : 'Has agotado tus intentos para este desafío.') }}
+        </p>
+        
+        <div class="modal-actions">
+          <button 
+            *ngIf="!isCorrect && attemptsRemaining > 0" 
+            class="btn-retry" 
+            (click)="retryChallenge()">
+            Reintentar
+          </button>
+          <button 
+            *ngIf="isCorrect || attemptsRemaining === 0" 
+            class="btn-next" 
+            (click)="nextChallenge()">
+            {{ currentIndex + 1 < challenges.length ? 'Siguiente Desafío →' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANTALLA DE RESULTADOS -->
+  <div *ngIf="gameOver" class="results-card">
+    <h2>¡Cómics Completados!</h2>
+    <div class="actions">
+      <button class="btn-retry" (click)="restartGame()">Reintentar Juego</button>
+      <button class="btn-menu" (click)="exitGame()">Menú Principal</button>
+    </div>
+  </div>
+</div>
